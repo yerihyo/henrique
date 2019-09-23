@@ -1,0 +1,104 @@
+swagger: '2.0'
+info:
+  title: khalabot henrique for UWO
+  version: "0.1.0"
+consumes:
+  - application/json
+produces:
+  - application/json
+
+#security:
+  # enable OAuth protection for all REST endpoints
+  # (only active if the TOKENINFO_URL environment variable is set)
+#  - oauth2: [uid]
+
+paths:
+  /health_liveness:
+    get:
+      tags: [healthcheck liveness]
+      operationId: henrique.main.handlers.health_liveness.handler.Handler.get
+      summary: Return a 200 status if health check is successful
+      responses:
+        200:
+          description: Liveness Health check is successful
+        404:
+          description: Not Found
+
+  /health_readiness:
+    get:
+      tags: [healthcheck readiness]
+      operationId: henrique.main.handlers.health_readiness.handler.Handler.get
+      summary: Return a 200 status if health check is successful
+      responses:
+        200:
+          description: Readiness Health check is successful
+        404:
+          description: Not Found
+
+  /khala/ask:
+    post:
+      tags: [khala]
+      operationId: henrique.main.handlers.khala.ask.handler.Handler.post
+      summary: Return a 200 status ask is valid
+      parameters:
+      - name: packet
+        in: body
+        required: true
+        description: packet json
+        schema:
+          $ref: "#/definitions/packet"
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad Request
+        404:
+          description: Not Found
+#  /khala/actions:
+#  /khala/contract/create:
+
+
+
+definitions:
+  chat:
+    type: object
+    properties:
+      sender_uuid:
+        type: string
+      chatroom_key:
+        type: string
+      text:
+        type: string
+        example: "Hello world"
+
+  contract:
+    type: object
+    required:
+    - action_uuid
+    - jinni_uuid
+    properties:
+      action_uuid:
+        type: string
+      jinni_uuid:
+        type: string
+
+  packet:
+    type: object
+    required:
+    - chat
+    - contract
+    properties:
+      chat:
+        $ref: "#/definitions/chat"
+      contract:
+        $ref: "#/definitions/contract"
+
+#        example: ["@sys.color"]
+
+securityDefinitions:
+  oauth2:
+    type: oauth2
+    flow: implicit
+    authorizationUrl: https://example.com/oauth2/dialog
+    scopes:
+      uid: Unique identifier of the user accessing the service.

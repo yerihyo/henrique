@@ -1,0 +1,21 @@
+- name: port
+  uuid: ###
+  default:
+    command:
+      names:
+        en: ["port",]
+        ko: ["항구","ㅎㄱ"]
+
+- name: tradegood
+  default:
+    command:
+      names:
+        en: ["tradegood","tg"]
+        ko: ["교역품","ㄱㅇㅍ"]
+
+- name: price
+  default:
+    command:
+      names:
+        en: ["price"]
+        ko: ["시세","ㅆ","ㅅㅅ","가격","ㄲ","ㄱㄱ"]
