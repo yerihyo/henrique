@@ -1,3 +1,4 @@
+from foxylib.tools.string.string_tools import str2split
 from khalalib.chat.chat import Chat
 from khalalib.packet.packet import KhalaPacket
 
@@ -9,6 +10,13 @@ class Handler:
         return True
 
     @classmethod
+    def j_packet2action(cls, j_packet):
+        j_chat = KhalaPacket.j_packet2j_chat(j_packet)
+        text = Chat.chat2text(j_chat)
+        l = str2split(text)
+        if l.startswith("?항구"):
+            return
+    @classmethod
     def post(cls, packet):
         j_packet = packet
 
@@ -18,6 +26,7 @@ class Handler:
 
         j_chat = KhalaPacket.j_packet2j_chat(j_packet)
         text = Chat.chat2text(j_chat)
+
 
 
 

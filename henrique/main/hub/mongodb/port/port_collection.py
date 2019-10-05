@@ -1,8 +1,12 @@
+import re
+
+from future.utils import lmap
+
+from foxylib.tools.database.mongodb.mongodb_tools import MongoDBToolkit
+from foxylib.tools.json.json_tools import jdown
+from foxylib.tools.regex.regex_tools import RegexToolkit
 from henrique.main.hub.mongodb.mongodb_hub import MongoDBHub
 
-
-class MongoHub(object):
-    pass
 
 
 class PortCollection:
@@ -20,44 +24,33 @@ class PortCollection:
         db = MongoDBHub.db()
         return db.get_collection(cls.NAME, *_, **__)
 
+
+class PortDocument:
     @classmethod
-    def upsert_many(cls, user_id, doc_id, span, ):
-        collection = cls.get_collection()
-        j_doc = {cls.F.USER_ID: user_id,
-                 cls.F.DOC_ID: doc_id,
-                 cls.F.SPAN: span,
-                 }
-        return collection.update_many(j_doc, {"$set": j_doc}, upsert=True, )
+    def jpath_name_en(cls): return ["name", "en"]
 
     @classmethod
-    def delete_one(cls, user_id, doc_id, span):
-        collection = cls.get_collection()
-        j_doc = {cls.F.USER_ID: user_id,
-                 cls.F.DOC_ID: doc_id,
-                 cls.F.SPAN: span,
-                 }
-        return collection.delete_one(j_doc, )
+    def jpath_name_ko(cls): return ["name", "ko"]
 
     @classmethod
-    def user_doc2list(cls, user_id, doc_id):
-        collection = cls.get_collection()
-        j_filter = {cls.F.USER_ID: user_id,
-                    cls.F.DOC_ID: doc_id,
-                    }
-        return collection.find(j_filter, )
+    def j_iter(cls):
+        collection = PortCollection.collection()
+        yield from MongoDBToolkit.find_result2j_iter(collection.find({}))
 
     @classmethod
-    def user2list(cls, user_id):
-        collection = cls.get_collection()
-        j_filter = {cls.F.USER_ID: user_id,
-                    }
-        return collection.find(j_filter, )
+    def pattern(cls):
+        jpath_list = [cls.jpath_name_en(), cls.jpath_name_ko()]
+
+        j_list = list(cls.j_iter())
+        name_list = [jdown(j, jpath)
+                     for j in j_list
+                     for jpath in jpath_list]
+
+        rstr = RegexToolkit.rstr_list2or(lmap(re.escape,name_list))
+        return re.compile(rstr, re.I)
 
 
 
-    @classmethod
-    def postgres2mongodb(cls):
-        pass
 
 
 class PortTable:
