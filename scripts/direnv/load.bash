@@ -10,8 +10,9 @@ LPASS_DIR=$SCRIPTS_DIR/lpass
 
 errcho(){ >&2 echo $@; }
 
-errcho "[$FILE_NAME] START"
+FOXYLIB_DIR=${FOXYLIB_DIR?"FOXYLIB_DIR missing"}
 
+errcho "[$FILE_NAME] START"
 listfile_filepath=$($LPASS_DIR/tmplt2filelist.bash)
 $FOXYLIB_DIR/scripts/direnv/load.bash "$listfile_filepath" "$@"
 
