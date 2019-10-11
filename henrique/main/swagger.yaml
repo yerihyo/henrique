@@ -63,9 +63,9 @@ definitions:
   chat:
     type: object
     properties:
-      sender_uuid:
+      sendier_id:
         type: string
-      chatroom_key:
+      chatroom_id:
         type: string
       text:
         type: string

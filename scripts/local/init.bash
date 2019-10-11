@@ -2,6 +2,7 @@
 
 ARG0=${BASH_SOURCE[0]}
 FILE_PATH=$(readlink -f $ARG0)
+FILE_NAME=$(basename $FILE_PATH)
 FILE_DIR=$(dirname $FILE_PATH)
 
 errcho(){ >&2 echo $@; }
@@ -9,10 +10,6 @@ func_count2reduce(){
     local v="${1?missing}"; local cmd="${2?missing}"; local n=${3?missing};
     for ((i=0;i<$n;i++)); do v=$($cmd $v) ; done; echo "$v"
 }
-
-REPO_DIR=$(func_count2reduce "$FILE_DIR" dirname 2)
-SCRIPTS_DIR=$REPO_DIR/scripts
-
 
 get_os(){
     if [ "$(uname)" == "Darwin" ]; then echo "macos";
@@ -23,18 +20,29 @@ get_os(){
     fi
 }
 
-pushd $REPO_DIR
 
+REPO_DIR=$(func_count2reduce "$FILE_DIR" dirname 2)
+SCRIPTS_DIR=$REPO_DIR/scripts
 FOXYLIB_DIR=${FOXYLIB_DIR?"FOXYLIB_DIR missing"}
-export ENV=local
-export PYTHONPATH=$FOXYLIB_DIR
 
-. $SCRIPTS_DIR/virtualenv/activate.bash
-. $FOXYLIB_DIR/scripts/direnv/init.bash $REPO_DIR
+main(){
+    pushd $REPO_DIR
 
-os=$(get_os)
-if [[ $os == "macos" && -s "$HOME/.bashrc" ]]; then
-    . $HOME/.bashrc
-fi
+    export ENV=local
+    export PYTHONPATH=$FOXYLIB_DIR
 
-popd
+    $FOXYLIB_DIR/scripts/direnv/init.bash "$REPO_DIR"
+    . $SCRIPTS_DIR/virtualenv/activate.bash # this mess up with FOXYLIB_DIR somehow
+
+    os=$(get_os)
+    if [[ $os == "macos" && -s "$HOME/.bashrc" ]]; then
+	. $HOME/.bashrc
+    fi
+    
+    popd
+}
+
+errcho "[$FILE_NAME] START"
+main
+errcho "[$FILE_NAME] END"
+

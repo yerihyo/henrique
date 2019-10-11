@@ -13,9 +13,10 @@ func_count2reduce(){
 }
 
 REPO_DIR=$(func_count2reduce "$FILE_DIR" dirname 3)
+FOXYLIB_DIR=${FOXYLIB_DIR?'missing $FOXYLIB_DIR'}
 
 
 errcho "[$FILE_NAME] START"
 pushd $REPO_DIR
-python -m scripts.mongodb.postgres2mongodb.port
+PYTHONPATH=$FOXYLIB_DIR python -m scripts.mongodb.postgres2mongodb.port2mongodb
 popd

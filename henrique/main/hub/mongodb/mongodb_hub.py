@@ -27,12 +27,5 @@ class MongoDBHub:
         return client[dbname]
 
     @classmethod
-    def str_pair2collection(cls, str_db, str_collection):
-        client = cls.client()
-        db = client[str_db]
-        collection = db[str_collection]
-        return collection
-
-    @classmethod
     def j_iter2insert(cls, collection, j_iter):
         return collection.insert_many(list(j_iter))

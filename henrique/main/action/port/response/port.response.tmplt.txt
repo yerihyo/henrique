@@ -1,1 +1,4 @@
-[{{port_name}}]
+[{{port_collection_name}}] {{port_name}}
+{{culture_collection_name}}: {{culture_name}}
+{{region_collection_name}}: {{region_name}}
+{{port_status_collection_name}}: {{port.market_status}}

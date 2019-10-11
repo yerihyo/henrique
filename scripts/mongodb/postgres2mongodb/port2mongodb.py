@@ -1,25 +1,46 @@
 import logging
+from functools import reduce
 
 from psycopg2.sql import SQL, Identifier
 from pymongo import WriteConcern
 
 from foxylib.tools.collections.chunk_tools import ChunkToolkit
+from foxylib.tools.collections.collections_tools import luniq, DictToolkit, lchain
 from foxylib.tools.database.mongodb.mongodb_tools import MongoDBToolkit
 from foxylib.tools.database.postgres.postgres_tool import PostgresTool
 from foxylib.tools.json.json_tools import JToolkit
 from henrique.main.hub.logger.logger import HenriqueLogger
-from henrique.main.hub.mongodb.port.port_collection import PortTable, PortCollection
 from henrique.main.hub.postgres.postgres_hub import PostgresHub
+from henrique.main.entity.port.port_entity import PortTable, PortCollection
 
 
-class Port:
+class Port2MongoDB:
     @classmethod
     def postgres2j_iter(cls):
+        logger = HenriqueLogger.func_level2logger(cls.postgres2j_iter, logging.DEBUG)
+
         with PostgresHub.cursor() as cursor:
             sql = SQL("SELECT * from {}").format(Identifier(PortTable.NAME))
             cursor.execute(sql)
             for t in PostgresTool.fetch_iter(cursor):
-                yield t[PortTable.index_json()]
+                j = t[PortTable.index_json()]
+                # logger.debug({"j":j})
+
+                h_lang2names = {}
+                for lang,name in j["name"].items():
+                    h_lang2names[lang] = lchain(h_lang2names.get(lang, []), [name])
+
+                for lang, nickname_list in j.get("nicknames",{}).items():
+                    h_lang2names[lang] = lchain(h_lang2names.get(lang,[]), nickname_list)
+
+                j["names"] = {lang:luniq(name_list) for lang, name_list in h_lang2names.items()}
+                for k in ["name","nicknames"]:
+                    j.pop(k,None)
+
+                # logger.debug({'j["names"]':j["names"]})
+                j["key"] = j["names"]["en"][0]
+
+                yield j
 
     @classmethod
     def j_iter2mongodb(cls, j_iter, chunk_size = 100):
@@ -35,7 +56,7 @@ class Port:
 
         for i, j_list_chunk in enumerate(ChunkToolkit.chunk_size2chunks(j_list, chunk_size)):
             logger.debug({"i/n": "{}/{}".format(i*chunk_size, n)})
-            j_pair_list = [(JToolkit.j_jpaths2filtered(j, [["name", "en"]]),j) for j in j_list_chunk]
+            j_pair_list = [(JToolkit.j_jpaths2filtered(j, [["key"]]),j) for j in j_list_chunk]
             MongoDBToolkit.j_pair_iter2upsert(collection, j_pair_list)
 
 
@@ -43,8 +64,10 @@ def main():
     HenriqueLogger.attach_stderr2loggers()
     logger = HenriqueLogger.func_level2logger(main, logging.DEBUG)
 
-    j_iter = Port.postgres2j_iter()
-    Port.j_iter2mongodb(j_iter)
+    j_list = list(Port2MongoDB.postgres2j_iter())
+    logger.debug({"# j_list":len(j_list)})
+
+    Port2MongoDB.j_iter2mongodb(j_list)
 
 if __name__ == "__main__":
     main()
