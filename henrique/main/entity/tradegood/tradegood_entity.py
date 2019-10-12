@@ -28,8 +28,8 @@ WARMER = Warmer(MODULE)
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 
-class PortEntity:
-    NAME = "port"
+class TradegoodEntity:
+    NAME = "tradegood"
 
     @classmethod
     def _query2qterm(cls, name): return str2lower(name)
@@ -39,8 +39,8 @@ class PortEntity:
     @FunctionToolkit.wrapper2wraps_applied(lru_cache(maxsize=2))
     def h_qterm2j_doc(cls):
         logger = HenriqueLogger.func_level2logger(cls.h_qterm2j_doc, logging.DEBUG)
-        j_doc_list = list(PortDocument.j_doc_iter_all())
-        jpath = PortDocument.jpath_names()
+        j_doc_list = list(TradegoodDocument.j_doc_iter_all())
+        jpath = TradegoodDocument.jpath_names()
 
         h_list = [{cls._query2qterm(name): j_doc}
                   for j_doc in j_doc_list
@@ -84,8 +84,8 @@ class PortEntity:
 
 
 
-class PortCollection:
-    COLLECTION_NAME = "port"
+class TradegoodCollection:
+    COLLECTION_NAME = "tradegood"
 
     class YAML:
         NAME = "name"
@@ -94,7 +94,7 @@ class PortCollection:
     @WARMER.add(cond=EnvToolkit.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
     @FunctionToolkit.wrapper2wraps_applied(lru_cache(maxsize=2))
     def j_yaml(cls):
-        filepath = os.path.join(FILE_DIR, "port_collection.yaml")
+        filepath = os.path.join(FILE_DIR, "tradegood_collection.yaml")
         j = YAMLToolkit.filepath2j(filepath)
         return j
 
@@ -109,7 +109,7 @@ class PortCollection:
         return db.get_collection(cls.COLLECTION_NAME, *_, **__)
 
 
-class PortDocument:
+class TradegoodDocument:
     class Field:
         KEY = "key"
         NAMES = "names"
@@ -120,25 +120,25 @@ class PortDocument:
 
 
     @classmethod
-    def j_port2culture_name(cls, j_port):
-        return j_port[cls.F.CULTURE]
+    def j_tradegood2culture_name(cls, j_tradegood):
+        return j_tradegood[cls.F.CULTURE]
 
     @classmethod
-    def j_port_lang2name(cls, j_port, lang):
-        logger = HenriqueLogger.func_level2logger(cls.j_port2culture_name, logging.DEBUG)
-        name_list = jdown(j_port, [cls.F.NAMES, lang])
+    def j_tradegood_lang2name(cls, j_tradegood, lang):
+        logger = HenriqueLogger.func_level2logger(cls.j_tradegood2culture_name, logging.DEBUG)
+        name_list = jdown(j_tradegood, [cls.F.NAMES, lang])
 
-        logger.debug({"j_port":j_port,
+        logger.debug({"j_tradegood":j_tradegood,
                       "lang":lang,
                       "name_list":name_list,
                       })
         return name_list[0]
 
         # @classmethod
-        # def j_port2j_culture(cls, j_port):
+        # def j_tradegood2j_culture(cls, j_tradegood):
         #     from henrique.main.entity.culture.culture_entity import CultureDocument
         #
-        #     culture_name = cls.j_port2culture_name(j_port)
+        #     culture_name = cls.j_tradegood2culture_name(j_tradegood)
         #     j_culture = CultureDocument.name2j_doc(culture_name)
         #     return j_culture
 
@@ -154,12 +154,12 @@ class PortDocument:
 
     @classmethod
     def j_doc_iter_all(cls):
-        collection = PortCollection.collection()
+        collection = TradegoodCollection.collection()
         yield from MongoDBToolkit.find_result2j_doc_iter(collection.find({}))
 
 
-class PortTable:
-    NAME = "unchartedwatersonline_port"
+class TradegoodTable:
+    NAME = "unchartedwatersonline_tradegood"
 
     @classmethod
     def index_json(cls): return 2

@@ -29,11 +29,5 @@ class Handler:
             return "Invalid jinni_uuid ({})".format(jinni_uuid), 400
 
         action = cls.j_packet2action(j_packet)
-        action.respond(j_packet)
-
-
-
-
-
-
-        return "works", 200
+        str_out = action.respond(j_packet)
+        return str_out, 200

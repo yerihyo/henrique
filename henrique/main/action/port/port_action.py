@@ -10,6 +10,7 @@ from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.json.json_tools import jdown
 from foxylib.tools.json.yaml_tools import YAMLToolkit
 from foxylib.tools.locale.locale_tool import LocaleTool
+from henrique.main.action.response import Response
 from henrique.main.entity.port.port_entity import PortEntity
 from henrique.main.hub.env.henrique_env import HenriqueEnv
 from khalalib.chat.chat import KhalaChat
@@ -34,15 +35,17 @@ class PortAction:
 
     @classmethod
     def respond(cls, j_packet):
-        from henrique.main.action.port.response.port_response import PortResponse
+        from henrique.main.action.port.subaction.port_subactions import PortPortSubaction
 
         j_chat = KhalaPacket.j_packet2j_chat(j_packet)
         text = KhalaChat.j_chat2text(j_chat)
         
         port_entity_list = PortEntity.str2entity_list(text)
 
-        str_list = lmap(lambda p:PortResponse.port_entity2response(p,j_packet), port_entity_list)
+        str_list = lmap(lambda p:PortPortSubaction.port_entity2response(p,j_packet), port_entity_list)
 
-        return "\n\n".join(str_list)
+        str_out = "\n\n".join(str_list)
+
+        return Response.str2j_response(str_out)
 
 WARMER.warmup()
