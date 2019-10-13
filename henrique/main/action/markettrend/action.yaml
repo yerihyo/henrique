@@ -1,0 +1,5 @@
+default_action_names:
+  en: ["price","pc","marketprice"]
+  ko: ["시세","ㅆ","ㅅㅅ","가격","ㄲ","ㄱㄱ",]
+
+

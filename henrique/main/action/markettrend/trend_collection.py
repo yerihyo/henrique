@@ -4,7 +4,7 @@ import re
 import sys
 from functools import lru_cache
 
-from future.utils import lmap
+from future.utils import lmap, lfilter
 from itertools import product
 
 from foxylib.tools.collections.collections_tools import vwrite_no_duplicate_key, merge_dicts, lchain, \
@@ -17,7 +17,7 @@ from foxylib.tools.json.json_tools import jdown
 from foxylib.tools.json.yaml_tools import YAMLToolkit
 from foxylib.tools.regex.regex_tools import RegexToolkit
 from foxylib.tools.string.string_tools import str2lower
-from henrique.main.entity.entity import EntityTool
+from henrique.main.hub.entity.entity_tool import EntityTool
 from henrique.main.hub.env.henrique_env import HenriqueEnv
 from henrique.main.hub.logger.logger import HenriqueLogger
 from henrique.main.hub.mongodb.mongodb_hub import MongoDBHub
@@ -28,7 +28,7 @@ WARMER = Warmer(MODULE)
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 
-class TradegoodEntity:
+class MarketpriceEntity:
     NAME = "tradegood"
 
     @classmethod
@@ -39,8 +39,8 @@ class TradegoodEntity:
     @FunctionToolkit.wrapper2wraps_applied(lru_cache(maxsize=2))
     def h_qterm2j_doc(cls):
         logger = HenriqueLogger.func_level2logger(cls.h_qterm2j_doc, logging.DEBUG)
-        j_doc_list = list(TradegoodDocument.j_doc_iter_all())
-        jpath = TradegoodDocument.jpath_names()
+        j_doc_list = list(MarketpriceDocument.j_doc_iter_all())
+        jpath = MarketpriceDocument.jpath_names()
 
         h_list = [{cls._query2qterm(name): j_doc}
                   for j_doc in j_doc_list
@@ -53,7 +53,11 @@ class TradegoodEntity:
                       "j_doc_list[0]":j_doc_list[0],
                       "query[0]":jdown(j_doc_list[0],jpath)
                       })
-        h = merge_dicts(h_list,vwrite=vwrite_no_duplicate_key)
+
+        qterm_list_duplicate = iter2duplicate_list(map(lambda h:iter2singleton(h.keys()),h_list))
+        h_list_clean = lfilter(lambda h:iter2singleton(h.keys()) not in qterm_list_duplicate, h_list)
+
+        h = merge_dicts(h_list_clean,vwrite=vwrite_no_duplicate_key)
         return h
 
     @classmethod
@@ -84,8 +88,8 @@ class TradegoodEntity:
 
 
 
-class TradegoodCollection:
-    COLLECTION_NAME = "tradegood"
+class MarkettrendCollection:
+    COLLECTION_NAME = "markettrend"
 
     class YAML:
         NAME = "name"
@@ -109,7 +113,7 @@ class TradegoodCollection:
         return db.get_collection(cls.COLLECTION_NAME, *_, **__)
 
 
-class TradegoodDocument:
+class MarketpriceDocument:
     class Field:
         KEY = "key"
         NAMES = "names"
@@ -136,7 +140,7 @@ class TradegoodDocument:
 
         # @classmethod
         # def j_tradegood2j_culture(cls, j_tradegood):
-        #     from henrique.main.entity.culture.culture_entity import CultureDocument
+        #     from henrique.main.action.culture.culture_entity import CultureDocument
         #
         #     culture_name = cls.j_tradegood2culture_name(j_tradegood)
         #     j_culture = CultureDocument.name2j_doc(culture_name)
@@ -154,11 +158,11 @@ class TradegoodDocument:
 
     @classmethod
     def j_doc_iter_all(cls):
-        collection = TradegoodCollection.collection()
+        collection = MarkettrendCollection.collection()
         yield from MongoDBToolkit.find_result2j_doc_iter(collection.find({}))
 
 
-class TradegoodTable:
+class MarketpriceTable:
     NAME = "unchartedwatersonline_tradegood"
 
     @classmethod

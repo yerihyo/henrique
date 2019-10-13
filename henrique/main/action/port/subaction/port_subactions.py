@@ -2,8 +2,8 @@ import os
 
 from foxylib.tools.jinja2.jinja2_tools import Jinja2Toolkit
 from foxylib.tools.locale.locale_tool import LocaleTool
-from henrique.main.entity.entity import EntityTool
-from henrique.main.entity.port.port_entity import PortEntity, PortDocument, PortCollection
+from henrique.main.hub.entity.entity_tool import EntityTool
+from henrique.main.action.port.port_entity import PortEntity, PortDocument, PortCollection
 from khalalib.packet.packet import KhalaPacket
 
 FILE_PATH = os.path.realpath(__file__)

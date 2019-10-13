@@ -13,9 +13,10 @@ REPO_DIR=$(dirname $SCRIPTS_DIR)
 FOXYLIB_DIR=${FOXYLIB_DIR?'missing $FOXYLIB_DIR'}
 pushd $REPO_DIR
 
-
+export SKIP_WARMUP=1
 export PYTHONPATH=$FOXYLIB_DIR
 
-python -m unittest henrique.main.hub.postgres.tests.test_postgres_hub.PostgresHubTest.test_01
+# python -m unittest henrique.main.hub.postgres.tests.test_postgres_hub.PostgresHubTest.test_01
+python -m unittest henrique.main.handlers.jinni.ask.tests.test_handler.TestHandler.test_03
 
 popd
