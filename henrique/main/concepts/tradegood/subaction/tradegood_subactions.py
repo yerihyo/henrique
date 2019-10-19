@@ -2,8 +2,8 @@ import os
 
 from foxylib.tools.jinja2.jinja2_tools import Jinja2Toolkit
 from foxylib.tools.locale.locale_tool import LocaleTool
-from henrique.main.hub.entity.entity_tool import EntityTool
-from henrique.main.action.tradegood.tradegood_entity import TradegoodEntity, TradegoodDocument, TradegoodCollection
+from henrique.main.hub.entity.entity import Entity
+from henrique.main.concepts.tradegood.tradegood_concept import TradegoodEntity, TradegoodDocument, TradegoodCollection
 from khalalib.packet.packet import KhalaPacket
 
 FILE_PATH = os.path.realpath(__file__)
@@ -12,7 +12,7 @@ FILE_DIR = os.path.dirname(FILE_PATH)
 class TradegoodTradegoodSubaction:
     @classmethod
     def tradegood_entity2response(cls, tg_entity, j_packet,):
-        query = EntityTool.F.entity2text(tg_entity)
+        query = Entity.entity2text(tg_entity)
         j_tradegood = TradegoodEntity.query2j_doc(query)
 
         #j_culture = TradegoodDocument.F.j_tradegood2j_culture(j_tradegood)

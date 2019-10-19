@@ -1,0 +1,14 @@
+[Unit]
+Description=uWSGI instance to serve myproject
+After=network.target
+
+[Service]
+User=moon
+Group=www-data
+
+WorkingDirectory=/Users/moon/projects/lbox/henrique
+Environment="PATH=/Users/moon/projects/lbox/henrique/venv/bin"
+ExecStart=/Users/moon/projects/lbox/henrique/venv/bin/uwsgi --ini /Users/moon/projects/lbox/henrique/scripts/deploy/uwsgi/henrique.ini
+
+[Install]
+WantedBy=multi-user.target

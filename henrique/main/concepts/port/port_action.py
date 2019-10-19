@@ -12,8 +12,8 @@ from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.json.yaml_tools import YAMLToolkit
 from foxylib.tools.regex.regex_tools import RegexToolkit
 from foxylib.tools.string.string_tools import str2split
-from henrique.main.action.khala_action import KhalaAction
-from henrique.main.action.port.port_entity import PortEntity
+from henrique.main.concepts.khala_action import KhalaAction
+from henrique.main.concepts.port.port_concept import PortEntity
 from henrique.main.hub.env.henrique_env import HenriqueEnv
 from khalalib.chat.chat import KhalaChat
 from khalalib.packet.packet import KhalaPacket
@@ -50,7 +50,7 @@ class PortAction:
 
     @classmethod
     def respond(cls, j_packet):
-        from henrique.main.action.port.subaction.port_subactions import PortPortSubaction
+        from henrique.main.concepts.port.subaction.port_subactions import PortPortSubaction
 
         j_chat = KhalaPacket.j_packet2j_chat(j_packet)
         text = KhalaChat.j_chat2text(j_chat)

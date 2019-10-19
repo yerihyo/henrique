@@ -17,7 +17,7 @@ from foxylib.tools.json.json_tools import jdown
 from foxylib.tools.json.yaml_tools import YAMLToolkit
 from foxylib.tools.regex.regex_tools import RegexToolkit
 from foxylib.tools.string.string_tools import str2lower
-from henrique.main.hub.entity.entity_tool import EntityTool
+from henrique.main.hub.entity.entity import Entity
 from henrique.main.hub.env.henrique_env import HenriqueEnv
 from henrique.main.hub.logger.logger import HenriqueLogger
 from henrique.main.hub.mongodb.mongodb_hub import MongoDBHub
@@ -80,8 +80,8 @@ class TradegoodEntity:
     def str2entity_list(cls, str_in):
         m_list = list(cls.pattern().finditer(str_in))
 
-        entity_list = [merge_dicts([EntityTool.F.match2h(m),
-                                    EntityTool.F.type2h(cls.NAME),
+        entity_list = [merge_dicts([Entity.Builder.match2h(m),
+                                    Entity.Builder.type2h(cls.NAME),
                                     ])
                        for m in m_list]
         return entity_list
@@ -140,7 +140,7 @@ class TradegoodDocument:
 
         # @classmethod
         # def j_tradegood2j_culture(cls, j_tradegood):
-        #     from henrique.main.action.culture.culture_entity import CultureDocument
+        #     from henrique.main.concepts.culture.culture import CultureDocument
         #
         #     culture_name = cls.j_tradegood2culture_name(j_tradegood)
         #     j_culture = CultureDocument.name2j_doc(culture_name)
@@ -161,6 +161,16 @@ class TradegoodDocument:
         collection = TradegoodCollection.collection()
         yield from MongoDBToolkit.find_result2j_doc_iter(collection.find({}))
 
+    @classmethod
+    @WARMER.add(cond=EnvToolkit.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
+    @FunctionToolkit.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def _h_doc_id2j_doc(cls):
+        return MongoDBToolkit.j_doc_iter2h_doc_id2j_doc(cls.j_doc_iter_all())
+
+    @classmethod
+    def port_id2j_doc(cls, port_id):
+        h = cls._h_doc_id2j_doc()
+        return h.get(port_id)
 
 class TradegoodTable:
     NAME = "unchartedwatersonline_tradegood"

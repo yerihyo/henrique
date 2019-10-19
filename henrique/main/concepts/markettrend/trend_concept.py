@@ -4,7 +4,7 @@ import re
 import sys
 from functools import lru_cache
 
-from future.utils import lmap
+from future.utils import lmap, lfilter
 from itertools import product
 
 from foxylib.tools.collections.collections_tools import vwrite_no_duplicate_key, merge_dicts, lchain, \
@@ -17,7 +17,7 @@ from foxylib.tools.json.json_tools import jdown
 from foxylib.tools.json.yaml_tools import YAMLToolkit
 from foxylib.tools.regex.regex_tools import RegexToolkit
 from foxylib.tools.string.string_tools import str2lower
-from henrique.main.hub.entity.entity_tool import EntityTool
+from henrique.main.hub.entity.entity import Entity
 from henrique.main.hub.env.henrique_env import HenriqueEnv
 from henrique.main.hub.logger.logger import HenriqueLogger
 from henrique.main.hub.mongodb.mongodb_hub import MongoDBHub
@@ -28,8 +28,8 @@ WARMER = Warmer(MODULE)
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 
-class PortEntity:
-    NAME = "port"
+class MarkettrendEntity:
+    NAME = "markettrend"
 
     @classmethod
     def _query2qterm(cls, name): return str2lower(name)
@@ -39,8 +39,8 @@ class PortEntity:
     @FunctionToolkit.wrapper2wraps_applied(lru_cache(maxsize=2))
     def h_qterm2j_doc(cls):
         logger = HenriqueLogger.func_level2logger(cls.h_qterm2j_doc, logging.DEBUG)
-        j_doc_list = list(PortDocument.j_doc_iter_all())
-        jpath = PortDocument.jpath_names()
+        j_doc_list = list(MarkettrendDocument.j_doc_iter_all())
+        jpath = MarkettrendDocument.jpath_names()
 
         h_list = [{cls._query2qterm(name): j_doc}
                   for j_doc in j_doc_list
@@ -53,7 +53,11 @@ class PortEntity:
                       "j_doc_list[0]":j_doc_list[0],
                       "query[0]":jdown(j_doc_list[0],jpath)
                       })
-        h = merge_dicts(h_list,vwrite=vwrite_no_duplicate_key)
+
+        qterm_list_duplicate = iter2duplicate_list(map(lambda h:iter2singleton(h.keys()),h_list))
+        h_list_clean = lfilter(lambda h:iter2singleton(h.keys()) not in qterm_list_duplicate, h_list)
+
+        h = merge_dicts(h_list_clean,vwrite=vwrite_no_duplicate_key)
         return h
 
     @classmethod
@@ -76,16 +80,16 @@ class PortEntity:
     def str2entity_list(cls, str_in):
         m_list = list(cls.pattern().finditer(str_in))
 
-        entity_list = [merge_dicts([EntityTool.F.match2h(m),
-                                    EntityTool.F.type2h(cls.NAME),
+        entity_list = [merge_dicts([Entity.Builder.match2h(m),
+                                    Entity.Builder.type2h(cls.NAME),
                                     ])
                        for m in m_list]
         return entity_list
 
 
 
-class PortCollection:
-    COLLECTION_NAME = "port"
+class MarkettrendCollection:
+    COLLECTION_NAME = "markettrend"
 
     class YAML:
         NAME = "name"
@@ -94,7 +98,7 @@ class PortCollection:
     @WARMER.add(cond=EnvToolkit.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
     @FunctionToolkit.wrapper2wraps_applied(lru_cache(maxsize=2))
     def j_yaml(cls):
-        filepath = os.path.join(FILE_DIR, "port_collection.yaml")
+        filepath = os.path.join(FILE_DIR, "tradegood_collection.yaml")
         j = YAMLToolkit.filepath2j(filepath)
         return j
 
@@ -109,36 +113,39 @@ class PortCollection:
         return db.get_collection(cls.COLLECTION_NAME, *_, **__)
 
 
-class PortDocument:
+class MarkettrendDocument:
     class Field:
-        KEY = "key"
-        NAMES = "names"
-        CULTURE = "culture"
-        REGION = "region"
+        SERVER = "server"
+        CREATED_AT = "created_at"
+        SENDER_NAME = "sender_name"
+        PORT_ID = "port_id"
+        TRADEGOOD_ID = "tradegood_id"
+        RATE = "rate"
+        TREND = "trend"
     F = Field
 
 
 
     @classmethod
-    def j_port2culture_name(cls, j_port):
-        return j_port[cls.F.CULTURE]
+    def j_tradegood2culture_name(cls, j_tradegood):
+        return j_tradegood[cls.F.CULTURE]
 
     @classmethod
-    def j_port_lang2name(cls, j_port, lang):
-        logger = HenriqueLogger.func_level2logger(cls.j_port2culture_name, logging.DEBUG)
-        name_list = jdown(j_port, [cls.F.NAMES, lang])
+    def j_tradegood_lang2name(cls, j_tradegood, lang):
+        logger = HenriqueLogger.func_level2logger(cls.j_tradegood2culture_name, logging.DEBUG)
+        name_list = jdown(j_tradegood, [cls.F.NAMES, lang])
 
-        logger.debug({"j_port":j_port,
+        logger.debug({"j_tradegood":j_tradegood,
                       "lang":lang,
                       "name_list":name_list,
                       })
         return name_list[0]
 
         # @classmethod
-        # def j_port2j_culture(cls, j_port):
-        #     from henrique.main.action.culture.culture_entity import CultureDocument
+        # def j_tradegood2j_culture(cls, j_tradegood):
+        #     from henrique.main.concepts.culture.culture import CultureDocument
         #
-        #     culture_name = cls.j_port2culture_name(j_port)
+        #     culture_name = cls.j_tradegood2culture_name(j_tradegood)
         #     j_culture = CultureDocument.name2j_doc(culture_name)
         #     return j_culture
 
@@ -154,12 +161,12 @@ class PortDocument:
 
     @classmethod
     def j_doc_iter_all(cls):
-        collection = PortCollection.collection()
+        collection = MarkettrendCollection.collection()
         yield from MongoDBToolkit.find_result2j_doc_iter(collection.find({}))
 
 
-class PortTable:
-    NAME = "unchartedwatersonline_port"
+class MarkettrendTable:
+    NAME = "unchartedwatersonline_porttradegoodstate"
 
     @classmethod
     def index_json(cls): return 2

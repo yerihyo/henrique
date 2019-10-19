@@ -2,8 +2,8 @@ import os
 
 from foxylib.tools.jinja2.jinja2_tools import Jinja2Toolkit
 from foxylib.tools.locale.locale_tool import LocaleTool
-from henrique.main.hub.entity.entity_tool import EntityTool
-from henrique.main.action.port.port_entity import PortEntity, PortDocument, PortCollection
+from henrique.main.hub.entity.entity import Entity
+from henrique.main.concepts.port.port_concept import PortEntity, PortDocument, PortCollection
 from khalalib.packet.packet import KhalaPacket
 
 FILE_PATH = os.path.realpath(__file__)
@@ -12,7 +12,7 @@ FILE_DIR = os.path.dirname(FILE_PATH)
 class PortPortSubaction:
     @classmethod
     def port_entity2response(cls, port_entity, j_packet,):
-        query = EntityTool.F.entity2text(port_entity)
+        query = Entity.entity2text(port_entity)
         j_port = PortEntity.query2j_doc(query)
 
         #j_culture = PortDocument.F.j_port2j_culture(j_port)

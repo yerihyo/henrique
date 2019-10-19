@@ -1,0 +1,14 @@
+[Unit]
+Description=uWSGI instance to serve myproject
+After=network.target
+
+[Service]
+User={{USERNAME}}
+Group=www-data
+
+WorkingDirectory={{REPO_DIR}}
+Environment="PATH={{VENV_DIR}}/bin"
+ExecStart={{VENV_DIR}}/bin/newrelic-admin run-program {{VENV_DIR}}/bin/uwsgi --ini {{PROJECT_INI}}
+
+[Install]
+WantedBy=multi-user.target

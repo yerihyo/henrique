@@ -8,7 +8,7 @@ from foxylib.tools.collections.collections_tools import luniq, lchain
 from foxylib.tools.database.mongodb.mongodb_tools import MongoDBToolkit
 from foxylib.tools.database.postgres.postgres_tool import PostgresTool
 from foxylib.tools.json.json_tools import JToolkit
-from henrique.main.action.tradegood.tradegood_entity import TradegoodTable, TradegoodCollection, TradegoodDocument
+from henrique.main.concepts.tradegood.tradegood_concept import TradegoodTable, TradegoodCollection, TradegoodDocument
 from henrique.main.hub.logger.logger import HenriqueLogger
 from henrique.main.hub.postgres.postgres_hub import PostgresHub
 

@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from henrique.main.action.port.port_action import PortAction
-from henrique.main.action.tradegood.tradegood_action import TradegoodAction
+from henrique.main.concepts.port.port_action import PortAction
+from henrique.main.concepts.tradegood.tradegood_action import TradegoodAction
 from henrique.main.handlers.jinni.ask.handler import Handler
 from henrique.main.hub.logger.logger import HenriqueLogger
 from khalalib.chat.chat import KhalaChat

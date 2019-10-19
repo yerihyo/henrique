@@ -17,7 +17,7 @@ from foxylib.tools.json.json_tools import jdown
 from foxylib.tools.json.yaml_tools import YAMLToolkit
 from foxylib.tools.regex.regex_tools import RegexToolkit
 from foxylib.tools.string.string_tools import str2lower
-from henrique.main.hub.entity.entity_tool import EntityTool
+from henrique.main.hub.entity.entity import Entity
 from henrique.main.hub.env.henrique_env import HenriqueEnv
 from henrique.main.hub.logger.logger import HenriqueLogger
 from henrique.main.hub.mongodb.mongodb_hub import MongoDBHub
@@ -28,7 +28,7 @@ WARMER = Warmer(MODULE)
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 
-class MarketpriceEntity:
+class MarkettrendEntity:
     NAME = "tradegood"
 
     @classmethod
@@ -39,8 +39,8 @@ class MarketpriceEntity:
     @FunctionToolkit.wrapper2wraps_applied(lru_cache(maxsize=2))
     def h_qterm2j_doc(cls):
         logger = HenriqueLogger.func_level2logger(cls.h_qterm2j_doc, logging.DEBUG)
-        j_doc_list = list(MarketpriceDocument.j_doc_iter_all())
-        jpath = MarketpriceDocument.jpath_names()
+        j_doc_list = list(MarkettrendDocument.j_doc_iter_all())
+        jpath = MarkettrendDocument.jpath_names()
 
         h_list = [{cls._query2qterm(name): j_doc}
                   for j_doc in j_doc_list
@@ -80,16 +80,16 @@ class MarketpriceEntity:
     def str2entity_list(cls, str_in):
         m_list = list(cls.pattern().finditer(str_in))
 
-        entity_list = [merge_dicts([EntityTool.F.match2h(m),
-                                    EntityTool.F.type2h(cls.NAME),
+        entity_list = [merge_dicts([Entity.Builder.match2h(m),
+                                    Entity.Builder.type2h(cls.NAME),
                                     ])
                        for m in m_list]
         return entity_list
 
 
 
-class MarkettrendCollection:
-    COLLECTION_NAME = "markettrend"
+class MarketstatusCollection:
+    COLLECTION_NAME = "tradegood"
 
     class YAML:
         NAME = "name"
@@ -113,7 +113,7 @@ class MarkettrendCollection:
         return db.get_collection(cls.COLLECTION_NAME, *_, **__)
 
 
-class MarketpriceDocument:
+class MarkettrendDocument:
     class Field:
         KEY = "key"
         NAMES = "names"
@@ -140,7 +140,7 @@ class MarketpriceDocument:
 
         # @classmethod
         # def j_tradegood2j_culture(cls, j_tradegood):
-        #     from henrique.main.action.culture.culture_entity import CultureDocument
+        #     from henrique.main.concepts.culture.culture import CultureDocument
         #
         #     culture_name = cls.j_tradegood2culture_name(j_tradegood)
         #     j_culture = CultureDocument.name2j_doc(culture_name)
@@ -158,11 +158,11 @@ class MarketpriceDocument:
 
     @classmethod
     def j_doc_iter_all(cls):
-        collection = MarkettrendCollection.collection()
+        collection = MarketstatusCollection.collection()
         yield from MongoDBToolkit.find_result2j_doc_iter(collection.find({}))
 
 
-class MarketpriceTable:
+class MarkettrendTable:
     NAME = "unchartedwatersonline_tradegood"
 
     @classmethod
