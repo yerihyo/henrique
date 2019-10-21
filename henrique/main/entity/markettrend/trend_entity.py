@@ -127,37 +127,9 @@ class MarkettrendDocument:
 
 
     @classmethod
-    def j_tradegood2culture_name(cls, j_tradegood):
-        return j_tradegood[cls.F.CULTURE]
+    def j_trend2port_id(cls, j_trend):
+        return j_trend[cls.F.PORT_ID]
 
-    @classmethod
-    def j_tradegood_lang2name(cls, j_tradegood, lang):
-        logger = HenriqueLogger.func_level2logger(cls.j_tradegood2culture_name, logging.DEBUG)
-        name_list = jdown(j_tradegood, [cls.F.NAMES, lang])
-
-        logger.debug({"j_tradegood":j_tradegood,
-                      "lang":lang,
-                      "name_list":name_list,
-                      })
-        return name_list[0]
-
-        # @classmethod
-        # def j_tradegood2j_culture(cls, j_tradegood):
-        #     from henrique.main.concepts.culture.culture import CultureDocument
-        #
-        #     culture_name = cls.j_tradegood2culture_name(j_tradegood)
-        #     j_culture = CultureDocument.name2j_doc(culture_name)
-        #     return j_culture
-
-
-    @classmethod
-    def jpath_names(cls): return [cls.F.NAMES]
-
-    @classmethod
-    def jpath_names_en(cls): return [cls.F.NAMES, "en"]
-
-    @classmethod
-    def jpath_names_ko(cls): return [cls.F.NAMES, "ko"]
 
     @classmethod
     def j_doc_iter_all(cls):
@@ -165,11 +137,32 @@ class MarkettrendDocument:
         yield from MongoDBToolkit.find_result2j_doc_iter(collection.find({}))
 
 
-class MarkettrendTable:
+class PortTradegoodStateTable:
     NAME = "unchartedwatersonline_porttradegoodstate"
 
     @classmethod
     def index_json(cls): return 2
+
+    @classmethod
+    def tuple2j(cls, t): return t[cls.index_json()]
+
+    @classmethod
+    def tuple2port_name_en(cls, t):
+        return jdown(cls.tuple2j(t),["market_status","port","name","en"])
+
+    @classmethod
+    def tuple2tradegood_name_en(cls, t):
+        return jdown(cls.tuple2j(t), ["market_status", "tradegood", "name", "en"])
+
+    @classmethod
+    def tuple2rate(cls, t):
+        return jdown(cls.tuple2j(t), ["market_status", "rate"])
+
+    @classmethod
+    def tuple2trend(cls, t):
+        trend = jdown(cls.tuple2j(t), ["market_status", "trend", "value"])
+        return trend - 2
+
 
 WARMER.warmup()
 

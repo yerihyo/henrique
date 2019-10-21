@@ -5,11 +5,13 @@ import sys
 from functools import lru_cache
 
 from future.utils import lmap, lfilter
-from itertools import product
+from nose.tools import assert_equal
+from psycopg2.sql import Identifier, SQL
 
-from foxylib.tools.collections.collections_tools import vwrite_no_duplicate_key, merge_dicts, lchain, \
-    iter2duplicate_list, iter2singleton
+from foxylib.tools.collections.collections_tools import vwrite_no_duplicate_key, merge_dicts, iter2duplicate_list, \
+    iter2singleton
 from foxylib.tools.database.mongodb.mongodb_tools import MongoDBToolkit
+from foxylib.tools.database.postgres.postgres_tool import PostgresTool
 from foxylib.tools.env.env_tools import EnvToolkit
 from foxylib.tools.function.function_tools import FunctionToolkit
 from foxylib.tools.function.warmer import Warmer
@@ -21,6 +23,7 @@ from henrique.main.hub.entity.entity import Entity
 from henrique.main.hub.env.henrique_env import HenriqueEnv
 from henrique.main.hub.logger.logger import HenriqueLogger
 from henrique.main.hub.mongodb.mongodb_hub import MongoDBHub
+from henrique.main.hub.postgres.postgres_hub import PostgresHub
 
 MODULE = sys.modules[__name__]
 WARMER = Warmer(MODULE)
@@ -28,7 +31,7 @@ WARMER = Warmer(MODULE)
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 
-class MarkettrendEntity:
+class TradegoodEntity:
     NAME = "tradegood"
 
     @classmethod
@@ -39,8 +42,8 @@ class MarkettrendEntity:
     @FunctionToolkit.wrapper2wraps_applied(lru_cache(maxsize=2))
     def h_qterm2j_doc(cls):
         logger = HenriqueLogger.func_level2logger(cls.h_qterm2j_doc, logging.DEBUG)
-        j_doc_list = list(MarkettrendDocument.j_doc_iter_all())
-        jpath = MarkettrendDocument.jpath_names()
+        j_doc_list = list(TradegoodDocument.j_doc_iter_all())
+        jpath = TradegoodDocument.jpath_names()
 
         h_list = [{cls._query2qterm(name): j_doc}
                   for j_doc in j_doc_list
@@ -88,7 +91,7 @@ class MarkettrendEntity:
 
 
 
-class MarketstatusCollection:
+class TradegoodCollection:
     COLLECTION_NAME = "tradegood"
 
     class YAML:
@@ -113,7 +116,7 @@ class MarketstatusCollection:
         return db.get_collection(cls.COLLECTION_NAME, *_, **__)
 
 
-class MarkettrendDocument:
+class TradegoodDocument:
     class Field:
         KEY = "key"
         NAMES = "names"
@@ -129,22 +132,18 @@ class MarkettrendDocument:
 
     @classmethod
     def j_tradegood_lang2name(cls, j_tradegood, lang):
-        logger = HenriqueLogger.func_level2logger(cls.j_tradegood2culture_name, logging.DEBUG)
+        logger = HenriqueLogger.func_level2logger(cls.j_tradegood_lang2name, logging.DEBUG)
         name_list = jdown(j_tradegood, [cls.F.NAMES, lang])
 
-        logger.debug({"j_tradegood":j_tradegood,
-                      "lang":lang,
-                      "name_list":name_list,
-                      })
+        # logger.debug({"j_tradegood":j_tradegood,
+        #               "lang":lang,
+        #               "name_list":name_list,
+        #               })
         return name_list[0]
 
-        # @classmethod
-        # def j_tradegood2j_culture(cls, j_tradegood):
-        #     from henrique.main.concepts.culture.culture import CultureDocument
-        #
-        #     culture_name = cls.j_tradegood2culture_name(j_tradegood)
-        #     j_culture = CultureDocument.name2j_doc(culture_name)
-        #     return j_culture
+    @classmethod
+    def j_tradegood2name_en(cls, j_tradegood):
+        return cls.j_tradegood_lang2name(j_tradegood, "en")
 
 
     @classmethod
@@ -158,15 +157,50 @@ class MarkettrendDocument:
 
     @classmethod
     def j_doc_iter_all(cls):
-        collection = MarketstatusCollection.collection()
+        collection = TradegoodCollection.collection()
         yield from MongoDBToolkit.find_result2j_doc_iter(collection.find({}))
 
+    @classmethod
+    @WARMER.add(cond=EnvToolkit.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
+    @FunctionToolkit.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def _h_doc_id2j_doc(cls):
+        return MongoDBToolkit.j_doc_iter2h_doc_id2j_doc(cls.j_doc_iter_all())
 
-class MarkettrendTable:
+    @classmethod
+    def tradegood_id2j_doc(cls, tradegood_id):
+        h = cls._h_doc_id2j_doc()
+        return h.get(tradegood_id)
+
+    @classmethod
+    def name_en_list2doc_id_list(cls, name_en_list):
+        norm = str2lower
+
+        h = merge_dicts([{norm(cls.j_tradegood2name_en(j_port)): MongoDBToolkit.j_doc2id(j_port)}
+                         for j_port in cls.j_doc_iter_all()],
+                        vwrite=vwrite_no_duplicate_key)
+
+        doc_id_list = [h[norm(x)] for x in name_en_list]
+        return doc_id_list
+
+class TradegoodTable:
     NAME = "unchartedwatersonline_tradegood"
 
     @classmethod
     def index_json(cls): return 2
+
+    @classmethod
+    def name_en_list2tradegood_id_list(cls, name_en_list):
+        h = {}
+        with PostgresHub.cursor() as cursor:
+            sql = SQL("SELECT id, name_en from {}").format(Identifier(cls.NAME))
+            cursor.execute(sql)
+
+            for t in PostgresTool.fetch_iter(cursor):
+                assert_equal(len(t), 2)
+                h[str2lower(t[1])] = t[0]
+
+        tradegood_id_list = [h.get(str2lower(name_en)) for name_en in name_en_list]
+        return tradegood_id_list
 
 WARMER.warmup()
 

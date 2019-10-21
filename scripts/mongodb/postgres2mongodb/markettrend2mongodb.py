@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 
+from future.utils import lmap
 from psycopg2.sql import SQL, Identifier
 from pymongo import WriteConcern
 
@@ -9,9 +10,10 @@ from foxylib.tools.collections.collections_tools import luniq, lchain
 from foxylib.tools.database.mongodb.mongodb_tools import MongoDBToolkit
 from foxylib.tools.database.postgres.postgres_tool import PostgresTool
 from foxylib.tools.json.json_tools import JToolkit, jdown
-from henrique.main.concepts.markettrend.trend_concept import MarkettrendTable, MarkettrendCollection, \
+from henrique.main.entity.markettrend.trend_entity import PortTradegoodStateTable, MarkettrendCollection, \
     MarkettrendDocument
-from henrique.main.concepts.port.port_concept import PortCollection, PortTable
+from henrique.main.entity.port.port_entity import PortCollection, PortTable, PortDocument
+from henrique.main.entity.tradegood.tradegood_entity import TradegoodTable, TradegoodDocument
 from henrique.main.hub.logger.logger import HenriqueLogger
 from henrique.main.hub.postgres.postgres_hub import PostgresHub
 
@@ -23,24 +25,35 @@ class Markettrend2MongoDB:
         logger = HenriqueLogger.func_level2logger(cls.postgres2j_iter, logging.DEBUG)
 
         with PostgresHub.cursor() as cursor:
-            sql = SQL("SELECT * from {}").format(Identifier(MarkettrendTable.NAME))
+            sql = SQL("SELECT * from {}").format(Identifier(PortTradegoodStateTable.NAME))
             cursor.execute(sql)
             for t_list_chunk in ChunkToolkit.chunk_size2chunks(PostgresTool.fetch_iter(cursor), 100000):
 
-                # logger.debug({"j":j})
+                port_name_en_list = lmap(PortTradegoodStateTable.tuple2port_name_en, t_list_chunk)
+                port_id_list = PortDocument.name_en_list2doc_id_list(port_name_en_list)
 
-                PortTable.name_en_list2port_id_list()
+                tradegood_name_en_list = lmap(PortTradegoodStateTable.tuple2tradegood_name_en, t_list_chunk)
+                tradegood_id_list = TradegoodDocument.name_en_list2doc_id_list(tradegood_name_en_list)
+
+                rate_list = lmap(PortTradegoodStateTable.tuple2rate, t_list_chunk)
+                trend_list = lmap(PortTradegoodStateTable.tuple2trend, t_list_chunk)
 
                 def tuple2j_doc(t,i):
-                    j_postgres = t[MarkettrendTable.index_json()]
+                    j_postgres = t[PortTradegoodStateTable.index_json()]
+                    sender_name = j_postgres.get("sender_name")
+
                     j_doc = {MarkettrendDocument.F.SERVER: jdown(j_postgres, ["server","name"]),
                              MarkettrendDocument.F.CREATED_AT: datetime.fromisoformat(j_postgres["created_at"]),
-                             MarkettrendDocument.F.SENDER_NAME: j_postgres["sender_name"],
-                             MarkettrendDocument.F.PORT_ID: port_id,
-                             MarkettrendDocument.F.TRADEGOOD_ID: tradegood_id,
-                             MarkettrendDocument.F.RATE: rate,
-                             MarkettrendDocument.F.TREND: trend,
+                             MarkettrendDocument.F.PORT_ID: port_id_list[i],
+                             MarkettrendDocument.F.TRADEGOOD_ID: tradegood_id_list[i],
+                             MarkettrendDocument.F.RATE: rate_list[i],
+                             MarkettrendDocument.F.TREND: trend_list[i],
                              }
+
+                    if sender_name:
+                        j_doc[MarkettrendDocument.F.SENDER_NAME] = sender_name
+
+                    return j_doc
 
                 j_doc_list_chunk = [tuple2j_doc(t, i) for i, t in enumerate(t_list_chunk)]
                 yield from j_doc_list_chunk
@@ -56,10 +69,9 @@ class Markettrend2MongoDB:
         write_concern = WriteConcern(w=3, wtimeout=chunk_size)
         collection = MarkettrendCollection.collection(write_concern=write_concern)
 
-
         for i, j_list_chunk in enumerate(ChunkToolkit.chunk_size2chunks(j_list, chunk_size)):
             logger.debug({"i/n": "{}/{}".format(i*chunk_size, n)})
-            j_pair_list = [(JToolkit.j_jpaths2filtered(j, [[MarkettrendDocument.F.KEY]]),j) for j in j_list_chunk]
+            j_pair_list = [(j,j) for j in j_list_chunk]
             MongoDBToolkit.j_pair_iter2upsert(collection, j_pair_list)
 
 

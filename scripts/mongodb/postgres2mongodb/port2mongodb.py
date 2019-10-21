@@ -11,7 +11,7 @@ from foxylib.tools.database.postgres.postgres_tool import PostgresTool
 from foxylib.tools.json.json_tools import JToolkit
 from henrique.main.hub.logger.logger import HenriqueLogger
 from henrique.main.hub.postgres.postgres_hub import PostgresHub
-from henrique.main.concepts.port.port_concept import PortTable, PortCollection, PortDocument
+from henrique.main.entity.port.port_entity import PortTable, PortCollection, PortDocument
 
 
 class Port2MongoDB:

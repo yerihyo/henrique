@@ -1,7 +1,7 @@
 from future.utils import lfilter
 
-from henrique.main.concepts.port.port_action import PortAction
-from henrique.main.concepts.tradegood.tradegood_action import TradegoodAction
+from henrique.main.entity.port.port_action import PortAction
+from henrique.main.entity.tradegood.tradegood_action import TradegoodAction
 from khalalib.chat.chat import KhalaChat
 from khalalib.packet.packet import KhalaPacket
 

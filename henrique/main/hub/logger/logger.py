@@ -19,7 +19,7 @@ class HenriqueLogger:
 
     @classmethod
     def _rootname_list(cls):
-        return [FoxylibLogger.ROOTNAME, cls.ROOTNAME]
+        return FoxylibLogger.rootname_list() + [cls.ROOTNAME]
 
     @classmethod
     def attach_handler2loggers(cls, handler):

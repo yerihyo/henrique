@@ -3,7 +3,7 @@ import os
 from foxylib.tools.jinja2.jinja2_tools import Jinja2Toolkit
 from foxylib.tools.locale.locale_tool import LocaleTool
 from henrique.main.hub.entity.entity import Entity
-from henrique.main.concepts.tradegood.tradegood_concept import TradegoodEntity, TradegoodDocument, TradegoodCollection
+from henrique.main.entity.tradegood.tradegood_entity import TradegoodEntity, TradegoodDocument, TradegoodCollection
 from khalalib.packet.packet import KhalaPacket
 
 FILE_PATH = os.path.realpath(__file__)

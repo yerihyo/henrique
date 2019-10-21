@@ -21,7 +21,8 @@ export SKIP_WARMUP=1
 main(){
     pushd $REPO_DIR
     #python -m scripts.mongodb.postgres2mongodb.port2mongodb
-    python -m scripts.mongodb.postgres2mongodb.tradegood2mongodb
+    #python -m scripts.mongodb.postgres2mongodb.tradegood2mongodb
+    python -m scripts.mongodb.postgres2mongodb.markettrend2mongodb
     popd
 }
 
