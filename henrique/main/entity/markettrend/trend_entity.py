@@ -134,7 +134,7 @@ class MarkettrendDocument:
     @classmethod
     def j_doc_iter_all(cls):
         collection = MarkettrendCollection.collection()
-        yield from MongoDBToolkit.find_result2j_doc_iter(collection.find({}))
+        yield from MongoDBToolkit.result2j_doc_iter(collection.find({}))
 
 
 class PortTradegoodStateTable:

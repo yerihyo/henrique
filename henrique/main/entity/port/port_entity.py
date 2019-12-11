@@ -164,7 +164,7 @@ class PortDocument:
     @classmethod
     def j_doc_iter_all(cls):
         collection = PortCollection.collection()
-        yield from MongoDBToolkit.find_result2j_doc_iter(collection.find({}))
+        yield from MongoDBToolkit.result2j_doc_iter(collection.find({}))
 
     @classmethod
     @WARMER.add(cond=EnvToolkit.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
