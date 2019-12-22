@@ -3,11 +3,11 @@ import logging
 from psycopg2.sql import SQL, Identifier
 from pymongo import WriteConcern
 
-from foxylib.tools.collections.chunk_tools import ChunkToolkit
-from foxylib.tools.collections.collections_tools import luniq, lchain
-from foxylib.tools.database.mongodb.mongodb_tools import MongoDBToolkit
+from foxylib.tools.collections.chunk_tool import ChunkTool
+from foxylib.tools.collections.collections_tool import luniq, lchain
+from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.database.postgres.postgres_tool import PostgresTool
-from foxylib.tools.json.json_tools import JToolkit
+from foxylib.tools.json.json_tool import JsonTool
 from henrique.main.entity.tradegood.tradegood_entity import TradegoodTable, TradegoodCollection, TradegoodDocument
 from henrique.main.hub.logger.logger import HenriqueLogger
 from henrique.main.hub.postgres.postgres_hub import PostgresHub
@@ -53,10 +53,10 @@ class Tradegood2MongoDB:
         collection = TradegoodCollection.collection(write_concern=write_concern)
 
 
-        for i, j_list_chunk in enumerate(ChunkToolkit.chunk_size2chunks(j_list, chunk_size)):
+        for i, j_list_chunk in enumerate(ChunkTool.chunk_size2chunks(j_list, chunk_size)):
             logger.debug({"i/n": "{}/{}".format(i*chunk_size, n)})
-            j_pair_list = [(JToolkit.j_jpaths2filtered(j, [[TradegoodDocument.F.KEY]]),j) for j in j_list_chunk]
-            MongoDBToolkit.j_pair_iter2upsert(collection, j_pair_list)
+            j_pair_list = [(JsonTool.j_jpaths2filtered(j, [[TradegoodDocument.F.KEY]]),j) for j in j_list_chunk]
+            MongoDBTool.j_pair_iter2upsert(collection, j_pair_list)
 
 
 def main():

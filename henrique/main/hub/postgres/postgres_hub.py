@@ -2,7 +2,7 @@ import logging
 
 import psycopg2
 
-from foxylib.tools.env.env_tools import EnvToolkit
+from foxylib.tools.env.env_tool import EnvTool
 from henrique.main.hub.logger.logger import HenriqueLogger
 
 
@@ -19,11 +19,11 @@ class PostgresHub:
     def conn(cls):
         logger = HenriqueLogger.func_level2logger(cls.conn, logging.DEBUG)
 
-        host = EnvToolkit.k2v(cls.Env.HOST)
-        port = EnvToolkit.k2v(cls.Env.PORT)
-        user = EnvToolkit.k2v(cls.Env.USER)
-        password = EnvToolkit.k2v(cls.Env.PASSWORD)
-        dbname = EnvToolkit.k2v(cls.Env.DBNAME)
+        host = EnvTool.k2v(cls.Env.HOST)
+        port = EnvTool.k2v(cls.Env.PORT)
+        user = EnvTool.k2v(cls.Env.USER)
+        password = EnvTool.k2v(cls.Env.PASSWORD)
+        dbname = EnvTool.k2v(cls.Env.DBNAME)
 
         j_connect = {"host":host, "port":port, "user":user, "password":password, "dbname":dbname, }
         logger.debug({"j_connect":j_connect})

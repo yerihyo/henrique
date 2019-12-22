@@ -1,5 +1,5 @@
-from foxylib.tools.collections.collections_tools import merge_dicts
-from foxylib.tools.regex.regex_tools import MatchToolkit
+from foxylib.tools.collections.collections_tool import merge_dicts
+from foxylib.tools.regex.regex_tool import MatchTool
 
 
 class Entity:
@@ -28,8 +28,8 @@ class Entity:
 
         @classmethod
         def match2h(cls, m):
-            span = MatchToolkit.match2span(m)
-            text = MatchToolkit.match2text(m)
+            span = MatchTool.match2span(m)
+            text = MatchTool.match2text(m)
 
             l = [cls.span2h(span),
                  cls.text2h(text),

@@ -2,8 +2,8 @@ import logging
 import os
 import sys
 
-from foxylib.tools.file.file_tools import FileToolkit
-from foxylib.tools.log.logger_tools import FoxylibLogger, LoggerToolkit
+from foxylib.tools.file.file_tool import FileTool
+from foxylib.tools.log.logger_tool import FoxylibLogger, LoggerTool
 from functools import reduce, lru_cache
 
 FILE_PATH = os.path.realpath(__file__)
@@ -25,27 +25,27 @@ class HenriqueLogger:
     def attach_handler2loggers(cls, handler):
         for rootname in cls._rootname_list():
             logger = logging.getLogger(rootname)
-            LoggerToolkit.add_or_skip_handlers(logger, [handler])
+            LoggerTool.add_or_skip_handlers(logger, [handler])
 
     @classmethod
     @lru_cache(maxsize=None)
     def attach_filepath2loggers(cls, filepath):
-        FileToolkit.dirpath2mkdirs(os.path.dirname(filepath))
-        handler = LoggerToolkit.handler2formatted(LoggerToolkit.filepath2handler_default(filepath))
+        FileTool.dirpath2mkdirs(os.path.dirname(filepath))
+        handler = LoggerTool.handler2formatted(LoggerTool.filepath2handler_default(filepath))
         handler.setLevel(cls.level)
         cls.attach_handler2loggers(handler)
 
     @classmethod
     @lru_cache(maxsize=2)
     def attach_stderr2loggers(cls,):
-        handler = LoggerToolkit.handler2formatted(logging.StreamHandler(sys.stderr))
+        handler = LoggerTool.handler2formatted(logging.StreamHandler(sys.stderr))
         handler.setLevel(cls.level)
         cls.attach_handler2loggers(handler)
 
 
     @classmethod
     def func2name(cls, func):
-        return LoggerToolkit.rootname_func2name(cls.ROOTNAME, func)
+        return LoggerTool.rootname_func2name(cls.ROOTNAME, func)
 
     @classmethod
     def func2logger(cls, func):
@@ -59,6 +59,6 @@ class HenriqueLogger:
 
     @classmethod
     def filename2logger(cls, filename):
-        logger = LoggerToolkit.rootname_filename2logger(cls.ROOTNAME, filename)
+        logger = LoggerTool.rootname_filename2logger(cls.ROOTNAME, filename)
         logger.setLevel(cls.level)
         return logger

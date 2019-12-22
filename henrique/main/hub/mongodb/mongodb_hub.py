@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 
-from foxylib.tools.env.env_tools import EnvToolkit
+from foxylib.tools.env.env_tool import EnvTool
 
 
 class MongoDBHub:
@@ -11,8 +11,8 @@ class MongoDBHub:
 
     @classmethod
     def uri(cls):
-        auth = EnvToolkit.k2v(cls.Env.MONGODB_AUTH)
-        suffix = EnvToolkit.k2v(cls.Env.MONGODB_SUFFIX)
+        auth = EnvTool.k2v(cls.Env.MONGODB_AUTH)
+        suffix = EnvTool.k2v(cls.Env.MONGODB_SUFFIX)
         return "{}?{}".format(auth, suffix)
 
     @classmethod
@@ -23,7 +23,7 @@ class MongoDBHub:
     @classmethod
     def db(cls):
         client = cls.client()
-        dbname = EnvToolkit.k2v(cls.Env.MONGODB_DBNAME)
+        dbname = EnvTool.k2v(cls.Env.MONGODB_DBNAME)
         return client[dbname]
 
     @classmethod

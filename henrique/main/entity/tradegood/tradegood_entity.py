@@ -8,17 +8,17 @@ from future.utils import lmap, lfilter
 from nose.tools import assert_equal
 from psycopg2.sql import Identifier, SQL
 
-from foxylib.tools.collections.collections_tools import vwrite_no_duplicate_key, merge_dicts, iter2duplicate_list, \
+from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, iter2duplicate_list, \
     iter2singleton
-from foxylib.tools.database.mongodb.mongodb_tools import MongoDBToolkit
+from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.database.postgres.postgres_tool import PostgresTool
-from foxylib.tools.env.env_tools import EnvToolkit
-from foxylib.tools.function.function_tools import FunctionToolkit
+from foxylib.tools.env.env_tool import EnvTool
+from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
-from foxylib.tools.json.json_tools import jdown
-from foxylib.tools.json.yaml_tools import YAMLToolkit
-from foxylib.tools.regex.regex_tools import RegexToolkit
-from foxylib.tools.string.string_tools import str2lower
+from foxylib.tools.json.json_tool import jdown
+from foxylib.tools.json.yaml_tool import YAMLTool
+from foxylib.tools.regex.regex_tool import RegexTool
+from foxylib.tools.string.string_tool import str2lower
 from henrique.main.hub.entity.entity import Entity
 from henrique.main.hub.env.henrique_env import HenriqueEnv
 from henrique.main.hub.logger.logger import HenriqueLogger
@@ -38,8 +38,8 @@ class TradegoodEntity:
     def _query2qterm(cls, name): return str2lower(name)
 
     @classmethod
-    @WARMER.add(cond=EnvToolkit.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
-    @FunctionToolkit.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @WARMER.add(cond=EnvTool.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def h_qterm2j_doc(cls):
         logger = HenriqueLogger.func_level2logger(cls.h_qterm2j_doc, logging.DEBUG)
         j_doc_list = list(TradegoodDocument.j_doc_iter_all())
@@ -71,11 +71,11 @@ class TradegoodEntity:
 
 
     @classmethod
-    @WARMER.add(cond=EnvToolkit.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
-    @FunctionToolkit.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @WARMER.add(cond=EnvTool.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def pattern(cls):
         h = cls.h_qterm2j_doc()
-        rstr = RegexToolkit.rstr_list2or(lmap(re.escape, h.keys()))
+        rstr = RegexTool.rstr_list2or(lmap(re.escape, h.keys()))
         return re.compile(rstr, re.I)
 
 
@@ -98,11 +98,11 @@ class TradegoodCollection:
         NAME = "name"
 
     @classmethod
-    @WARMER.add(cond=EnvToolkit.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
-    @FunctionToolkit.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @WARMER.add(cond=EnvTool.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def j_yaml(cls):
         filepath = os.path.join(FILE_DIR, "tradegood_collection.yaml")
-        j = YAMLToolkit.filepath2j(filepath)
+        j = YAMLTool.filepath2j(filepath)
         return j
 
     @classmethod
@@ -158,13 +158,13 @@ class TradegoodDocument:
     @classmethod
     def j_doc_iter_all(cls):
         collection = TradegoodCollection.collection()
-        yield from MongoDBToolkit.result2j_doc_iter(collection.find({}))
+        yield from MongoDBTool.result2j_doc_iter(collection.find({}))
 
     @classmethod
-    @WARMER.add(cond=EnvToolkit.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
-    @FunctionToolkit.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @WARMER.add(cond=EnvTool.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def _h_doc_id2j_doc(cls):
-        return MongoDBToolkit.j_doc_iter2h_doc_id2j_doc(cls.j_doc_iter_all())
+        return MongoDBTool.j_doc_iter2h_doc_id2j_doc(cls.j_doc_iter_all())
 
     @classmethod
     def tradegood_id2j_doc(cls, tradegood_id):
@@ -175,7 +175,7 @@ class TradegoodDocument:
     def name_en_list2doc_id_list(cls, name_en_list):
         norm = str2lower
 
-        h = merge_dicts([{norm(cls.j_tradegood2name_en(j_port)): MongoDBToolkit.j_doc2id(j_port)}
+        h = merge_dicts([{norm(cls.j_tradegood2name_en(j_port)): MongoDBTool.j_doc2id(j_port)}
                          for j_port in cls.j_doc_iter_all()],
                         vwrite=vwrite_no_duplicate_key)
 

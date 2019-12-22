@@ -2,11 +2,11 @@ import os
 import sys
 from functools import lru_cache
 
-from foxylib.tools.env.env_tools import EnvToolkit
-from foxylib.tools.function.function_tools import FunctionToolkit
+from foxylib.tools.env.env_tool import EnvTool
+from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
-from foxylib.tools.json.json_tools import jdown
-from foxylib.tools.json.yaml_tools import YAMLToolkit
+from foxylib.tools.json.json_tool import jdown
+from foxylib.tools.json.yaml_tool import YAMLTool
 from henrique.main.hub.cache.henrique_cache import HenriqueCache
 from henrique.main.hub.env.henrique_env import HenriqueEnv
 from henrique.main.hub.mongodb.mongodb_hub import MongoDBHub
@@ -25,11 +25,11 @@ class CultureCollection:
         NAME = "name"
 
     @classmethod
-    @WARMER.add(cond=EnvToolkit.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
-    @FunctionToolkit.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @WARMER.add(cond=EnvTool.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def j_yaml(cls):
         filepath = os.path.join(FILE_DIR, "culture_collection.yaml")
-        j = YAMLToolkit.filepath2j(filepath)
+        j = YAMLTool.filepath2j(filepath)
         return j
 
     @classmethod
@@ -51,7 +51,7 @@ class CultureDocument:
     F = Field
 
     @classmethod
-    @FunctionToolkit.wrapper2wraps_applied(lru_cache(maxsize=HenriqueCache.DEFAULT_SIZE))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=HenriqueCache.DEFAULT_SIZE))
     def name2j_doc(cls, name):
         pass
 

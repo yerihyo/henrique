@@ -4,10 +4,10 @@ from functools import lru_cache
 
 from future.utils import lmap
 
-from foxylib.tools.env.env_tools import EnvToolkit
-from foxylib.tools.function.function_tools import FunctionToolkit
+from foxylib.tools.env.env_tool import EnvTool
+from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
-from foxylib.tools.json.yaml_tools import YAMLToolkit
+from foxylib.tools.json.yaml_tool import YAMLTool
 from henrique.main.entity.tradegood.tradegood_entity import TradegoodEntity
 from henrique.main.hub.env.henrique_env import HenriqueEnv
 from khalalib.chat.chat import KhalaChat
@@ -25,11 +25,11 @@ class TradegoodAction:
 
 
     @classmethod
-    @WARMER.add(cond=EnvToolkit.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
-    @FunctionToolkit.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @WARMER.add(cond=EnvTool.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def j_yaml(cls):
         filepath = os.path.join(FILE_DIR, "action.yaml")
-        return YAMLToolkit.filepath2j(filepath)
+        return YAMLTool.filepath2j(filepath)
 
     @classmethod
     def respond(cls, j_packet):

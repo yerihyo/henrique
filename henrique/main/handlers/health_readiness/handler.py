@@ -2,7 +2,7 @@ import os
 
 from flask import request
 
-from foxylib.tools.html.html_tools import join_html
+from foxylib.tools.html.html_tool import join_html
 
 
 class Handler:

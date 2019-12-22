@@ -5,11 +5,11 @@ from future.utils import lmap
 from psycopg2.sql import SQL, Identifier
 from pymongo import WriteConcern
 
-from foxylib.tools.collections.chunk_tools import ChunkToolkit
-from foxylib.tools.collections.collections_tools import luniq, lchain
-from foxylib.tools.database.mongodb.mongodb_tools import MongoDBToolkit
+from foxylib.tools.collections.chunk_tool import ChunkTool
+from foxylib.tools.collections.collections_tool import luniq, lchain
+from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.database.postgres.postgres_tool import PostgresTool
-from foxylib.tools.json.json_tools import JToolkit, jdown
+from foxylib.tools.json.json_tool import JsonTool, jdown
 from henrique.main.entity.markettrend.trend_entity import PortTradegoodStateTable, MarkettrendCollection, \
     MarkettrendDocument
 from henrique.main.entity.port.port_entity import PortCollection, PortTable, PortDocument
@@ -27,7 +27,7 @@ class Markettrend2MongoDB:
         with PostgresHub.cursor() as cursor:
             sql = SQL("SELECT * from {}").format(Identifier(PortTradegoodStateTable.NAME))
             cursor.execute(sql)
-            for t_list_chunk in ChunkToolkit.chunk_size2chunks(PostgresTool.fetch_iter(cursor), 100000):
+            for t_list_chunk in ChunkTool.chunk_size2chunks(PostgresTool.fetch_iter(cursor), 100000):
 
                 port_name_en_list = lmap(PortTradegoodStateTable.tuple2port_name_en, t_list_chunk)
                 port_id_list = PortDocument.name_en_list2doc_id_list(port_name_en_list)
@@ -69,10 +69,10 @@ class Markettrend2MongoDB:
         write_concern = WriteConcern(w=3, wtimeout=chunk_size)
         collection = MarkettrendCollection.collection(write_concern=write_concern)
 
-        for i, j_list_chunk in enumerate(ChunkToolkit.chunk_size2chunks(j_list, chunk_size)):
+        for i, j_list_chunk in enumerate(ChunkTool.chunk_size2chunks(j_list, chunk_size)):
             logger.debug({"i/n": "{}/{}".format(i*chunk_size, n)})
             j_pair_list = [(j,j) for j in j_list_chunk]
-            MongoDBToolkit.j_pair_iter2upsert(collection, j_pair_list)
+            MongoDBTool.j_pair_iter2upsert(collection, j_pair_list)
 
 
 def main():
