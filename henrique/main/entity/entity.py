@@ -14,28 +14,17 @@ class Entity:
         EXTRA = "extra"
     F = Field
 
-    class Builder:
-        @classmethod
-        def text2h(cls, x): return {Entity.F.TEXT: x}
-        @classmethod
-        def type2h(cls, x): return {Entity.F.TYPE: x}
-        @classmethod
-        def span2h(cls, x): return {Entity.F.SPAN: x}
-        @classmethod
-        def value2h(cls, x): return {Entity.F.VALUE: x}
-        @classmethod
-        def extra2h(cls, x): return {Entity.F.EXTRA: x}
-
-        @classmethod
-        def match2h(cls, m):
-            span = MatchTool.match2span(m)
-            text = MatchTool.match2text(m)
-
-            l = [cls.span2h(span),
-                 cls.text2h(text),
-                 cls.value2h(text),
-                 ]
-            return merge_dicts(l)
+    # class Builder:
+    #     @classmethod
+    #     def match2h(cls, m):
+    #         span = MatchTool.match2span(m)
+    #         text = MatchTool.match2text(m)
+    #
+    #         l = [cls.span2h(span),
+    #              cls.text2h(text),
+    #              cls.value2h(text),
+    #              ]
+    #         return merge_dicts(l)
 
 
 

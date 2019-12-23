@@ -12,7 +12,7 @@ from foxylib.tools.database.postgres.postgres_tool import PostgresTool
 from foxylib.tools.json.json_tool import JsonTool, jdown
 from henrique.main.entity.markettrend.trend_entity import PortTradegoodStateTable, MarkettrendCollection, \
     MarkettrendDocument
-from henrique.main.entity.port.port_entity import PortCollection, PortTable, PortDocument
+from henrique.main.entity.port.port_entity import PortCollection, PortTable, PortDoc
 from henrique.main.entity.tradegood.tradegood_entity import TradegoodTable, TradegoodDocument
 from henrique.main.hub.logger.logger import HenriqueLogger
 from henrique.main.hub.postgres.postgres_hub import PostgresHub
@@ -30,7 +30,7 @@ class Markettrend2MongoDB:
             for t_list_chunk in ChunkTool.chunk_size2chunks(PostgresTool.fetch_iter(cursor), 100000):
 
                 port_name_en_list = lmap(PortTradegoodStateTable.tuple2port_name_en, t_list_chunk)
-                port_id_list = PortDocument.name_en_list2doc_id_list(port_name_en_list)
+                j_port_list = PortDoc.name_en_list2j_port_list(port_name_en_list)
 
                 tradegood_name_en_list = lmap(PortTradegoodStateTable.tuple2tradegood_name_en, t_list_chunk)
                 tradegood_id_list = TradegoodDocument.name_en_list2doc_id_list(tradegood_name_en_list)
@@ -44,7 +44,7 @@ class Markettrend2MongoDB:
 
                     j_doc = {MarkettrendDocument.F.SERVER: jdown(j_postgres, ["server","name"]),
                              MarkettrendDocument.F.CREATED_AT: datetime.fromisoformat(j_postgres["created_at"]),
-                             MarkettrendDocument.F.PORT_ID: port_id_list[i],
+                             MarkettrendDocument.F.PORT_ID: MongoDBTool.j_doc2id(j_port_list[i]),
                              MarkettrendDocument.F.TRADEGOOD_ID: tradegood_id_list[i],
                              MarkettrendDocument.F.RATE: rate_list[i],
                              MarkettrendDocument.F.TREND: trend_list[i],

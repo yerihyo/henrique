@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from henrique.main.entity.port.port_action import PortAction
+from henrique.main.entity.port.port_action import PortSpell
 from henrique.main.entity.tradegood.tradegood_action import TradegoodAction
 from henrique.main.handlers.jinni.ask.handler import Handler
 from henrique.main.hub.logger.logger import HenriqueLogger
@@ -18,7 +18,7 @@ class TestHandler(TestCase):
         j_packet = KhalaPacket.j_chat2j_packet(j_chat)
 
         hyp = Handler.j_packet2action(j_packet)
-        ref = PortAction
+        ref = PortSpell
         self.assertEqual(hyp, ref)
 
     def test_02(self):
@@ -26,7 +26,7 @@ class TestHandler(TestCase):
         j_packet = KhalaPacket.j_chat2j_packet(j_chat)
 
         hyp = Handler.j_packet2action(j_packet)
-        ref = PortAction
+        ref = PortSpell
         self.assertEqual(hyp, ref)
 
 

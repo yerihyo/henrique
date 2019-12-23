@@ -1,0 +1,3 @@
+Response to '{{spell}}'
+
+{{str_ports}}

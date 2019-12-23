@@ -11,7 +11,7 @@ from foxylib.tools.database.postgres.postgres_tool import PostgresTool
 from foxylib.tools.json.json_tool import JsonTool
 from henrique.main.hub.logger.logger import HenriqueLogger
 from henrique.main.hub.postgres.postgres_hub import PostgresHub
-from henrique.main.entity.port.port_entity import PortTable, PortCollection, PortDocument
+from henrique.main.entity.port.port_entity import PortTable, PortCollection, PortDoc
 
 
 class Port2MongoDB:
@@ -33,12 +33,12 @@ class Port2MongoDB:
                 for lang, nickname_list in j.get("nicknames",{}).items():
                     h_lang2names[lang] = lchain(h_lang2names.get(lang,[]), nickname_list)
 
-                j[PortDocument.F.NAMES] = {lang:luniq(name_list) for lang, name_list in h_lang2names.items()}
+                j[PortDoc.F.NAMES] = {lang:luniq(name_list) for lang, name_list in h_lang2names.items()}
                 for k in ["name","nicknames"]:
                     j.pop(k,None)
 
                 # logger.debug({'j["names"]':j["names"]})
-                j[PortDocument.F.Key] = j["names"]["en"][0]
+                j[PortDoc.F.Key] = j["names"]["en"][0]
 
                 yield j
 
@@ -56,7 +56,7 @@ class Port2MongoDB:
 
         for i, j_list_chunk in enumerate(ChunkTool.chunk_size2chunks(j_list, chunk_size)):
             logger.debug({"i/n": "{}/{}".format(i*chunk_size, n)})
-            j_pair_list = [(JsonTool.j_jpaths2filtered(j, [[PortDocument.F.KEY]]),j) for j in j_list_chunk]
+            j_pair_list = [(JsonTool.j_jpaths2filtered(j, [[PortDoc.F.KEY]]),j) for j in j_list_chunk]
             MongoDBTool.j_pair_iter2upsert(collection, j_pair_list)
 
 

@@ -1,0 +1,4 @@
+[{{port_typename}}] {{port_name}}
+{{culture_typename}}: {{culture_name}}
+{{region_typename}}: {{region_name}}
+{{portstatus_typename}}: {{portstatus}}

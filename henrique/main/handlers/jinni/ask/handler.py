@@ -1,6 +1,6 @@
 from future.utils import lfilter
 
-from henrique.main.entity.port.port_action import PortAction
+from henrique.main.entity.port.port_action import PortSpell
 from henrique.main.entity.tradegood.tradegood_action import TradegoodAction
 from khalalib.chat.chat import KhalaChat
 from khalalib.packet.packet import KhalaPacket
@@ -20,7 +20,7 @@ class Handler:
         # l = str2split(text_body)
         if not text_body: return None
 
-        action_list = [PortAction, TradegoodAction]
+        action_list = [PortSpell, TradegoodAction]
 
         action_list_matched = lfilter(lambda x:x.text_body2match(text_body), action_list)
         if not action_list_matched: return None
