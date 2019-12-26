@@ -12,11 +12,12 @@ func_count2reduce(){
 }
 
 REPO_DIR=$(func_count2reduce $FILE_DIR dirname 2)
-export SKIP_WARMUP=1
+export SKIP_WARMUP="" #1
 export FLASK_ENV=development
 
 main(){
     pushd $REPO_DIR
+    pip install -U -r henrique/requirements.txt
     pytest "$@"
     popd
 }

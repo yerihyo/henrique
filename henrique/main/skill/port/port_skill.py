@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 
 from functools import lru_cache
@@ -9,6 +10,7 @@ from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.json.json_tool import jdown
 from foxylib.tools.json.yaml_tool import YAMLTool
+from foxylib.tools.regex.regex_tool import RegexTool
 from foxylib.tools.string.string_tool import str2split
 from henrique.main.entity.khala_action import KhalaAction
 from henrique.main.entity.port.port_entity import PortEntity
@@ -44,8 +46,16 @@ class PortSkill:
     @classmethod
     @WARMER.add(cond=EnvTool.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def h_reversed(cls, ):
+        return YAMLTool.j_yaml2h_reversed(cls.j_yaml())
+
+    @classmethod
+    @WARMER.add(cond=EnvTool.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def p_command(cls, ):
-        return KhalaAction.j_yaml2p_command(cls.j_yaml())
+        rstr = RegexTool.rstr_list2or(list(cls.h_reversed().keys()))
+        p = re.compile(rstr, re.I)
+        return p
 
     @classmethod
     def text_body2match(cls, text_body):
