@@ -1,30 +1,28 @@
 import logging
 import os
-import re
 import sys
-from functools import lru_cache
 
+import re
+from functools import lru_cache
 from future.utils import lmap
-from itertools import product
 from nose.tools import assert_equal
 from psycopg2.sql import SQL, Identifier
 
-from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, lchain, \
-    iter2duplicate_list, iter2singleton, l_singleton2obj, IterTool
+from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, iter2duplicate_list, \
+    iter2singleton, IterTool, f_iter2f_list
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.database.postgres.postgres_tool import PostgresTool
 from foxylib.tools.env.env_tool import EnvTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.json.json_tool import jdown
-from foxylib.tools.json.yaml_tool import YAMLTool
-from foxylib.tools.regex.regex_tool import RegexTool
+from foxylib.tools.regex.regex_tool import RegexTool, MatchTool
 from foxylib.tools.string.string_tool import str2lower
-from henrique.main.entity.entity import Entity
 from henrique.main.hub.env.henrique_env import HenriqueEnv
 from henrique.main.hub.logger.logger import HenriqueLogger
 from henrique.main.hub.mongodb.mongodb_hub import MongoDBHub
 from henrique.main.hub.postgres.postgres_hub import PostgresHub
+from henrique.main.tool.entity_tool import EntityTool
 
 MODULE = sys.modules[__name__]
 WARMER = Warmer(MODULE)
@@ -65,6 +63,9 @@ class PortDoc:
 
 
     @classmethod
+    def j_port2key(cls, j_port): return j_port[cls.F.KEY]
+
+    @classmethod
     def jpath_names(cls): return [cls.F.NAMES]
 
     @classmethod
@@ -74,15 +75,12 @@ class PortDoc:
     def jpath_names_ko(cls): return [cls.F.NAMES, "ko"]
 
     @classmethod
-    def j_port_iter_all(cls):
-        collection = PortCollection.collection()
-        yield from MongoDBTool.result2j_doc_iter(collection.find({}))
-
-    @classmethod
     @WARMER.add(cond=EnvTool.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @f_iter2f_list
     def j_port_list_all(cls):
-        return list(cls.j_port_iter_all())
+        collection = PortCollection.collection()
+        yield from MongoDBTool.result2j_doc_iter(collection.find({}))
 
     @classmethod
     def name_en_list2j_port_list(cls, name_en_list):
@@ -100,54 +98,61 @@ class PortEntity:
     TYPE = "port"
 
     @classmethod
-    def _query2qterm(cls, name): return str2lower(name)
+    def query2norm(cls, q): return str2lower(q)
 
     @classmethod
     @WARMER.add(cond=EnvTool.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def h_qterm2j_doc(cls):
-        logger = HenriqueLogger.func_level2logger(cls.h_qterm2j_doc, logging.DEBUG)
-        j_doc_list = list(PortDoc.j_port_iter_all())
+    def _h_query2j_port(cls):
+        logger = HenriqueLogger.func_level2logger(cls._h_query2j_port, logging.DEBUG)
+        j_port_list = PortDoc.j_port_list_all()
         jpath = PortDoc.jpath_names()
 
-        h_list = [{cls._query2qterm(name): j_doc}
-                  for j_doc in j_doc_list
-                  for name_list_lang in jdown(j_doc, jpath).values()
+        h_list = [{cls.query2norm(name): j_port}
+                  for j_port in j_port_list
+                  for name_list_lang in jdown(j_port, jpath).values()
                   for name in name_list_lang
                   ]
 
         logger.debug({"h_list":iter2duplicate_list(lmap(lambda h:iter2singleton(h.keys()), h_list)),
                       "jpath":jpath,
-                      "j_doc_list[0]":j_doc_list[0],
-                      "query[0]":jdown(j_doc_list[0],jpath)
+                      "j_doc_list[0]":j_port_list[0],
+                      "query[0]":jdown(j_port_list[0],jpath)
                       })
         h = merge_dicts(h_list,vwrite=vwrite_no_duplicate_key)
         return h
 
     @classmethod
-    def query2j_doc(cls, query):
-        qterm = cls._query2qterm(query)
-        h = cls.h_qterm2j_doc()
-        return h.get(qterm)
+    def query2j_port(cls, query):
+        str_norm = cls.query2norm(query)
+        h = cls._h_query2j_port()
+        return h.get(str_norm)
 
 
     @classmethod
     @WARMER.add(cond=EnvTool.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def pattern(cls):
-        h = cls.h_qterm2j_doc()
+        h = cls._h_query2j_port()
         rstr = RegexTool.rstr_list2or(lmap(re.escape, h.keys()))
         return re.compile(rstr, re.I)
 
+    @classmethod
+    def _match2entity(cls, m):
+        text = MatchTool.match2text(m)
+        j_port = cls.query2j_port(text)
+
+        j = {EntityTool.F.SPAN: MatchTool.match2span(m),
+             EntityTool.F.TEXT: text,
+             EntityTool.F.VALUE: j_port,
+             }
+        return j
 
     @classmethod
     def str2entity_list(cls, str_in):
         m_list = list(cls.pattern().finditer(str_in))
 
-        entity_list = [merge_dicts([Entity.Builder.match2h(m),
-                                    Entity.Builder.type2h(cls.NAME),
-                                    ])
-                       for m in m_list]
+        entity_list = [cls._match2entity(m) for m in m_list]
         return entity_list
 
 

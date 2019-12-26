@@ -1,26 +1,25 @@
 import logging
 import os
-import re
 import sys
+
+import re
 from functools import lru_cache
-
 from future.utils import lmap, lfilter
-from itertools import product
 
-from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, lchain, \
-    iter2duplicate_list, iter2singleton
+from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, iter2duplicate_list, \
+    iter2singleton
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.env.env_tool import EnvTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.json.json_tool import jdown
 from foxylib.tools.json.yaml_tool import YAMLTool
-from foxylib.tools.regex.regex_tool import RegexTool
+from foxylib.tools.regex.regex_tool import RegexTool, MatchTool
 from foxylib.tools.string.string_tool import str2lower
-from henrique.main.hub.entity.entity import Entity
 from henrique.main.hub.env.henrique_env import HenriqueEnv
 from henrique.main.hub.logger.logger import HenriqueLogger
 from henrique.main.hub.mongodb.mongodb_hub import MongoDBHub
+from henrique.main.tool.entity_tool import EntityTool
 
 MODULE = sys.modules[__name__]
 WARMER = Warmer(MODULE)
@@ -77,12 +76,19 @@ class MarkettrendEntity:
 
 
     @classmethod
+    def _match2entity(cls, m):
+        text = MatchTool.match2text(m)
+        j = {EntityTool.F.SPAN: MatchTool.match2span(m),
+             EntityTool.F.TEXT: text,
+             EntityTool.F.VALUE: text,
+             }
+        return j
+
+    @classmethod
     def str2entity_list(cls, str_in):
         m_list = list(cls.pattern().finditer(str_in))
 
-        entity_list = [merge_dicts([Entity.Builder.match2h(m),
-                                    Entity.Builder.type2h(cls.NAME),
-                                    ])
+        entity_list = [cls._match2entity(m)
                        for m in m_list]
         return entity_list
 

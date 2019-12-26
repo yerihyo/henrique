@@ -1,9 +1,12 @@
 import os
 
 from foxylib.tools.jinja2.jinja2_tool import Jinja2Tool
-from henrique.main.action.port.port_action import PortSpell, PortAnswer
+from foxylib.tools.locale.locale_tool import LocaleTool
+from henrique.main.skill.port.port_skill import PortSkill
 from henrique.main.entity.port.port_entity import PortDoc
-from henrique.main.entity.port.port_reference import PortReference
+from henrique.main.entity.port.\
+    port_reference import PortReference
+from henrique.main.tool.skillnote_tool import SkillnoteTool
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
@@ -25,9 +28,9 @@ class PortRenderer:
         return str_out
 
     @classmethod
-    def j_answer2str(cls, j_answer, lang):
-        spell = PortAnswer.j_answer2spell(j_answer)
-        j_port_list = PortAnswer.j_answer2j_port_list(j_answer)
+    def j_skillnote2str(cls, j_answer, lang):
+        spell = SkillnoteTool.j2spell(j_answer)
+        j_port_list = PortSkill.j_skillnote2j_port_list(j_answer)
 
         str_port_list = [cls.j_port2str(j_port, lang)
                          for j_port in j_port_list]
@@ -40,6 +43,8 @@ class PortRenderer:
         return str_out
 
     @classmethod
-    def spell_lang2str(cls, spell, lang):
-        j_answer = PortSpell.str2j_answer(spell)
-        return cls.j_answer2str(j_answer, lang)
+    def spell_locale2str(cls, spell, locale):
+        lang = LocaleTool.locale2lang(locale)
+
+        j_note = PortSkill.str2j_skillnote(spell)
+        return cls.j_skillnote2str(j_note, lang)

@@ -5,15 +5,13 @@ from foxylib.tools.env.env_tool import EnvTool
 
 class MongoDBHub:
     class Env:
-        MONGODB_AUTH = "MONGODB_AUTH"
-        MONGODB_SUFFIX = "MONGODB_SUFFIX"
-        MONGODB_DBNAME = "MONGODB_DBNAME"
+        MONGO_URI = "MONGO_URI"
+        # MONGODB_SUFFIX = "MONGODB_SUFFIX"
+        MONGO_DBNAME = "MONGO_DBNAME"
 
     @classmethod
     def uri(cls):
-        auth = EnvTool.k2v(cls.Env.MONGODB_AUTH)
-        suffix = EnvTool.k2v(cls.Env.MONGODB_SUFFIX)
-        return "{}?{}".format(auth, suffix)
+        return EnvTool.k2v(cls.Env.MONGO_URI)
 
     @classmethod
     def client(cls):
@@ -23,7 +21,7 @@ class MongoDBHub:
     @classmethod
     def db(cls):
         client = cls.client()
-        dbname = EnvTool.k2v(cls.Env.MONGODB_DBNAME)
+        dbname = EnvTool.k2v(cls.Env.MONGO_DBNAME)
         return client[dbname]
 
     @classmethod

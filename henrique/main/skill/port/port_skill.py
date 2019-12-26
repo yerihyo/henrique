@@ -7,12 +7,14 @@ from future.utils import lmap
 from foxylib.tools.env.env_tool import EnvTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
+from foxylib.tools.json.json_tool import jdown
 from foxylib.tools.json.yaml_tool import YAMLTool
 from foxylib.tools.string.string_tool import str2split
-from henrique.main.entity.entity import Entity
 from henrique.main.entity.khala_action import KhalaAction
 from henrique.main.entity.port.port_entity import PortEntity
 from henrique.main.hub.env.henrique_env import HenriqueEnv
+from henrique.main.tool.entity_tool import EntityTool
+from henrique.main.tool.skillnote_tool import SkillnoteTool
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
@@ -21,21 +23,17 @@ FILE_DIR = os.path.dirname(FILE_PATH)
 MODULE = sys.modules[__name__]
 WARMER = Warmer(MODULE)
 
-class PortAnswer:
+class PortResult:
     class Field:
-        SPELL = "spell"
         PORTS = "ports"
     F = Field
 
-    @classmethod
-    def j_answer2spell(cls, j_answer):
-        return j_answer[cls.F.SPELL]
+class PortSkill:
 
     @classmethod
-    def j_answer2j_port_list(cls, j_answer):
-        return j_answer[cls.F.PORTS]
+    def j_skillnote2j_port_list(cls, j_note):
+        return jdown(j_note, [SkillnoteTool.F.RESULT, PortResult.F.PORTS])
 
-class PortSpell:
     @classmethod
     @WARMER.add(cond=EnvTool.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
@@ -68,17 +66,19 @@ class PortSpell:
     #
     #     str_out = "\n\n".join(str_list)
     #
-    #     return KhalaResponse.Builder.str2j_answer(str_out)
+    #     return KhalaResponse.Builder.str2j_skillnote(str_out)
 
     @classmethod
-    def str2j_answer(cls, str_in):
+    def str2j_skillnote(cls, str_in):
         port_entity_list = PortEntity.str2entity_list(str_in)
 
-        j_port_list = lmap(Entity.entity2value, port_entity_list)
-        j_answer = {PortAnswer.F.SPELL: str_in,
-                      PortAnswer.F.PORTS: j_port_list,
-                      }
-        return j_answer
+        j_port_list = lmap(EntityTool.entity2value, port_entity_list)
+        j_result = {PortResult.F.PORTS: j_port_list}
+
+        j_note = {SkillnoteTool.F.SPELL: str_in,
+                  SkillnoteTool.F.RESULT: j_result,
+                  }
+        return j_note
 
 
 WARMER.warmup()

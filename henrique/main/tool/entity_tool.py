@@ -2,7 +2,7 @@ from foxylib.tools.collections.collections_tool import merge_dicts
 from foxylib.tools.regex.regex_tool import MatchTool
 
 
-class Entity:
+class EntityTool:
     class Cache:
         DEFAULT_SIZE = 32
 
