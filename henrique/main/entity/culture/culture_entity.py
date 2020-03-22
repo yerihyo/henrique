@@ -7,9 +7,9 @@ from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.json.json_tool import jdown
 from foxylib.tools.json.yaml_tool import YAMLTool
-from henrique.main.hub.cache.henrique_cache import HenriqueCache
-from henrique.main.hub.env.henrique_env import HenriqueEnv
-from henrique.main.hub.mongodb.mongodb_hub import MongoDBHub
+from henrique.main.singleton.cache.henrique_cache import HenriqueCache
+from henrique.main.singleton.env.henrique_env import HenriqueEnv
+from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb
 
 MODULE = sys.modules[__name__]
 WARMER = Warmer(MODULE)
@@ -25,7 +25,7 @@ class CultureCollection:
         NAME = "name"
 
     @classmethod
-    @WARMER.add(cond=EnvTool.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
+    @WARMER.add(cond=not HenriqueEnv.skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def j_yaml(cls):
         filepath = os.path.join(FILE_DIR, "culture_collection.yaml")
@@ -39,7 +39,7 @@ class CultureCollection:
 
     @classmethod
     def collection(cls, *_, **__):
-        db = MongoDBHub.db()
+        db = HenriqueMongodb.db()
         return db.get_collection(cls.COLLECTION_NAME, *_, **__)
 
 class CultureDocument:

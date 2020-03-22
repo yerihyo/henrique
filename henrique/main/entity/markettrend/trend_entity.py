@@ -16,9 +16,9 @@ from foxylib.tools.json.json_tool import jdown
 from foxylib.tools.json.yaml_tool import YAMLTool
 from foxylib.tools.regex.regex_tool import RegexTool, MatchTool
 from foxylib.tools.string.string_tool import str2lower
-from henrique.main.hub.env.henrique_env import HenriqueEnv
-from henrique.main.hub.logger.logger import HenriqueLogger
-from henrique.main.hub.mongodb.mongodb_hub import MongoDBHub
+from henrique.main.singleton.env.henrique_env import HenriqueEnv
+from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
+from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb
 from henrique.main.tool.entity_tool import EntityTool
 
 MODULE = sys.modules[__name__]
@@ -34,7 +34,7 @@ class MarkettrendEntity:
     def _query2qterm(cls, name): return str2lower(name)
 
     @classmethod
-    @WARMER.add(cond=EnvTool.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
+    @WARMER.add(cond=not HenriqueEnv.skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def h_qterm2j_doc(cls):
         logger = HenriqueLogger.func_level2logger(cls.h_qterm2j_doc, logging.DEBUG)
@@ -67,7 +67,7 @@ class MarkettrendEntity:
 
 
     @classmethod
-    @WARMER.add(cond=EnvTool.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
+    @WARMER.add(cond=not HenriqueEnv.skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def pattern(cls):
         h = cls.h_qterm2j_doc()
@@ -101,7 +101,7 @@ class MarkettrendCollection:
         NAME = "name"
 
     @classmethod
-    @WARMER.add(cond=EnvTool.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
+    @WARMER.add(cond=not HenriqueEnv.skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def j_yaml(cls):
         filepath = os.path.join(FILE_DIR, "tradegood_collection.yaml")
@@ -115,7 +115,7 @@ class MarkettrendCollection:
 
     @classmethod
     def collection(cls, *_, **__):
-        db = MongoDBHub.db()
+        db = HenriqueMongodb.db()
         return db.get_collection(cls.COLLECTION_NAME, *_, **__)
 
 

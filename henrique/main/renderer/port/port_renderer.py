@@ -1,6 +1,6 @@
 import os
 
-from foxylib.tools.jinja2.jinja2_tool import Jinja2Tool
+from foxylib.tools.jinja2.jinja2_tool import Jinja2Tool, Jinja2Renderer
 from foxylib.tools.locale.locale_tool import LocaleTool
 from henrique.main.skill.port.port_skill import PortSkill
 from henrique.main.entity.port.port_entity import PortDoc
@@ -24,7 +24,7 @@ class PortRenderer:
                   "port_status_collection_name": "n/a",  # PortStatusCollection.lang2name(lang),
                   "port_status": "n/a",  # None,
                   }
-        str_out = Jinja2Tool.tmplt_file2str(filepath, j_data)
+        str_out = Jinja2Renderer.textfile2text(filepath, j_data)
         return str_out
 
     @classmethod
@@ -39,7 +39,7 @@ class PortRenderer:
         j_body = {"spell":spell,
                   "str_ports":"\n\n".join(str_port_list),
                   }
-        str_out = Jinja2Tool.tmplt_file2str(filepath, j_body)
+        str_out = Jinja2Renderer.textfile2text(filepath, j_body)
         return str_out
 
     @classmethod

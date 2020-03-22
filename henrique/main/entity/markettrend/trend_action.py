@@ -9,7 +9,7 @@ from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.json.yaml_tool import YAMLTool
 from henrique.main.entity.tradegood.tradegood_entity import TradegoodEntity
-from henrique.main.hub.env.henrique_env import HenriqueEnv
+from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from khalalib.chat.chat import KhalaChat
 from khalalib.packet.packet import KhalaPacket
 from khalalib.response.khala_response import KhalaResponse
@@ -25,7 +25,7 @@ class TradegoodAction:
 
 
     @classmethod
-    @WARMER.add(cond=EnvTool.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
+    @WARMER.add(cond=not HenriqueEnv.skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def j_yaml(cls):
         filepath = os.path.join(FILE_DIR, "action.yaml")

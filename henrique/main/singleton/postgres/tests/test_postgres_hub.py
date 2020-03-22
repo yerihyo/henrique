@@ -3,11 +3,11 @@ from unittest import TestCase
 
 import pytest
 
-from henrique.main.hub.logger.logger import HenriqueLogger
-from henrique.main.hub.postgres.postgres_hub import PostgresHub
+from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
+from henrique.main.singleton.postgres.henrique_postgres import HenriquePostgres
 
 
-class PostgresHubTest(TestCase):
+class HenriquePostgresTest(TestCase):
     @classmethod
     def setUpClass(cls):
         HenriqueLogger.attach_stderr2loggers()
@@ -16,7 +16,7 @@ class PostgresHubTest(TestCase):
     def test_01(self):
         logger = HenriqueLogger.func_level2logger(self.test_01, logging.DEBUG)
 
-        with PostgresHub.cursor() as cursor:
+        with HenriquePostgres.cursor() as cursor:
             cursor.execute("""SELECT * from unchartedwatersonline_port""")
             l = cursor.fetchall()
 

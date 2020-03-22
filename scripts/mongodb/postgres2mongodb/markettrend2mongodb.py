@@ -14,8 +14,8 @@ from henrique.main.entity.markettrend.trend_entity import PortTradegoodStateTabl
     MarkettrendDocument
 from henrique.main.entity.port.port_entity import PortCollection, PortTable, PortDoc
 from henrique.main.entity.tradegood.tradegood_entity import TradegoodTable, TradegoodDocument
-from henrique.main.hub.logger.logger import HenriqueLogger
-from henrique.main.hub.postgres.postgres_hub import PostgresHub
+from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
+from henrique.main.singleton.postgres.henrique_postgres import HenriquePostgres
 
 
 class Markettrend2MongoDB:
@@ -24,7 +24,7 @@ class Markettrend2MongoDB:
     def postgres2j_iter(cls):
         logger = HenriqueLogger.func_level2logger(cls.postgres2j_iter, logging.DEBUG)
 
-        with PostgresHub.cursor() as cursor:
+        with HenriquePostgres.cursor() as cursor:
             sql = SQL("SELECT * from {}").format(Identifier(PortTradegoodStateTable.NAME))
             cursor.execute(sql)
             for t_list_chunk in ChunkTool.chunk_size2chunks(PostgresTool.fetch_iter(cursor), 100000):

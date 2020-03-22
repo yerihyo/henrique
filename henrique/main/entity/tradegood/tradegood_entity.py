@@ -19,11 +19,11 @@ from foxylib.tools.json.json_tool import jdown
 from foxylib.tools.json.yaml_tool import YAMLTool
 from foxylib.tools.regex.regex_tool import RegexTool
 from foxylib.tools.string.string_tool import str2lower
-from henrique.main.hub.entity.entity import Entity
-from henrique.main.hub.env.henrique_env import HenriqueEnv
-from henrique.main.hub.logger.logger import HenriqueLogger
-from henrique.main.hub.mongodb.mongodb_hub import MongoDBHub
-from henrique.main.hub.postgres.postgres_hub import PostgresHub
+from henrique.main.singleton.entity.entity import Entity
+from henrique.main.singleton.env.henrique_env import HenriqueEnv
+from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
+from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb
+from henrique.main.singleton.postgres.henrique_postgres import HenriquePostgres
 
 MODULE = sys.modules[__name__]
 WARMER = Warmer(MODULE)
@@ -38,7 +38,7 @@ class TradegoodEntity:
     def _query2qterm(cls, name): return str2lower(name)
 
     @classmethod
-    @WARMER.add(cond=EnvTool.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
+    @WARMER.add(cond=not HenriqueEnv.skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def h_qterm2j_doc(cls):
         logger = HenriqueLogger.func_level2logger(cls.h_qterm2j_doc, logging.DEBUG)
@@ -71,7 +71,7 @@ class TradegoodEntity:
 
 
     @classmethod
-    @WARMER.add(cond=EnvTool.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
+    @WARMER.add(cond=not HenriqueEnv.skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def pattern(cls):
         h = cls.h_qterm2j_doc()
@@ -98,7 +98,7 @@ class TradegoodCollection:
         NAME = "name"
 
     @classmethod
-    @WARMER.add(cond=EnvTool.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
+    @WARMER.add(cond=not HenriqueEnv.skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def j_yaml(cls):
         filepath = os.path.join(FILE_DIR, "tradegood_collection.yaml")
@@ -112,7 +112,7 @@ class TradegoodCollection:
 
     @classmethod
     def collection(cls, *_, **__):
-        db = MongoDBHub.db()
+        db = HenriqueMongodb.db()
         return db.get_collection(cls.COLLECTION_NAME, *_, **__)
 
 
@@ -161,7 +161,7 @@ class TradegoodDocument:
         yield from MongoDBTool.result2j_doc_iter(collection.find({}))
 
     @classmethod
-    @WARMER.add(cond=EnvTool.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
+    @WARMER.add(cond=not HenriqueEnv.skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def _h_doc_id2j_doc(cls):
         return MongoDBTool.j_doc_iter2h_doc_id2j_doc(cls.j_doc_iter_all())
@@ -191,7 +191,7 @@ class TradegoodTable:
     @classmethod
     def name_en_list2tradegood_id_list(cls, name_en_list):
         h = {}
-        with PostgresHub.cursor() as cursor:
+        with HenriquePostgres.cursor() as cursor:
             sql = SQL("SELECT id, name_en from {}").format(Identifier(cls.NAME))
             cursor.execute(sql)
 

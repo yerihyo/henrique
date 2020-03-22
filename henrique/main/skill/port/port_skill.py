@@ -14,7 +14,7 @@ from foxylib.tools.regex.regex_tool import RegexTool
 from foxylib.tools.string.string_tool import str2split
 from henrique.main.entity.khala_action import KhalaAction
 from henrique.main.entity.port.port_entity import PortEntity
-from henrique.main.hub.env.henrique_env import HenriqueEnv
+from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.tool.entity_tool import EntityTool
 from henrique.main.tool.skillnote_tool import SkillnoteTool
 
@@ -37,20 +37,20 @@ class PortSkill:
         return jdown(j_note, [SkillnoteTool.F.RESULT, PortResult.F.PORTS])
 
     @classmethod
-    @WARMER.add(cond=EnvTool.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
+    @WARMER.add(cond=not HenriqueEnv.skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def j_yaml(cls):
         filepath = os.path.join(FILE_DIR, "command.yaml")
         return YAMLTool.filepath2j(filepath)
 
     @classmethod
-    @WARMER.add(cond=EnvTool.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
+    @WARMER.add(cond=not HenriqueEnv.skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def h_reversed(cls, ):
         return YAMLTool.j_yaml2h_reversed(cls.j_yaml())
 
     @classmethod
-    @WARMER.add(cond=EnvTool.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
+    @WARMER.add(cond=not HenriqueEnv.skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def p_command(cls, ):
         rstr = RegexTool.rstr_list2or(list(cls.h_reversed().keys()))

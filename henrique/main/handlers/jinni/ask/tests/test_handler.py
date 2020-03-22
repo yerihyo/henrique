@@ -3,7 +3,7 @@ from unittest import TestCase
 import pytest
 
 from henrique.main.handlers.jinni.ask.handler import Handler
-from henrique.main.hub.logger.logger import HenriqueLogger
+from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from khalalib.chat.chat import KhalaChat
 from khalalib.packet.packet import KhalaPacket
 

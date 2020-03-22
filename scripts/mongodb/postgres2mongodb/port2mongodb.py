@@ -5,12 +5,12 @@ from psycopg2.sql import SQL, Identifier
 from pymongo import WriteConcern
 
 from foxylib.tools.collections.chunk_tool import ChunkTool
-from foxylib.tools.collections.collections_tool import luniq, DictToolkit, lchain
+from foxylib.tools.collections.collections_tool import luniq, DictTool, lchain
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.database.postgres.postgres_tool import PostgresTool
 from foxylib.tools.json.json_tool import JsonTool
-from henrique.main.hub.logger.logger import HenriqueLogger
-from henrique.main.hub.postgres.postgres_hub import PostgresHub
+from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
+from henrique.main.singleton.postgres.henrique_postgres import HenriquePostgres
 from henrique.main.entity.port.port_entity import PortTable, PortCollection, PortDoc
 
 
@@ -19,7 +19,7 @@ class Port2MongoDB:
     def postgres2j_iter(cls):
         logger = HenriqueLogger.func_level2logger(cls.postgres2j_iter, logging.DEBUG)
 
-        with PostgresHub.cursor() as cursor:
+        with HenriquePostgres.cursor() as cursor:
             sql = SQL("SELECT * from {}").format(Identifier(PortTable.NAME))
             cursor.execute(sql)
             for t in PostgresTool.fetch_iter(cursor):

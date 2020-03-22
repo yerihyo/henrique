@@ -1,8 +1,8 @@
 import os
 
-from foxylib.tools.jinja2.jinja2_tool import Jinja2Tool
+from foxylib.tools.jinja2.jinja2_tool import Jinja2Tool, Jinja2Renderer
 from foxylib.tools.locale.locale_tool import LocaleTool
-from henrique.main.hub.entity.entity import Entity
+from henrique.main.singleton.entity.entity import Entity
 from henrique.main.entity.tradegood.tradegood_entity import TradegoodEntity, TradegoodDocument, TradegoodCollection
 from khalalib.packet.packet import KhalaPacket
 
@@ -25,7 +25,7 @@ class TradegoodTradegoodSubaction:
                   "tradegood_name":TradegoodDocument.j_tradegood_lang2name(j_tradegood,lang),
 
                   }
-        str_out = Jinja2Tool.tmplt_file2str(filepath, j_data)
+        str_out = Jinja2Renderer.textfile2text(filepath, j_data)
         return str_out
 
 

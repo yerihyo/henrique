@@ -8,7 +8,7 @@ from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.regex.regex_tool import RegexTool
 from foxylib.tools.string.string_tool import str2split
-from henrique.main.hub.env.henrique_env import HenriqueEnv
+from henrique.main.singleton.env.henrique_env import HenriqueEnv
 
 MODULE = sys.modules[__name__]
 WARMER = Warmer(MODULE)

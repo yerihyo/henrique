@@ -9,19 +9,18 @@ from nose.tools import assert_equal
 from psycopg2.sql import SQL, Identifier
 
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, iter2duplicate_list, \
-    iter2singleton, IterTool, f_iter2f_list
+    iter2singleton, IterTool
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.database.postgres.postgres_tool import PostgresTool
-from foxylib.tools.env.env_tool import EnvTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.json.json_tool import jdown
 from foxylib.tools.regex.regex_tool import RegexTool, MatchTool
 from foxylib.tools.string.string_tool import str2lower
-from henrique.main.hub.env.henrique_env import HenriqueEnv
-from henrique.main.hub.logger.logger import HenriqueLogger
-from henrique.main.hub.mongodb.mongodb_hub import MongoDBHub
-from henrique.main.hub.postgres.postgres_hub import PostgresHub
+from henrique.main.singleton.env.henrique_env import HenriqueEnv
+from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
+from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb
+from henrique.main.singleton.postgres.henrique_postgres import HenriquePostgres
 from henrique.main.tool.entity_tool import EntityTool
 
 MODULE = sys.modules[__name__]
@@ -30,10 +29,12 @@ WARMER = Warmer(MODULE)
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 
+
 class PortCollection:
     @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def collection(cls, *_, **__):
-        db = MongoDBHub.db()
+        db = HenriqueMongodb.db()
         return db.get_collection("port", *_, **__)
 
 
@@ -75,9 +76,9 @@ class PortDoc:
     def jpath_names_ko(cls): return [cls.F.NAMES, "ko"]
 
     @classmethod
-    @WARMER.add(cond=EnvTool.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
+    @WARMER.add(cond=not HenriqueEnv.skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    @f_iter2f_list
+    @IterTool.wrap_iterable2list
     def j_port_list_all(cls):
         collection = PortCollection.collection()
         yield from MongoDBTool.result2j_doc_iter(collection.find({}))
@@ -101,7 +102,7 @@ class PortEntity:
     def query2norm(cls, q): return str2lower(q)
 
     @classmethod
-    @WARMER.add(cond=EnvTool.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
+    @WARMER.add(cond=not HenriqueEnv.skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def _h_query2j_port(cls):
         logger = HenriqueLogger.func_level2logger(cls._h_query2j_port, logging.DEBUG)
@@ -130,7 +131,7 @@ class PortEntity:
 
 
     @classmethod
-    @WARMER.add(cond=EnvTool.key2is_not_true(HenriqueEnv.K.SKIP_WARMUP))
+    @WARMER.add(cond=not HenriqueEnv.skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def pattern(cls):
         h = cls._h_query2j_port()
@@ -170,7 +171,7 @@ class PortTable:
     @classmethod
     def name_en_list2port_id_list(cls, name_en_list):
         h = {}
-        with PostgresHub.cursor() as cursor:
+        with HenriquePostgres.cursor() as cursor:
             sql = SQL("SELECT id, name_en FROM {}").format(Identifier(cls.NAME), )
             cursor.execute(sql)
 

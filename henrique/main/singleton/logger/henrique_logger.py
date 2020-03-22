@@ -3,12 +3,14 @@ import os
 import sys
 
 from foxylib.tools.file.file_tool import FileTool
-from foxylib.tools.log.logger_tool import FoxylibLogger, LoggerTool
+from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from foxylib.tools.log.logger_tool import LoggerTool, FoxylibLogFormatter
 from functools import reduce, lru_cache
 
 FILE_PATH = os.path.realpath(__file__)
-REPO_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*3, FILE_PATH)
-LOG_DIR = os.path.join(REPO_DIR,"log")
+REPO_DIR = reduce(lambda x, f: f(x), [os.path.dirname] * 3, FILE_PATH)
+LOG_DIR = os.path.join(REPO_DIR, "log")
+
 
 class HenriqueLogger:
     ROOTNAME = "henrique"
@@ -31,14 +33,18 @@ class HenriqueLogger:
     @lru_cache(maxsize=None)
     def attach_filepath2loggers(cls, filepath):
         FileTool.dirpath2mkdirs(os.path.dirname(filepath))
-        handler = LoggerTool.handler2formatted(LoggerTool.filepath2handler_default(filepath))
+        handler = LoggerTool.handler_formatter2formatted(LoggerTool.filepath2handler_default(filepath),
+                                                         FoxylibLogFormatter.formatter(),
+                                                         )
         handler.setLevel(cls.level)
         cls.attach_handler2loggers(handler)
 
     @classmethod
     @lru_cache(maxsize=2)
     def attach_stderr2loggers(cls,):
-        handler = LoggerTool.handler2formatted(logging.StreamHandler(sys.stderr))
+        handler = LoggerTool.handler_formatter2formatted(logging.StreamHandler(sys.stderr),
+                                                         FoxylibLogFormatter.formatter(),
+                                                         )
         handler.setLevel(cls.level)
         cls.attach_handler2loggers(handler)
 

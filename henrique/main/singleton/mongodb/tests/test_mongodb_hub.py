@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 
-class MongoDBHubTest(TestCase):
+class HenriqueMongodbTest(TestCase):
     def test_01(self):
         pass
 
