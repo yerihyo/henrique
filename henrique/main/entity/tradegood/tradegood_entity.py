@@ -30,70 +30,6 @@ WARMER = Warmer(MODULE)
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 
-class TradegoodEntity:
-    TYPE = "tradegood"
-
-    @classmethod
-    def _query2qterm(cls, name): return str2lower(name)
-
-    @classmethod
-    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def h_qterm2j_doc(cls):
-        logger = HenriqueLogger.func_level2logger(cls.h_qterm2j_doc, logging.DEBUG)
-        j_doc_list = list(TradegoodDocument.j_doc_iter_all())
-        jpath = TradegoodDocument.jpath_names()
-
-        h_list = [{cls._query2qterm(name): j_doc}
-                  for j_doc in j_doc_list
-                  for name_list_lang in jdown(j_doc, jpath).values()
-                  for name in name_list_lang
-                  ]
-
-        logger.debug({"h_list":iter2duplicate_list(lmap(lambda h:iter2singleton(h.keys()), h_list)),
-                      "jpath":jpath,
-                      "j_doc_list[0]":j_doc_list[0],
-                      "query[0]":jdown(j_doc_list[0],jpath)
-                      })
-
-        qterm_list_duplicate = iter2duplicate_list(map(lambda h:iter2singleton(h.keys()),h_list))
-        h_list_clean = lfilter(lambda h:iter2singleton(h.keys()) not in qterm_list_duplicate, h_list)
-
-        h = merge_dicts(h_list_clean,vwrite=vwrite_no_duplicate_key)
-        return h
-
-    @classmethod
-    def query2j_doc(cls, query):
-        qterm = cls._query2qterm(query)
-        h = cls.h_qterm2j_doc()
-        return h.get(qterm)
-
-
-    @classmethod
-    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def pattern(cls):
-        h = cls.h_qterm2j_doc()
-        rstr = RegexTool.rstr_list2or(lmap(re.escape, h.keys()))
-        return re.compile(rstr, re.I)
-
-
-    @classmethod
-    def text2entity_list(cls, text_in):
-        m_list = list(cls.pattern().finditer(text_in))
-
-        def match2entity(m):
-            span = m.span()
-            text = StringTool.str_span2substr(text_in, span)
-            entity = {Entity.Field.TYPE: cls.TYPE,
-                      Entity.Field.SPAN: span,
-                      Entity.Field.TEXT: text,
-                      Entity.Field.VALUE: text,
-                      }
-            return entity
-        entity_list = lmap(match2entity, m_list)
-        return entity_list
-
 
 
 class TradegoodCollection:
@@ -121,7 +57,7 @@ class TradegoodCollection:
         return db.get_collection(cls.COLLECTION_NAME, *_, **__)
 
 
-class TradegoodDocument:
+class TradegoodDoc:
     class Field:
         KEY = "key"
         NAMES = "names"
@@ -186,6 +122,70 @@ class TradegoodDocument:
 
         doc_id_list = [h[norm(x)] for x in name_en_list]
         return doc_id_list
+
+class TradegoodEntity:
+    TYPE = "tradegood"
+
+    @classmethod
+    def _query2qterm(cls, name): return str2lower(name)
+
+    @classmethod
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def h_qterm2j_doc(cls):
+        logger = HenriqueLogger.func_level2logger(cls.h_qterm2j_doc, logging.DEBUG)
+        j_doc_list = list(TradegoodDoc.j_doc_iter_all())
+        jpath = TradegoodDoc.jpath_names()
+
+        h_list = [{cls._query2qterm(name): j_doc}
+                  for j_doc in j_doc_list
+                  for name_list_lang in jdown(j_doc, jpath).values()
+                  for name in name_list_lang
+                  ]
+
+        logger.debug({"h_list":iter2duplicate_list(lmap(lambda h:iter2singleton(h.keys()), h_list)),
+                      "jpath":jpath,
+                      "j_doc_list[0]":j_doc_list[0],
+                      "query[0]":jdown(j_doc_list[0],jpath)
+                      })
+
+        qterm_list_duplicate = iter2duplicate_list(map(lambda h:iter2singleton(h.keys()),h_list))
+        h_list_clean = lfilter(lambda h:iter2singleton(h.keys()) not in qterm_list_duplicate, h_list)
+
+        h = merge_dicts(h_list_clean,vwrite=vwrite_no_duplicate_key)
+        return h
+
+    @classmethod
+    def query2j_doc(cls, query):
+        qterm = cls._query2qterm(query)
+        h = cls.h_qterm2j_doc()
+        return h.get(qterm)
+
+
+    @classmethod
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def pattern(cls):
+        h = cls.h_qterm2j_doc()
+        rstr = RegexTool.rstr_list2or(lmap(re.escape, h.keys()))
+        return re.compile(rstr, re.I)
+
+
+    @classmethod
+    def text2entity_list(cls, text_in):
+        m_list = list(cls.pattern().finditer(text_in))
+
+        def match2entity(m):
+            span = m.span()
+            text = StringTool.str_span2substr(text_in, span)
+            entity = {Entity.Field.TYPE: cls.TYPE,
+                      Entity.Field.SPAN: span,
+                      Entity.Field.TEXT: text,
+                      Entity.Field.VALUE: text,
+                      }
+            return entity
+        entity_list = lmap(match2entity, m_list)
+        return entity_list
 
 class TradegoodTable:
     NAME = "unchartedwatersonline_tradegood"

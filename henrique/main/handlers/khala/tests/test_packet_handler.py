@@ -1,3 +1,4 @@
+import logging
 from unittest import TestCase
 
 import pytest
@@ -11,7 +12,7 @@ from khalalib.packet.packet import KhalaPacket, KhalaPacket
 class TestHandler(TestCase):
     @classmethod
     def setUpClass(cls):
-        HenriqueLogger.attach_stderr2loggers()
+        HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
 
     @pytest.mark.skip(reason="handler not yet working")
     def test_01(self):

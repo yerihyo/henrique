@@ -14,7 +14,7 @@ from foxylib.tools.string.string_tool import str2lower
 from henrique.main.entity.markettrend.trend_entity import PortTradegoodStateTable, MarkettrendCollection, \
     MarkettrendDocument
 from henrique.main.entity.port.port_entity import PortCollection, PortTable, PortDoc
-from henrique.main.entity.tradegood.tradegood_entity import TradegoodTable, TradegoodDocument
+from henrique.main.entity.tradegood.tradegood_entity import TradegoodTable, TradegoodDoc
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.singleton.postgres.henrique_postgres import HenriquePostgres
 
@@ -46,7 +46,7 @@ class Markettrend2MongoDB:
                 j_port_list = name_en_list2j_port_list(port_name_en_list)
 
                 tradegood_name_en_list = lmap(PortTradegoodStateTable.tuple2tradegood_name_en, t_list_chunk)
-                tradegood_id_list = TradegoodDocument.name_en_list2doc_id_list(tradegood_name_en_list)
+                tradegood_id_list = TradegoodDoc.name_en_list2doc_id_list(tradegood_name_en_list)
 
                 rate_list = lmap(PortTradegoodStateTable.tuple2rate, t_list_chunk)
                 trend_list = lmap(PortTradegoodStateTable.tuple2trend, t_list_chunk)
@@ -89,7 +89,7 @@ class Markettrend2MongoDB:
 
 
 def main():
-    HenriqueLogger.attach_stderr2loggers()
+    HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
     logger = HenriqueLogger.func_level2logger(main, logging.DEBUG)
 
     j_list = list(Markettrend2MongoDB.postgres2j_iter())

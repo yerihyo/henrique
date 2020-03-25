@@ -9,7 +9,7 @@ from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 class TestSkillEntity(TestCase):
     @classmethod
     def setUpClass(cls):
-        HenriqueLogger.attach_stderr2loggers()
+        HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
 
     def test_01(self):
         hyp = CommandEntity.text2entity_list("? 항구 리스본")
