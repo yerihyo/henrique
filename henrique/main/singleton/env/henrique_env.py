@@ -52,7 +52,7 @@ class HenriqueEnv:
         raise NotImplementedError()
 
     @classmethod
-    def skip_warmup(cls):
+    def is_skip_warmup(cls):
         nb = cls.key2nullboolean(cls.Key.SKIP_WARMUP)
         return nb is True
 

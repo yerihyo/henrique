@@ -2,10 +2,10 @@ from unittest import TestCase
 
 import pytest
 
-from henrique.main.handlers.jinni.ask.handler import Handler
+from henrique.main.handlers.khala.packet_handler import PacketHandler
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
-from khalalib.chat.chat import KhalaChat
-from khalalib.packet.packet import KhalaPacket
+from henrique.main.skill.port.port_skill import PortSkill
+from khalalib.packet.packet import KhalaPacket, KhalaPacket
 
 
 class TestHandler(TestCase):
@@ -15,27 +15,30 @@ class TestHandler(TestCase):
 
     @pytest.mark.skip(reason="handler not yet working")
     def test_01(self):
-        j_chat = KhalaChat.Builder.text2h("?항구 리스본")
-        j_packet = KhalaPacket.j_chat2j_packet(j_chat)
+        packet = {
+            KhalaPacket.Field.TEXT: "?항구 리스본",
+        }
 
-        hyp = Handler.j_packet2action(j_packet)
+        hyp = PacketHandler.post(packet)
         ref = PortSkill
         self.assertEqual(hyp, ref)
 
     @pytest.mark.skip(reason="handler not yet working")
     def test_02(self):
-        j_chat = KhalaChat.Builder.text2h("?port 리스본")
-        j_packet = KhalaPacket.j_chat2j_packet(j_chat)
+        packet = {
+            KhalaPacket.Field.TEXT: "?port 리스본",
+        }
 
-        hyp = Handler.j_packet2action(j_packet)
+        hyp = PacketHandler.post(packet)
         ref = PortSkill
         self.assertEqual(hyp, ref)
 
     @pytest.mark.skip(reason="handler not yet working")
     def test_03(self):
-        j_chat = KhalaChat.Builder.text2h("?ㄱㅇㅍ 리스본")
-        j_packet = KhalaPacket.j_chat2j_packet(j_chat)
+        packet = {
+            KhalaPacket.Field.TEXT: "?ㄱㅇㅍ 리스본",
+        }
 
-        hyp = Handler.j_packet2action(j_packet)
+        hyp = PacketHandler.post(packet)
         ref = TradegoodAction
         self.assertEqual(hyp, ref)

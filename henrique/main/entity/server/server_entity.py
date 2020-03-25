@@ -30,7 +30,7 @@ FILE_DIR = os.path.dirname(FILE_PATH)
 
 class ServerDocument:
     @classmethod
-    @WARMER.add(cond=not HenriqueEnv.skip_warmup())
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def j_yaml(cls):
         filepath = os.path.join(FILE_DIR, "server.yaml")

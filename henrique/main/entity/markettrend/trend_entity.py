@@ -9,6 +9,7 @@ from future.utils import lmap, lfilter
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, iter2duplicate_list, \
     iter2singleton
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
+from foxylib.tools.entity.entity_tool import Entity
 from foxylib.tools.env.env_tool import EnvTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
@@ -19,7 +20,7 @@ from foxylib.tools.string.string_tool import str2lower
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb
-from henrique.main.tool.entity_tool import EntityTool
+from henrique.main.tool.entity_tool import HenriqueEntity
 
 MODULE = sys.modules[__name__]
 WARMER = Warmer(MODULE)
@@ -34,7 +35,7 @@ class MarkettrendEntity:
     def _query2qterm(cls, name): return str2lower(name)
 
     @classmethod
-    @WARMER.add(cond=not HenriqueEnv.skip_warmup())
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def h_qterm2j_doc(cls):
         logger = HenriqueLogger.func_level2logger(cls.h_qterm2j_doc, logging.DEBUG)
@@ -67,7 +68,7 @@ class MarkettrendEntity:
 
 
     @classmethod
-    @WARMER.add(cond=not HenriqueEnv.skip_warmup())
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def pattern(cls):
         h = cls.h_qterm2j_doc()
@@ -78,14 +79,14 @@ class MarkettrendEntity:
     @classmethod
     def _match2entity(cls, m):
         text = MatchTool.match2text(m)
-        j = {EntityTool.F.SPAN: MatchTool.match2span(m),
-             EntityTool.F.TEXT: text,
-             EntityTool.F.VALUE: text,
+        j = {Entity.Field.SPAN: MatchTool.match2span(m),
+             Entity.Field.TEXT: text,
+             Entity.Field.VALUE: text,
              }
         return j
 
     @classmethod
-    def str2entity_list(cls, str_in):
+    def text2entity_list(cls, str_in):
         m_list = list(cls.pattern().finditer(str_in))
 
         entity_list = [cls._match2entity(m)
@@ -101,7 +102,7 @@ class MarkettrendCollection:
         NAME = "name"
 
     @classmethod
-    @WARMER.add(cond=not HenriqueEnv.skip_warmup())
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def j_yaml(cls):
         filepath = os.path.join(FILE_DIR, "tradegood_collection.yaml")

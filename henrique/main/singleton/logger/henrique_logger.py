@@ -14,7 +14,6 @@ LOG_DIR = os.path.join(REPO_DIR, "log")
 
 class HenriqueLogger:
     ROOTNAME = "henrique"
-    level = logging.DEBUG
 
     @classmethod
     def dirpath(cls): return LOG_DIR
@@ -30,22 +29,12 @@ class HenriqueLogger:
             LoggerTool.add_or_skip_handlers(logger, [handler])
 
     @classmethod
-    @lru_cache(maxsize=None)
-    def attach_filepath2loggers(cls, filepath):
-        FileTool.dirpath2mkdirs(os.path.dirname(filepath))
-        handler = LoggerTool.handler_formatter2formatted(LoggerTool.filepath2handler_default(filepath),
-                                                         FoxylibLogFormatter.formatter(),
-                                                         )
-        handler.setLevel(cls.level)
-        cls.attach_handler2loggers(handler)
-
-    @classmethod
     @lru_cache(maxsize=2)
-    def attach_stderr2loggers(cls,):
+    def attach_stderr2loggers(cls, level):
         handler = LoggerTool.handler_formatter2formatted(logging.StreamHandler(sys.stderr),
                                                          FoxylibLogFormatter.formatter(),
                                                          )
-        handler.setLevel(cls.level)
+        handler.setLevel(level)
         cls.attach_handler2loggers(handler)
 
 

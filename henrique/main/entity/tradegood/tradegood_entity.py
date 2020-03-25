@@ -38,7 +38,7 @@ class TradegoodEntity:
     def _query2qterm(cls, name): return str2lower(name)
 
     @classmethod
-    @WARMER.add(cond=not HenriqueEnv.skip_warmup())
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def h_qterm2j_doc(cls):
         logger = HenriqueLogger.func_level2logger(cls.h_qterm2j_doc, logging.DEBUG)
@@ -71,7 +71,7 @@ class TradegoodEntity:
 
 
     @classmethod
-    @WARMER.add(cond=not HenriqueEnv.skip_warmup())
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def pattern(cls):
         h = cls.h_qterm2j_doc()
@@ -80,7 +80,7 @@ class TradegoodEntity:
 
 
     @classmethod
-    def str2entity_list(cls, str_in):
+    def text2entity_list(cls, str_in):
         m_list = list(cls.pattern().finditer(str_in))
 
         entity_list = [merge_dicts([Entity.Builder.match2h(m),
@@ -98,7 +98,7 @@ class TradegoodCollection:
         NAME = "name"
 
     @classmethod
-    @WARMER.add(cond=not HenriqueEnv.skip_warmup())
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def j_yaml(cls):
         filepath = os.path.join(FILE_DIR, "tradegood_collection.yaml")
@@ -161,7 +161,7 @@ class TradegoodDocument:
         yield from MongoDBTool.result2j_doc_iter(collection.find({}))
 
     @classmethod
-    @WARMER.add(cond=not HenriqueEnv.skip_warmup())
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def _h_doc_id2j_doc(cls):
         return MongoDBTool.j_doc_iter2h_doc_id2j_doc(cls.j_doc_iter_all())

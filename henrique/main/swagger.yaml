@@ -35,10 +35,10 @@ paths:
         404:
           description: Not Found
 
-  /jinni/ask:
+  /khala/packet/received:
     post:
-      tags: [jinni]
-      operationId: henrique.main.handlers.jinni.ask.handler.Handler.post
+      tags: [khala]
+      operationId: henrique.main.handlers.khala.packet_handler.PacketHandler.post
       summary: Return a 200 status ask is valid
       parameters:
       - name: packet
@@ -63,7 +63,7 @@ definitions:
   chat:
     type: object
     properties:
-      sendier_id:
+      sender_id:
         type: string
       chatroom_id:
         type: string

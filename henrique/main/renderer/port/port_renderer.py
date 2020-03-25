@@ -11,12 +11,13 @@ from henrique.main.tool.skillnote_tool import SkillnoteTool
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 
+
 class PortRenderer:
     @classmethod
     def j_port2str(cls, j_port, lang, ):
         filepath = os.path.join(FILE_DIR, "port.tmplt.txt")
         j_data = {"port_typename": PortReference.lang2name(lang),
-                  "port_name": PortDoc.j_port_lang2name(j_port, lang),
+                  "port_name": PortDoc.doc_lang2name(j_port, lang),
 
                   "culture_collection_name": "n/a",  # CultureCollection.lang2name(lang),
                   "culture_name": "n/a",  # CultureDocument.F.j_culture_lang2name(j_culture, lang),
