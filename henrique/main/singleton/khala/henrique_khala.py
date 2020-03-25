@@ -48,7 +48,7 @@ class Anatomy:
         if not clazz:
             return None
 
-        return clazz.text2entity_list(clazz)
+        return clazz.text2entity_list(self.text())
 
     @classmethod
     def packet2response(cls, packet):

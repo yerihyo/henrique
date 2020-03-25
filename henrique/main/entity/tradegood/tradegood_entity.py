@@ -1,9 +1,9 @@
 import logging
 import os
-import re
 import sys
-from functools import lru_cache
 
+import re
+from functools import lru_cache
 from future.utils import lmap, lfilter
 from nose.tools import assert_equal
 from psycopg2.sql import Identifier, SQL
@@ -12,14 +12,13 @@ from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, 
     iter2singleton
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.database.postgres.postgres_tool import PostgresTool
-from foxylib.tools.env.env_tool import EnvTool
+from foxylib.tools.entity.entity_tool import Entity
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.json.json_tool import jdown
 from foxylib.tools.json.yaml_tool import YAMLTool
 from foxylib.tools.regex.regex_tool import RegexTool
-from foxylib.tools.string.string_tool import str2lower
-from henrique.main.singleton.entity.entity import Entity
+from foxylib.tools.string.string_tool import str2lower, StringTool
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb
@@ -32,7 +31,7 @@ FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 
 class TradegoodEntity:
-    NAME = "tradegood"
+    TYPE = "tradegood"
 
     @classmethod
     def _query2qterm(cls, name): return str2lower(name)
@@ -80,13 +79,19 @@ class TradegoodEntity:
 
 
     @classmethod
-    def text2entity_list(cls, str_in):
-        m_list = list(cls.pattern().finditer(str_in))
+    def text2entity_list(cls, text_in):
+        m_list = list(cls.pattern().finditer(text_in))
 
-        entity_list = [merge_dicts([Entity.Builder.match2h(m),
-                                    Entity.Builder.type2h(cls.NAME),
-                                    ])
-                       for m in m_list]
+        def match2entity(m):
+            span = m.span()
+            text = StringTool.str_span2substr(text_in, span)
+            entity = {Entity.Field.TYPE: cls.TYPE,
+                      Entity.Field.SPAN: span,
+                      Entity.Field.TEXT: text,
+                      Entity.Field.VALUE: text,
+                      }
+            return entity
+        entity_list = lmap(match2entity, m_list)
         return entity_list
 
 

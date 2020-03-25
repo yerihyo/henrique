@@ -35,7 +35,7 @@ paths:
         404:
           description: Not Found
 
-  /khala/packet/received:
+  /khala/packet/receive:
     post:
       tags: [khala]
       operationId: henrique.main.handlers.khala.packet_handler.PacketHandler.post
@@ -60,8 +60,36 @@ paths:
 
 
 definitions:
-  chat:
+#  chat:
+#    type: object
+#    properties:
+#      sender_id:
+#        type: string
+#      chatroom_id:
+#        type: string
+#      locale:
+#        type: string
+#        example: ko-KR
+#      text:
+#        type: string
+#        example: "?항구 리습"
+#
+#  contract:
+#    type: object
+#    required:
+#    - action_uuid
+#    - jinni_uuid
+#    properties:
+#      action_uuid:
+#        type: string
+#      jinni_uuid:
+#        type: string
+
+  packet:
     type: object
+    required:
+    - text
+    - locale
     properties:
       sender_id:
         type: string
@@ -73,28 +101,6 @@ definitions:
       text:
         type: string
         example: "?항구 리습"
-
-  contract:
-    type: object
-    required:
-    - action_uuid
-    - jinni_uuid
-    properties:
-      action_uuid:
-        type: string
-      jinni_uuid:
-        type: string
-
-  packet:
-    type: object
-    required:
-    - chat
-    - contract
-    properties:
-      chat:
-        $ref: "#/definitions/chat"
-      contract:
-        $ref: "#/definitions/contract"
 
 #        example: ["@sys.color"]
 

@@ -95,7 +95,7 @@ class PortEntity:
     TYPE = "port"
 
     @classmethod
-    def text2norm(cls, q): return str2lower(q)
+    def text2norm(cls, text): return str2lower(text)
 
     @classmethod
     @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
@@ -108,11 +108,12 @@ class PortEntity:
         doc_list = PortDoc.doc_list_all()
         langs_recognizable = HenriqueLocale.lang2langs_recognizable(lang)
 
-        h_value2texts = [{PortDoc.doc2key(doc): [text
-                                                 for lang in langs_recognizable
-                                                 for text in PortDoc.doc_lang2text_list(doc, lang)]
-                          }
-                         for doc in doc_list]
+        h_value2texts = merge_dicts([{PortDoc.doc2key(doc): [text
+                                                             for lang in langs_recognizable
+                                                             for text in PortDoc.doc_lang2text_list(doc, lang)]
+                                      }
+                                     for doc in doc_list],
+                                    vwrite=vwrite_no_duplicate_key)
 
         config = {GazetteerMatcher.Config.Key.NORMALIZER: cls.text2norm}
         matcher = GazetteerMatcher(h_value2texts, config)

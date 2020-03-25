@@ -22,6 +22,8 @@ FILE_DIR = os.path.dirname(FILE_PATH)
 
 
 class CommandEntity:
+    TYPE = "command"
+
     @classmethod
     def set(cls):
         from henrique.main.skill.port.port_skill import PortSkill
