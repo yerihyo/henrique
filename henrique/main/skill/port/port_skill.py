@@ -83,14 +83,15 @@ class PortSkill:
         entity_type = Entity.entity2type(entity)
 
         from henrique.main.skill.port.port_entity.port_skill_port_entity import PortSkillPortEntity
-        h = {PortEntity.TYPE: partial(PortSkillPortEntity.entity2response, lang=lang),
+        h = {PortEntity.TYPE: partial(PortSkillPortEntity.code2response, lang=lang),
              }
 
-        entity2response = h.get(entity_type)
-        if not entity2response:
+        code2response = h.get(entity_type)
+        if not code2response:
             raise NotImplementedError("Invalid entity_type: {}".format(entity_type))
 
-        return entity2response(entity)
+        value = Entity.entity2value(entity)
+        return code2response(value)
 
 
     @classmethod

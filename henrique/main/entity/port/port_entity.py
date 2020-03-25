@@ -78,14 +78,15 @@ class PortDoc:
     @classmethod
     @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def _dict_key2doc(cls):
+    def _dict_code2doc(cls):
         h = merge_dicts([{cls.doc2key(doc): doc} for doc in cls.doc_list_all()],
                         vwrite=vwrite_no_duplicate_key)
+        # raise Exception(h)
         return h
 
     @classmethod
-    def key2doc(cls, key):
-        return cls._dict_key2doc().get(key)
+    def code2doc(cls, key):
+        return cls._dict_code2doc().get(key)
 
 
 
