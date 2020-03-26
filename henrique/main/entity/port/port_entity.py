@@ -1,28 +1,22 @@
-import logging
+import os
 import os
 import sys
 
-import re
-from foxylib.tools.locale.locale_tool import LocaleTool
 from functools import lru_cache
-from future.utils import lmap
 from nose.tools import assert_equal
 from psycopg2.sql import SQL, Identifier
 
-from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, iter2duplicate_list, \
-    iter2singleton, IterTool, lchain
+from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, IterTool
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.database.postgres.postgres_tool import PostgresTool
-from foxylib.tools.entity.entity_tool import Entity, EntityConfig
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
-from foxylib.tools.json.json_tool import jdown
+from foxylib.tools.locale.locale_tool import LocaleTool
 from foxylib.tools.nlp.gazetteer.gazetteer_matcher import GazetteerMatcher
-from foxylib.tools.regex.regex_tool import RegexTool, MatchTool
 from foxylib.tools.string.string_tool import str2lower, StringTool
+from henrique.main.entity.henrique_entity import Entity, HenriqueEntity
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.singleton.locale.henrique_locale import HenriqueLocale
-from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb
 from henrique.main.singleton.postgres.henrique_postgres import HenriquePostgres
 
@@ -78,15 +72,15 @@ class PortDoc:
     @classmethod
     @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def _dict_code2doc(cls):
+    def _dict_key2doc(cls):
         h = merge_dicts([{cls.doc2key(doc): doc} for doc in cls.doc_list_all()],
                         vwrite=vwrite_no_duplicate_key)
         # raise Exception(h)
         return h
 
     @classmethod
-    def code2doc(cls, key):
-        return cls._dict_code2doc().get(key)
+    def key2doc(cls, key):
+        return cls._dict_key2doc().get(key)
 
 
 
@@ -109,11 +103,11 @@ class PortEntity:
         doc_list = PortDoc.doc_list_all()
         langs_recognizable = HenriqueLocale.lang2langs_recognizable(lang)
 
-        h_value2texts = merge_dicts([{PortDoc.doc2key(doc): [text
-                                                             for lang in langs_recognizable
-                                                             for text in PortDoc.doc_lang2text_list(doc, lang)]
-                                      }
-                                     for doc in doc_list],
+        def doc2texts(doc):
+            for _lang in langs_recognizable:
+                yield from PortDoc.doc_lang2text_list(doc, _lang)
+
+        h_value2texts = merge_dicts([{PortDoc.doc2key(doc): list(doc2texts(doc))} for doc in doc_list],
                                     vwrite=vwrite_no_duplicate_key)
 
         config = {GazetteerMatcher.Config.Key.NORMALIZER: cls.text2norm}
@@ -121,8 +115,9 @@ class PortEntity:
         return matcher
 
     @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=HenriqueEntity.Cache.DEFAULT_SIZE))
     def text2entity_list(cls, text_in, config=None):
-        locale = EntityConfig.config2locale(config) or HenriqueLocale.DEFAULT
+        locale = Entity.Config.config2locale(config) or HenriqueLocale.DEFAULT
         lang = LocaleTool.locale2lang(locale) or LocaleTool.locale2lang(HenriqueLocale.DEFAULT)
 
         matcher = cls.lang2matcher(lang)

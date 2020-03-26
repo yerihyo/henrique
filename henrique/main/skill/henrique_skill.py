@@ -10,7 +10,7 @@ FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 
 class HenriqueSkill:
-    class Name:
+    class Code:
         PORT = "port"
         TRADEGOOD = "tradegood"
 
@@ -33,19 +33,19 @@ class HenriqueSkill:
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def dict_name2class(cls, ):
+    def dict_codename2class(cls, ):
         from henrique.main.skill.port.port_skill import PortSkill
-        h = {cls.Name.PORT: PortSkill,
+        h = {cls.Code.PORT: PortSkill,
              }
         return h
 
     @classmethod
     def count(cls):
-        return len(cls.dict_name2class())
+        return len(cls.dict_codename2class())
 
     @classmethod
-    def name2class(cls, name):
-        h = cls.dict_name2class()
+    def codename2class(cls, name):
+        h = cls.dict_codename2class()
         return h.get(name)
 
 

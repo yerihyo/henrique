@@ -2,19 +2,14 @@ import os
 from operator import itemgetter as ig
 
 import re
+from functools import lru_cache, partial
 from future.utils import lmap
 
-from foxylib.tools.nlp.contextfree.contextfree_tool import ContextfreeTool
-
-from foxylib.tools.entity.entity_tool import Entity
-
-from functools import lru_cache, partial
-
-from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts
+from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, l_singleton2obj
 from foxylib.tools.function.function_tool import FunctionTool
-from foxylib.tools.json.yaml_tool import YAMLTool
-from foxylib.tools.nlp.gazetteer.gazetteer_matcher import GazetteerMatcher
-from foxylib.tools.string.string_tool import str2lower, StringTool
+from foxylib.tools.nlp.contextfree.contextfree_tool import ContextfreeTool
+from foxylib.tools.string.string_tool import StringTool
+from henrique.main.entity.henrique_entity import HenriqueEntity, Entity
 from henrique.main.skill.henrique_skill import HenriqueSkill
 
 FILE_PATH = os.path.realpath(__file__)
@@ -33,7 +28,7 @@ class CommandEntity:
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def h_name2skill(cls):
-        return merge_dicts([{skill.NAME: skill}
+        return merge_dicts([{skill.CODENAME: skill}
                             for skill in cls.set()],
                            vwrite=vwrite_no_duplicate_key)
 
@@ -43,6 +38,7 @@ class CommandEntity:
         return re.compile(r"^\s*\?", re.I)
 
     @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=HenriqueEntity.Cache.DEFAULT_SIZE))
     def text2entity_list(cls, text_in):
         pattern_prefix = cls.pattern_prefix()
         match_list_prefix = list(pattern_prefix.finditer(text_in))
@@ -73,3 +69,14 @@ class CommandEntity:
 
         entity_list = lmap(indextuple2entity, indextuple_list)
         return entity_list
+
+    @classmethod
+    def text2skill_code(cls, text):
+        entity_list = cls.text2entity_list(text)
+        entity = l_singleton2obj(entity_list)
+
+        if entity is None:
+            return None
+
+        skill_code = Entity.entity2value(entity)
+        return skill_code

@@ -3,19 +3,19 @@ import sys
 
 import re
 from functools import lru_cache, partial
-from khalalib.packet.packet import KhalaPacket
 
-from foxylib.tools.entity.entity_tool import Entity
+from foxylib.tools.collections.collections_tool import lchain
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.json.json_tool import jdown
 from foxylib.tools.json.yaml_tool import YAMLTool
 from foxylib.tools.locale.locale_tool import LocaleTool
 from foxylib.tools.regex.regex_tool import RegexTool
-from foxylib.tools.string.string_tool import str2split
+from henrique.main.entity.henrique_entity import Entity
 from henrique.main.entity.port.port_entity import PortEntity
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.tool.skillnote_tool import SkillnoteTool
+from khalalib.packet.packet import KhalaPacket
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
@@ -30,7 +30,7 @@ class PortResult:
     F = Field
 
 class PortSkill:
-    NAME = "port"
+    CODENAME = "port"
 
     @classmethod
     def j_skillnote2j_port_list(cls, j_note):
@@ -58,49 +58,33 @@ class PortSkill:
         return p
 
     @classmethod
-    def text_body2match(cls, text_body):
-        l = str2split(text_body)
-        m = cls.p_command().match(l[0])
-        return m
-
-    # @classmethod
-    # def respond(cls, j_packet):
-    #
-    #
-    #     j_chat = KhalaPacket.j_packet2j_chat(j_packet)
-    #     text = KhalaPacket.chat2text(j_chat)
-    #
-    #     port_entity_list = PortEntity.text2entity_list(text)
-    #
-    #     str_list = lmap(lambda p:Port2PortSubaction.port_entity2response(p,j_packet), port_entity_list)
-    #
-    #     str_out = "\n\n".join(str_list)
-    #
-    #     return KhalaResponse.Builder.str2j_skillnote(str_out)
-
-    @classmethod
-    def _entity2response(cls, entity, lang):
+    def _entity_lang2response(cls, entity, lang):
         entity_type = Entity.entity2type(entity)
+        codename = Entity.entity2value(entity)
 
-        from henrique.main.skill.port.port_entity.port_skill_port_entity import PortSkillPortEntity
-        h = {PortEntity.TYPE: partial(PortSkillPortEntity.code2response, lang=lang),
-             }
+        from henrique.main.skill.port.port_entity.port_port_response import PortPortResponse
+        h_type2func = {PortEntity.TYPE: partial(PortPortResponse.codename_lang2response, lang=lang),
+                       }
 
-        code2response = h.get(entity_type)
-        if not code2response:
+        codename2response = h_type2func.get(entity_type)
+        if not codename2response:
             raise NotImplementedError("Invalid entity_type: {}".format(entity_type))
 
-        value = Entity.entity2value(entity)
-        return code2response(value)
+        return codename2response(codename)
 
 
     @classmethod
-    def anatomy2response(cls, anatomy):
-        entity_types = {PortEntity.TYPE}
-        entity_list = sorted(anatomy.entity_types2entity_list(entity_types), key=Entity.entity2span)
+    def packet2response(cls, packet):
+        lang = LocaleTool.locale2lang(KhalaPacket.packet2locale(packet))
 
-        lang = LocaleTool.locale2lang(KhalaPacket.packet2locale(anatomy.packet))
-        response = "\n\n".join([cls._entity2response(entity, lang) for entity in entity_list])
+        entity_classes = {PortEntity}
+        text_in = KhalaPacket.packet2text(packet)
+        config = {Entity.Config.Field.LOCALE:KhalaPacket.packet2locale(packet)}
+        entity_list_raw = lchain(*[c.text2entity_list(text_in, config=config) for c in entity_classes])
+
+        entity_list = sorted(entity_list_raw, key=Entity.entity2span)
+
+        response = "\n\n".join([cls._entity_lang2response(entity, lang) for entity in entity_list])
         return response
 
 

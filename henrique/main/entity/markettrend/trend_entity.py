@@ -9,13 +9,14 @@ from future.utils import lmap, lfilter
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, iter2duplicate_list, \
     iter2singleton
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
-from foxylib.tools.entity.entity_tool import Entity
+from foxylib.tools.entity.entity_tool import HenriqueEntity
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.json.json_tool import jdown
 from foxylib.tools.json.yaml_tool import YAMLTool
 from foxylib.tools.regex.regex_tool import RegexTool, MatchTool
 from foxylib.tools.string.string_tool import str2lower
+from henrique.main.entity.henrique_entity import Entity
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb

@@ -1,4 +1,4 @@
-from henrique.main.singleton.khala.henrique_khala import Anatomy
+from henrique.main.singleton.khala.henrique_khala import HenriqueKhala
 
 
 class PacketHandler:
@@ -10,5 +10,5 @@ class PacketHandler:
 
     @classmethod
     def post(cls, packet):
-        text = Anatomy.packet2response(packet)
+        text = HenriqueKhala.packet2response(packet)
         return text, 200

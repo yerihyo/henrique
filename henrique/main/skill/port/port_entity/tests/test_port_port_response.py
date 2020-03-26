@@ -4,16 +4,16 @@ from pprint import pprint
 from unittest import TestCase
 
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
-from henrique.main.skill.port.port_entity.port_skill_port_entity import PortSkillPortEntity
+from henrique.main.skill.port.port_entity.port_port_response import PortPortResponse
 
 
-class TestPortSkillPortEntity(TestCase):
+class TestPortPortResponse(TestCase):
     @classmethod
     def setUpClass(cls):
         HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
 
     def test_01(self):
-        hyp = PortSkillPortEntity.code2response("Lisbon", "ko")
+        hyp = PortPortResponse.codename_lang2response("Lisbon", "ko")
         ref = '[리스본]'
 
         # pprint(hyp)

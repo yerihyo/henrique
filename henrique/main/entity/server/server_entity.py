@@ -17,7 +17,7 @@ from foxylib.tools.json.json_tool import jdown
 from foxylib.tools.json.yaml_tool import YAMLTool
 from foxylib.tools.regex.regex_tool import RegexTool
 from foxylib.tools.string.string_tool import str2lower
-from henrique.main.singleton.entity.entity import Entity
+from henrique.main.singleton.entity.entity import HenriqueEntity
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb

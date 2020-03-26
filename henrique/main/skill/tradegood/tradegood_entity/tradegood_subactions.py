@@ -1,8 +1,9 @@
 import os
 
-from foxylib.tools.entity.entity_tool import Entity
+from foxylib.tools.entity.entity_tool import HenriqueEntity
 from foxylib.tools.jinja2.jinja2_tool import Jinja2Renderer
 from foxylib.tools.locale.locale_tool import LocaleTool
+from henrique.main.entity.henrique_entity import Entity
 from henrique.main.entity.tradegood.tradegood_entity import TradegoodEntity, TradegoodDoc, TradegoodCollection
 from khalalib.packet.packet import KhalaPacket
 
