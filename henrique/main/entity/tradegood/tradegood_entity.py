@@ -1,30 +1,21 @@
-import logging
 import os
 import sys
 
-import re
-from foxylib.tools.locale.locale_tool import LocaleTool
 from functools import lru_cache
-from future.utils import lmap, lfilter
 from nose.tools import assert_equal
 from psycopg2.sql import Identifier, SQL
 
-from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, iter2duplicate_list, \
-    iter2singleton, IterTool
+from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, IterTool
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.database.postgres.postgres_tool import PostgresTool
-from foxylib.tools.entity.entity_tool import HenriqueEntity
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
-from foxylib.tools.json.json_tool import jdown
-from foxylib.tools.json.yaml_tool import YAMLTool
+from foxylib.tools.locale.locale_tool import LocaleTool
 from foxylib.tools.nlp.gazetteer.gazetteer_matcher import GazetteerMatcher
-from foxylib.tools.regex.regex_tool import RegexTool
 from foxylib.tools.string.string_tool import str2lower, StringTool
-from henrique.main.entity.henrique_entity import Entity
+from henrique.main.entity.henrique_entity import Entity, HenriqueEntity
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.singleton.locale.henrique_locale import HenriqueLocale
-from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb
 from henrique.main.singleton.postgres.henrique_postgres import HenriquePostgres
 
