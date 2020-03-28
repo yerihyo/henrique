@@ -1,2 +1,1 @@
-[{{name}}]
-
+[{{tg_name}}] 매각처 - {{port_names}}

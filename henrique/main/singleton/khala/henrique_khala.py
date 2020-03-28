@@ -1,3 +1,4 @@
+from foxylib.tools.string.string_tool import StringTool
 from functools import lru_cache
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj, lchain
@@ -48,6 +49,14 @@ class HenriqueKhala:
         skill_code = CommandEntity.text2skill_code(text)
 
         skill_class = HenriqueSkill.codename2class(skill_code)
-        response = skill_class.packet2response(packet)
-        return response
+        response_raw = skill_class.packet2response(packet)
+        return cls.response2norm(response_raw)
+
+    @classmethod
+    def response2norm(cls, text_in):
+        if not text_in:
+            return text_in
+
+        text_out = StringTool.str2strip_eachline(StringTool.str2strip(text_in))
+        return text_out
 

@@ -53,7 +53,7 @@ class TradegoodDoc:
         return IterTool.first(cls.doc_lang2text_list(doc, lang))
 
     @classmethod
-    def doc2key(cls, doc): return doc[cls.Field.KEY]
+    def doc2codename(cls, doc): return doc[cls.Field.KEY]
 
 
     @classmethod
@@ -67,15 +67,16 @@ class TradegoodDoc:
     @classmethod
     @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def _dict_key2doc(cls):
-        h = merge_dicts([{cls.doc2key(doc): doc} for doc in cls.doc_list_all()],
+    def _dict_codename2doc(cls):
+        h = merge_dicts([{cls.doc2codename(doc): doc} for doc in cls.doc_list_all()],
                         vwrite=vwrite_no_duplicate_key)
         # raise Exception(h)
         return h
 
     @classmethod
-    def key2doc(cls, key):
-        return cls._dict_key2doc().get(key)
+    def codename2doc(cls, codename):
+        return cls._dict_codename2doc().get(codename)
+
 
 
 class TradegoodEntity:
@@ -99,7 +100,7 @@ class TradegoodEntity:
             for _lang in langs_recognizable:
                 yield from TradegoodDoc.doc_lang2text_list(doc, _lang)
 
-        h_value2texts = merge_dicts([{TradegoodDoc.doc2key(doc): list(doc2texts(doc))} for doc in doc_list],
+        h_value2texts = merge_dicts([{TradegoodDoc.doc2codename(doc): list(doc2texts(doc))} for doc in doc_list],
                                     vwrite=vwrite_no_duplicate_key)
 
         config = {GazetteerMatcher.Config.Key.NORMALIZER: cls.text2norm}
