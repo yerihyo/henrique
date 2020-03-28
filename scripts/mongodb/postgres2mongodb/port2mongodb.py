@@ -61,7 +61,7 @@ class Port2MongoDB:
 
 
 def main():
-    HenriqueLogger.attach_stderr2loggers()
+    HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
     logger = HenriqueLogger.func_level2logger(main, logging.DEBUG)
 
     j_list = list(Port2MongoDB.postgres2j_iter())

@@ -1,27 +1,24 @@
-import logging
+import os
 import os
 import sys
 
-import re
 from functools import lru_cache
-from future.utils import lmap
 from nose.tools import assert_equal
 from psycopg2.sql import SQL, Identifier
 
-from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, iter2duplicate_list, \
-    iter2singleton, IterTool
+from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, IterTool
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.database.postgres.postgres_tool import PostgresTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
-from foxylib.tools.json.json_tool import jdown
-from foxylib.tools.regex.regex_tool import RegexTool, MatchTool
-from foxylib.tools.string.string_tool import str2lower
+from foxylib.tools.locale.locale_tool import LocaleTool
+from foxylib.tools.nlp.gazetteer.gazetteer_matcher import GazetteerMatcher
+from foxylib.tools.string.string_tool import str2lower, StringTool
+from henrique.main.entity.henrique_entity import Entity, HenriqueEntity
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
-from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
+from henrique.main.singleton.locale.henrique_locale import HenriqueLocale
 from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb
 from henrique.main.singleton.postgres.henrique_postgres import HenriquePostgres
-from henrique.main.tool.entity_tool import EntityTool
 
 MODULE = sys.modules[__name__]
 WARMER = Warmer(MODULE)
@@ -48,112 +45,91 @@ class PortDoc:
     F = Field
 
     @classmethod
-    def j_port_lang2name_list(cls, j_port, lang):
-        logger = HenriqueLogger.func_level2logger(cls.j_port_lang2name, logging.DEBUG)
-        name_list = jdown(j_port, [cls.F.NAMES, lang])
-        return name_list
+    def doc2dict_lang2texts(cls, doc):
+        return doc.get(cls.Field.NAMES) or {}
 
     @classmethod
-    def j_port_lang2name(cls, j_port, lang):
-        name_list = cls.j_port_lang2name(j_port, lang)
-        return IterTool.first(name_list)
+    def doc_lang2text_list(cls, doc, lang):
+        h_lang2texts = cls.doc2dict_lang2texts(doc)
+        return h_lang2texts.get(lang) or []
 
     @classmethod
-    def j_port2name_en(cls, j_port):
-        return cls.j_port_lang2name(j_port, "en")
+    def doc_lang2name(cls, doc, lang):
+        return IterTool.first(cls.doc_lang2text_list(doc, lang))
+
+    @classmethod
+    def doc2key(cls, doc): return doc[cls.Field.KEY]
 
 
     @classmethod
-    def j_port2key(cls, j_port): return j_port[cls.F.KEY]
-
-    @classmethod
-    def jpath_names(cls): return [cls.F.NAMES]
-
-    @classmethod
-    def jpath_names_en(cls): return [cls.F.NAMES, "en"]
-
-    @classmethod
-    def jpath_names_ko(cls): return [cls.F.NAMES, "ko"]
-
-    @classmethod
-    @WARMER.add(cond=not HenriqueEnv.skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     @IterTool.wrap_iterable2list
-    def j_port_list_all(cls):
+    def doc_list_all(cls):
         collection = PortCollection.collection()
         yield from MongoDBTool.result2j_doc_iter(collection.find({}))
 
+
     @classmethod
-    def name_en_list2j_port_list(cls, name_en_list):
-        norm = str2lower
-
-        h = merge_dicts([{norm(cls.j_port2name_en(j_port)): j_port}
-                         for j_port in cls.j_port_list_all()],
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def _dict_key2doc(cls):
+        h = merge_dicts([{cls.doc2key(doc): doc} for doc in cls.doc_list_all()],
                         vwrite=vwrite_no_duplicate_key)
+        # raise Exception(h)
+        return h
 
-        j_port_list = [h.get(norm(x)) for x in name_en_list]
-        return j_port_list
+    @classmethod
+    def key2doc(cls, key):
+        return cls._dict_key2doc().get(key)
+
+
+
 
 
 class PortEntity:
     TYPE = "port"
 
     @classmethod
-    def query2norm(cls, q): return str2lower(q)
+    def text2norm(cls, text): return str2lower(text)
 
     @classmethod
-    @WARMER.add(cond=not HenriqueEnv.skip_warmup())
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def _h_query2j_port(cls):
-        logger = HenriqueLogger.func_level2logger(cls._h_query2j_port, logging.DEBUG)
-        j_port_list = PortDoc.j_port_list_all()
-        jpath = PortDoc.jpath_names()
-
-        h_list = [{cls.query2norm(name): j_port}
-                  for j_port in j_port_list
-                  for name_list_lang in jdown(j_port, jpath).values()
-                  for name in name_list_lang
-                  ]
-
-        logger.debug({"h_list":iter2duplicate_list(lmap(lambda h:iter2singleton(h.keys()), h_list)),
-                      "jpath":jpath,
-                      "j_doc_list[0]":j_port_list[0],
-                      "query[0]":jdown(j_port_list[0],jpath)
-                      })
-        h = merge_dicts(h_list,vwrite=vwrite_no_duplicate_key)
-        return h
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
+    def _dict_lang2matcher(cls,):
+        return {lang: cls.lang2matcher(lang) for lang in HenriqueLocale.langs()}
 
     @classmethod
-    def query2j_port(cls, query):
-        str_norm = cls.query2norm(query)
-        h = cls._h_query2j_port()
-        return h.get(str_norm)
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=HenriqueLocale.lang_count()))
+    def lang2matcher(cls, lang):
+        doc_list = PortDoc.doc_list_all()
+        langs_recognizable = HenriqueLocale.lang2langs_recognizable(lang)
 
+        def doc2texts(doc):
+            for _lang in langs_recognizable:
+                yield from PortDoc.doc_lang2text_list(doc, _lang)
 
-    @classmethod
-    @WARMER.add(cond=not HenriqueEnv.skip_warmup())
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def pattern(cls):
-        h = cls._h_query2j_port()
-        rstr = RegexTool.rstr_list2or(lmap(re.escape, h.keys()))
-        return re.compile(rstr, re.I)
+        h_value2texts = merge_dicts([{PortDoc.doc2key(doc): list(doc2texts(doc))} for doc in doc_list],
+                                    vwrite=vwrite_no_duplicate_key)
 
-    @classmethod
-    def _match2entity(cls, m):
-        text = MatchTool.match2text(m)
-        j_port = cls.query2j_port(text)
-
-        j = {EntityTool.F.SPAN: MatchTool.match2span(m),
-             EntityTool.F.TEXT: text,
-             EntityTool.F.VALUE: j_port,
-             }
-        return j
+        config = {GazetteerMatcher.Config.Key.NORMALIZER: cls.text2norm}
+        matcher = GazetteerMatcher(h_value2texts, config)
+        return matcher
 
     @classmethod
-    def str2entity_list(cls, str_in):
-        m_list = list(cls.pattern().finditer(str_in))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=HenriqueEntity.Cache.DEFAULT_SIZE))
+    def text2entity_list(cls, text_in, config=None):
+        locale = Entity.Config.config2locale(config) or HenriqueLocale.DEFAULT
+        lang = LocaleTool.locale2lang(locale) or LocaleTool.locale2lang(HenriqueLocale.DEFAULT)
 
-        entity_list = [cls._match2entity(m) for m in m_list]
+        matcher = cls.lang2matcher(lang)
+        span_value_list = matcher.text2span_value_list(text_in)
+
+        entity_list = [{Entity.Field.SPAN: span,
+                        Entity.Field.TEXT: StringTool.str_span2substr(text_in, span),
+                        Entity.Field.VALUE: value,
+                        Entity.Field.TYPE: cls.TYPE,
+                        }
+                       for span, value in span_value_list]
+
         return entity_list
 
 

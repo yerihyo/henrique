@@ -6,23 +6,36 @@ from psycopg2.sql import SQL, Identifier
 from pymongo import WriteConcern
 
 from foxylib.tools.collections.chunk_tool import ChunkTool
-from foxylib.tools.collections.collections_tool import luniq, lchain
+from foxylib.tools.collections.collections_tool import luniq, lchain, vwrite_no_duplicate_key, merge_dicts
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.database.postgres.postgres_tool import PostgresTool
 from foxylib.tools.json.json_tool import JsonTool, jdown
+from foxylib.tools.string.string_tool import str2lower
 from henrique.main.entity.markettrend.trend_entity import PortTradegoodStateTable, MarkettrendCollection, \
     MarkettrendDocument
 from henrique.main.entity.port.port_entity import PortCollection, PortTable, PortDoc
-from henrique.main.entity.tradegood.tradegood_entity import TradegoodTable, TradegoodDocument
+from henrique.main.entity.tradegood.tradegood_entity import TradegoodTable, TradegoodDoc
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.singleton.postgres.henrique_postgres import HenriquePostgres
 
 
 class Markettrend2MongoDB:
 
+
+
     @classmethod
     def postgres2j_iter(cls):
         logger = HenriqueLogger.func_level2logger(cls.postgres2j_iter, logging.DEBUG)
+
+        def name_en_list2j_port_list(name_en_list):
+            norm = str2lower
+
+            h = merge_dicts([{norm(PortDoc.doc_lang2name(doc, "en")): doc}
+                             for doc in PortDoc.doc_list_all()],
+                            vwrite=vwrite_no_duplicate_key)
+
+            doc_list = [h.get(norm(x)) for x in name_en_list]
+            return doc_list
 
         with HenriquePostgres.cursor() as cursor:
             sql = SQL("SELECT * from {}").format(Identifier(PortTradegoodStateTable.NAME))
@@ -30,10 +43,10 @@ class Markettrend2MongoDB:
             for t_list_chunk in ChunkTool.chunk_size2chunks(PostgresTool.fetch_iter(cursor), 100000):
 
                 port_name_en_list = lmap(PortTradegoodStateTable.tuple2port_name_en, t_list_chunk)
-                j_port_list = PortDoc.name_en_list2j_port_list(port_name_en_list)
+                j_port_list = name_en_list2j_port_list(port_name_en_list)
 
                 tradegood_name_en_list = lmap(PortTradegoodStateTable.tuple2tradegood_name_en, t_list_chunk)
-                tradegood_id_list = TradegoodDocument.name_en_list2doc_id_list(tradegood_name_en_list)
+                tradegood_id_list = TradegoodDoc.name_en_list2doc_id_list(tradegood_name_en_list)
 
                 rate_list = lmap(PortTradegoodStateTable.tuple2rate, t_list_chunk)
                 trend_list = lmap(PortTradegoodStateTable.tuple2trend, t_list_chunk)
@@ -76,7 +89,7 @@ class Markettrend2MongoDB:
 
 
 def main():
-    HenriqueLogger.attach_stderr2loggers()
+    HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
     logger = HenriqueLogger.func_level2logger(main, logging.DEBUG)
 
     j_list = list(Markettrend2MongoDB.postgres2j_iter())

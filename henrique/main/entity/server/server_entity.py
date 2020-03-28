@@ -17,7 +17,7 @@ from foxylib.tools.json.json_tool import jdown
 from foxylib.tools.json.yaml_tool import YAMLTool
 from foxylib.tools.regex.regex_tool import RegexTool
 from foxylib.tools.string.string_tool import str2lower
-from henrique.main.singleton.entity.entity import Entity
+from henrique.main.singleton.entity.entity import HenriqueEntity
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb
@@ -30,7 +30,7 @@ FILE_DIR = os.path.dirname(FILE_PATH)
 
 class ServerDocument:
     @classmethod
-    @WARMER.add(cond=not HenriqueEnv.skip_warmup())
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def j_yaml(cls):
         filepath = os.path.join(FILE_DIR, "server.yaml")

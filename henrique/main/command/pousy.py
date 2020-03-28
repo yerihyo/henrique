@@ -1,7 +1,5 @@
 from future.utils import lfilter
 
-from foxylib.tools.collections.collections_tool import IterTool
-
 
 class Pousy:
     class Field:

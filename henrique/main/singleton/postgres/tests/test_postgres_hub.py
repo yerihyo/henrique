@@ -10,7 +10,7 @@ from henrique.main.singleton.postgres.henrique_postgres import HenriquePostgres
 class HenriquePostgresTest(TestCase):
     @classmethod
     def setUpClass(cls):
-        HenriqueLogger.attach_stderr2loggers()
+        HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
 
     @pytest.mark.skip(reason="postgres test unnecessary")
     def test_01(self):

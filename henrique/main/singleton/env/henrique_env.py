@@ -49,10 +49,10 @@ class HenriqueEnv:
         if _env in {"local", }:
             return cls.Value.LOCAL
 
-        raise NotImplementedError()
+        raise NotImplementedError(env)
 
     @classmethod
-    def skip_warmup(cls):
+    def is_skip_warmup(cls):
         nb = cls.key2nullboolean(cls.Key.SKIP_WARMUP)
         return nb is True
 

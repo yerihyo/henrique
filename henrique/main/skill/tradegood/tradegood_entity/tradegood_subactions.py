@@ -1,9 +1,10 @@
 import os
 
-from foxylib.tools.jinja2.jinja2_tool import Jinja2Tool, Jinja2Renderer
+from foxylib.tools.entity.entity_tool import HenriqueEntity
+from foxylib.tools.jinja2.jinja2_tool import Jinja2Renderer
 from foxylib.tools.locale.locale_tool import LocaleTool
-from henrique.main.singleton.entity.entity import Entity
-from henrique.main.entity.tradegood.tradegood_entity import TradegoodEntity, TradegoodDocument, TradegoodCollection
+from henrique.main.entity.henrique_entity import Entity
+from henrique.main.entity.tradegood.tradegood_entity import TradegoodEntity, TradegoodDoc, TradegoodCollection
 from khalalib.packet.packet import KhalaPacket
 
 FILE_PATH = os.path.realpath(__file__)
@@ -15,14 +16,14 @@ class TradegoodTradegoodSubaction:
         query = Entity.entity2text(tg_entity)
         j_tradegood = TradegoodEntity.query2j_doc(query)
 
-        #j_culture = TradegoodDocument.F.j_tradegood2j_culture(j_tradegood)
-        locale = KhalaPacket.j_packet2locale(j_packet)
+        #j_culture = TradegoodDoc.F.j_tradegood2j_culture(j_tradegood)
+        locale = KhalaPacket.packet2locale(j_packet)
         lang = LocaleTool.locale2lang(locale)
 
 
         filepath = os.path.join(FILE_DIR, "tradegood.tradegood.tmplt.txt")
         j_data = {"tradegood_collection_name":TradegoodCollection.lang2name(lang),
-                  "tradegood_name":TradegoodDocument.j_tradegood_lang2name(j_tradegood,lang),
+                  "tradegood_name":TradegoodDoc.j_tradegood_lang2name(j_tradegood,lang),
 
                   }
         str_out = Jinja2Renderer.textfile2text(filepath, j_data)
