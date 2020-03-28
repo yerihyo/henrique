@@ -6,6 +6,7 @@ from future.utils import lfilter, lmap
 from nose.tools import assert_equal
 from psycopg2.sql import SQL, Identifier
 
+from foxylib.tools.cache.cache_tool import CacheTool
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, IterTool
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.database.postgres.postgres_tool import PostgresTool
@@ -147,7 +148,8 @@ class PortEntity:
         return matcher
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=HenriqueEntity.Cache.DEFAULT_SIZE))
+    @CacheTool.cache2hashable(cache=lru_cache(maxsize=HenriqueEntity.Cache.DEFAULT_SIZE),
+                              f_pair=CacheTool.JSON.func_pair(), )
     def text2entity_list(cls, text_in, config=None):
         locale = Entity.Config.config2locale(config) or HenriqueLocale.DEFAULT
         lang = LocaleTool.locale2lang(locale) or LocaleTool.locale2lang(HenriqueLocale.DEFAULT)

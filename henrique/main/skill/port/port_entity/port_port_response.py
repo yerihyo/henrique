@@ -10,7 +10,7 @@ FILE_DIR = os.path.dirname(FILE_PATH)
 
 class PortPortResponse:
     @classmethod
-    def code_lang2response(cls, port_codename, lang):
+    def codename_lang2response(cls, port_codename, lang):
         port_doc = PortDoc.codename2doc(port_codename)
 
         filepath = os.path.join(FILE_DIR, "tmplt.{}.part.txt".format(lang))

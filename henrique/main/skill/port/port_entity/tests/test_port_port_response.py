@@ -14,7 +14,7 @@ class TestPortPortResponse(TestCase):
         HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
 
     def test_01(self):
-        hyp = HenriqueKhala.response2norm(PortPortResponse.code_lang2response("Lisbon", "ko"))
+        hyp = HenriqueKhala.response2norm(PortPortResponse.codename_lang2response("Lisbon", "ko"))
         ref = '[리스본]'
 
         # pprint(hyp)

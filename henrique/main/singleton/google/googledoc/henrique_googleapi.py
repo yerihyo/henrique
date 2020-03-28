@@ -20,7 +20,7 @@ class HenriqueGoogleapi:
     @classmethod
     def filepath_privatekey(cls):
         # http://console.cloud.google.com/iam-admin/serviceaccounts/details/112472142364049649520
-        return os.path.join(REPO_DIR, "env", "google", "api", "henrique-272420-c09c9b3e31ff.json")
+        return os.path.join(REPO_DIR, "henrique","env", "google", "api", "henrique-272420-c09c9b3e31ff.json")
 
     @classmethod
     def credentials(cls):

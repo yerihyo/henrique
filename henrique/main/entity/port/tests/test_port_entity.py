@@ -23,7 +23,7 @@ class TestPortEntity(TestCase):
 
 
     def test_02(self):
-        ports = PortDoc.tradegood2docs(["Dashima"])
+        ports = PortDoc.tradegood2docs("Dashima")
         hyp = smap(PortDoc.doc2codename, ports)
         ref = {'Hanyang', 'Busan', 'Pohang'}
 
