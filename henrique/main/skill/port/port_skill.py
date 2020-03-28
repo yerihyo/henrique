@@ -62,7 +62,7 @@ class PortSkill:
         entity_type = Entity.entity2type(entity)
         codename = Entity.entity2value(entity)
 
-        from henrique.main.skill.port.port_entity.port_port_response import PortPortResponse
+        from henrique.main.skill.port.port_port.port_port_response import PortPortResponse
         h_type2func = {PortEntity.TYPE: partial(PortPortResponse.codename_lang2response, lang=lang),
                        }
 
