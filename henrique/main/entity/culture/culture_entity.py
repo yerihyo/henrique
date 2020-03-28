@@ -52,16 +52,11 @@ class CultureGooglesheets:
         credentials = GoogleAPITool.cache_or_func2cred(cachefuncs, partial(cls.flow().run_local_server, port=0))
         return credentials
 
-    @classmethod
-    def credentials_jwt(cls):
-        # https://developers.google.com/identity/protocols/oauth2/service-account
-        # https://cloud.google.com/docs/authentication/
-        return Credentials.from_service_account_file(HenriqueGoogleapi.filepath_privatekey())
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def sheetname2data_ll(cls, sheetname):
-        data_ll = GooglesheetsTool.cred_id_name2data_ll(cls.credentials_jwt(), cls.spreadsheetId(), sheetname)
+        data_ll = GooglesheetsTool.cred_id_name2data_ll(HenriqueGoogleapi.credentials(), cls.spreadsheetId(), sheetname)
         return data_ll
 
 

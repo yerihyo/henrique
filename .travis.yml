@@ -1,15 +1,21 @@
 language: python
 
 python:
-  - "3.7"
+- '3.7'
 
-# command to install dependencies
 install:
-  - pip install -U -r henrique/requirements.txt
+- pip install -U -r henrique/requirements.txt
 
-# command to run tests
 script:
-  - pytest
+- pytest
 
 notifications:
-  slack: 'foxytrixy:HZwjgEulu0umNtMJ1E9UhGPA#henrique'
+  slack: foxytrixy:HZwjgEulu0umNtMJ1E9UhGPA#henrique
+
+before_install:
+- mkdir -p henrique/env-travis/google/api
+- openssl aes-256-cbc -K $encrypted_5bf23a7191ec_key -iv $encrypted_5bf23a7191ec_iv
+  -in henrique/env-travis/google/api/henrique-272420-c09c9b3e31ff.json.enc -out henrique/env/google/api/henrique-272420-c09c9b3e31ff.json
+  -d
+
+# travis encrypt-file henrique/env/google/api/henrique-272420-c09c9b3e31ff.json  henrique/env-travis/google/api/henrique-272420-c09c9b3e31ff.json.enc --com --add

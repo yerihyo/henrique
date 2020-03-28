@@ -1,6 +1,7 @@
 import os
 
 from functools import reduce
+from google.oauth2.service_account import Credentials
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
@@ -21,6 +22,11 @@ class HenriqueGoogleapi:
         # http://console.cloud.google.com/iam-admin/serviceaccounts/details/112472142364049649520
         return os.path.join(REPO_DIR, "env", "google", "api", "henrique-272420-c09c9b3e31ff.json")
 
+    @classmethod
+    def credentials(cls):
+        # https://developers.google.com/identity/protocols/oauth2/service-account
+        # https://cloud.google.com/docs/authentication/
+        return Credentials.from_service_account_file(HenriqueGoogleapi.filepath_privatekey())
     # @classmethod
     # def project_id(cls):
     #     return "henrique-272420"
