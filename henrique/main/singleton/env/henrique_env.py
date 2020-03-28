@@ -31,7 +31,7 @@ class HenriqueEnv:
 
     @classmethod
     def env(cls):
-        return cls.env2norm(EnvTool.env_raw())
+        return cls.env2norm(EnvTool.env_raw()) or "local"
 
     @classmethod
     def env2norm(cls, env):
@@ -49,7 +49,7 @@ class HenriqueEnv:
         if _env in {"local", }:
             return cls.Value.LOCAL
 
-        raise NotImplementedError(env)
+        return _env
 
     @classmethod
     def is_skip_warmup(cls):
