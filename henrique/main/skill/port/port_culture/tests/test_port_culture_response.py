@@ -1,4 +1,5 @@
 import logging
+from pprint import pprint
 from unittest import TestCase
 
 from henrique.main.singleton.khala.henrique_khala import HenriqueKhala
@@ -12,8 +13,8 @@ class TestPortCultureResponse(TestCase):
         HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
 
     def test_01(self):
-        hyp = HenriqueKhala.response2norm(PortCultureResponse.codename_lang2response("Iberia", "ko"))
-        ref = "[이베리아] 항구 - 리스본, 세비야"
+        hyp = HenriqueKhala.response2norm(PortCultureResponse.codename_lang2response("Northern Europe", "ko"))
+        ref = "[북유럽] 항구 - 베르겐, 단치히, 스톡홀름, 코콜라, 코펜하겐, 오슬로, 리가, 뤼베크, 비스뷔"
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)

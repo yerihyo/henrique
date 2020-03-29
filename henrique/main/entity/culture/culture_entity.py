@@ -1,11 +1,12 @@
 import os
 import sys
 
-from foxylib.tools.collections.collections_tool import merge_dicts
+from foxylib.tools.collections.collections_tool import merge_dicts, IterTool
 from functools import lru_cache
 
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
+from foxylib.tools.json.json_tool import JsonTool
 
 MODULE = sys.modules[__name__]
 WARMER = Warmer(MODULE)
@@ -23,7 +24,7 @@ class Culture:
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def dict_codename2culture(cls):
-        from henrique.main.entity.culture.culture_googlesheets import CultureGooglesheets
+        from henrique.main.entity.culture.googlesheets.culture_googlesheets import CultureGooglesheets
         culture_list = CultureGooglesheets.culture_list_all()
 
         h_codename2culture = merge_dicts([{cls.culture2codename(culture): culture}
@@ -38,5 +39,10 @@ class Culture:
     def codename2culture(cls, codename):
         return cls.dict_codename2culture().get(codename)
 
+    @classmethod
+    def culture_lang2aliases(cls, culture, lang):
+        return JsonTool.down(culture, [cls.Field.ALIASES, lang])
 
-
+    @classmethod
+    def culture_lang2name(cls, culture, lang):
+        return IterTool.first(cls.culture_lang2aliases(culture, lang))

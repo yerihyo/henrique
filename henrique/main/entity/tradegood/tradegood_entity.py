@@ -96,15 +96,15 @@ class TradegoodEntity:
         doc_list = TradegoodDoc.doc_list_all()
         langs_recognizable = HenriqueLocale.lang2langs_recognizable(lang)
 
-        def doc2texts(doc):
+        def doc2aliases(doc):
             for _lang in langs_recognizable:
                 yield from TradegoodDoc.doc_lang2text_list(doc, _lang)
 
-        h_value2texts = merge_dicts([{TradegoodDoc.doc2codename(doc): list(doc2texts(doc))} for doc in doc_list],
+        h_value2aliases = merge_dicts([{TradegoodDoc.doc2codename(doc): list(doc2aliases(doc))} for doc in doc_list],
                                     vwrite=vwrite_no_duplicate_key)
 
         config = {GazetteerMatcher.Config.Key.NORMALIZER: cls.text2norm}
-        matcher = GazetteerMatcher(h_value2texts, config)
+        matcher = GazetteerMatcher(h_value2aliases, config)
         return matcher
 
     @classmethod

@@ -51,14 +51,14 @@ class CultureGooglesheets:
         return "1s_EBQGNu0DlPedOXQNcfmE_LDk4wRq5QgJ9TsdBCCDE"
 
 
-    @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def flow(cls):
-        scopes = ["https://www.googleapis.com/auth/spreadsheets.readonly",
-                  "https://www.googleapis.com/auth/spreadsheets",
-                  ]
-        flow = InstalledAppFlow.from_client_secrets_file(HenriqueGoogleapi.filepath_credentials(), scopes)
-        return flow
+    # @classmethod
+    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    # def flow(cls):
+    #     scopes = ["https://www.googleapis.com/auth/spreadsheets.readonly",
+    #               "https://www.googleapis.com/auth/spreadsheets",
+    #               ]
+    #     flow = InstalledAppFlow.from_client_secrets_file(HenriqueGoogleapi.filepath_credentials(), scopes)
+    #     return flow
 
     @classmethod
     def sheetname2data_ll(cls, sheetname):
