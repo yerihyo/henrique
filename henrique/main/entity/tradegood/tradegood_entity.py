@@ -58,7 +58,7 @@ class TradegoodDoc:
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    @IterTool.wrap_iterable2list
+    @IterTool.f_iter2f_list
     def doc_list_all(cls):
         collection = TradegoodCollection.collection()
         yield from MongoDBTool.result2j_doc_iter(collection.find({}))

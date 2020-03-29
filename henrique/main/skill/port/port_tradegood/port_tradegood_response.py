@@ -11,7 +11,7 @@ FILE_DIR = os.path.dirname(FILE_PATH)
 
 class PortTradegoodResponse:
     @classmethod
-    def tradegood_lang2response(cls, tg_codename, lang):
+    def codename_lang2response(cls, tg_codename, lang):
 
         ports = PortDoc.tradegood2docs(tg_codename)
         tradegood = TradegoodDoc.codename2doc(tg_codename)

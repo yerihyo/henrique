@@ -1,16 +1,12 @@
 import logging
-from pprint import pprint
 from unittest import TestCase
-
-import pytest
 
 from henrique.main.singleton.khala.henrique_khala import HenriqueKhala
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.skill.port.port_culture.port_culture_response import PortCultureResponse
-from henrique.main.skill.port.port_tradegood.port_tradegood_response import PortTradegoodResponse
 
 
-class TestPortTradegoodResponse(TestCase):
+class TestPortCultureResponse(TestCase):
     @classmethod
     def setUpClass(cls):
         HenriqueLogger.attach_stderr2loggers(logging.DEBUG)

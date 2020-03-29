@@ -13,7 +13,7 @@ class Spell:
 
 
     @classmethod
-    @IterTool.wrap_iterable2list
+    @IterTool.f_iter2f_list
     def query_lang2j_command_list(cls, query, lang):
         for str_line in query.splitlines():
             j_command = {cls.F.TEXT:str_line,
