@@ -1,10 +1,12 @@
 import os
+from operator import itemgetter as ig
 
 from functools import lru_cache
 from future.utils import lfilter
 from itertools import chain
 
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, IterTool, luniq
+from foxylib.tools.collections.groupby_tool import GroupbyTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.json.json_tool import JsonTool
 
@@ -20,7 +22,7 @@ class Port:
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def dict_codename2port(cls):
+    def _dict_codename2port_all(cls):
         from henrique.main.entity.port.mongodb.port_doc import PortDoc
         h_mongo = PortDoc.dict_codename2port_partial()
 
@@ -40,6 +42,11 @@ class Port:
                                           for codename in codename_list],
                                          vwrite=vwrite_no_duplicate_key, )
         return dict_codename2port
+
+    @classmethod
+    def list_all(cls):
+        return list(cls._dict_codename2port_all().values())
+
 
 
     @classmethod
@@ -64,28 +71,42 @@ class Port:
 
     @classmethod
     def codename2port(cls, codename):
-        return cls.dict_codename2port().get(codename)
+        return cls._dict_codename2port_all().get(codename)
+
+    # @classmethod
+    # def port_tradegood2is_sold(cls, port, tg_codename):
+    #     products = cls.port2products(port)
+    #
+    #     for product in products:
+    #         tg_codename_product = Product.product2tradegood_codename(product)
+    #         if tg_codename == tg_codename_product:
+    #             return True
+    #     return False
 
     @classmethod
-    def port_tradegood2is_sold(cls, port, tg_codename):
-        products = cls.port2products(port)
+    def _dict_tradegood2ports(cls,):
+        def tradegood_port_iter():
+            for port in cls.list_all():
+                for tg_codename in Product.product2tradegood_codename(cls.port2products(port) or []):
+                    yield (tg_codename, port)
 
-        for product in products:
-            tg_codename_product = Product.product2tradegood_codename(product)
-            if tg_codename == tg_codename_product:
-                return True
-        return False
+        return GroupbyTool.dict_groupby_tree(tradegood_port_iter(), [ig(0)])
 
     @classmethod
     def tradegood2ports(cls, tg_codename):
-        dict_codename2port = cls.dict_codename2port()
-        return lfilter(lambda port: cls.port_tradegood2is_sold(port, tg_codename), dict_codename2port.values())
+        return cls._dict_tradegood2ports().get(tg_codename) or []
 
+    @classmethod
+    def _dict_culture2ports(cls, ):
+        def culture_port_iter():
+            for port in cls.list_all():
+                yield (cls.port2culture(port), port)
+
+        return GroupbyTool.dict_groupby_tree(culture_port_iter(), [ig(0)])
 
     @classmethod
     def culture2ports(cls, culture_codename):
-        dict_codename2port = cls.dict_codename2port()
-        return lfilter(lambda port: cls.port2culture(port) == culture_codename, dict_codename2port.values())
+        return cls._dict_culture2ports().get(culture_codename) or []
 
 
 class Product:
