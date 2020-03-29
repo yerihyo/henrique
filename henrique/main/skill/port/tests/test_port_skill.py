@@ -1,11 +1,7 @@
-from pprint import pprint
 from unittest import TestCase
 
-from khalalib.packet.packet import KhalaPacket
-
-from foxylib.tools.collections.collections_tool import smap
-from henrique.main.entity.port.port_entity import PortDoc, PortEntity
 from henrique.main.skill.port.port_skill import PortSkill
+from khalalib.packet.packet import KhalaPacket
 
 
 class TestPortSkill(TestCase):
