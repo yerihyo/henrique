@@ -28,10 +28,15 @@ class PortGooglesheets:
 
     @classmethod
     def dict_codename2port_partial(cls):
-        h_codname2culture = CultureSheet.dict_codename2culture()
+        h_codename2culture = CultureSheet.dict_codename2culture()
 
-        h = merge_dicts([{codename: {Port.Field.CULTURE: culture}}
-                         for codename, culture in h_codname2culture.items()],
+        def codename_culture2port_partial(codename, culture):
+            h = {Port.Field.CODENAME: codename,
+                 Port.Field.CULTURE: culture,
+                 }
+            return h
+        h = merge_dicts([{codename: codename_culture2port_partial(codename,culture)}
+                         for codename, culture in h_codename2culture.items()],
                         vwrite=DictTool.VWrite.f_vwrite2f_hvwrite(vwrite_no_duplicate_key),
                         )
         return h

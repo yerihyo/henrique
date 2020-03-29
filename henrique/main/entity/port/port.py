@@ -5,7 +5,8 @@ from functools import lru_cache
 from future.utils import lfilter
 from itertools import chain
 
-from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, IterTool, luniq
+from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, IterTool, luniq, DictTool, \
+    vwrite_update_if_identical
 from foxylib.tools.collections.groupby_tool import GroupbyTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.json.json_tool import JsonTool
@@ -34,7 +35,7 @@ class Port:
         def codename2port(codename):
             port = merge_dicts([h_mongo.get(codename) or {},
                                 h_googlesheets.get(codename) or {},
-                                ], vwrite=vwrite_no_duplicate_key,
+                                ], vwrite=vwrite_update_if_identical,
                                )
             return port
 
@@ -46,8 +47,6 @@ class Port:
     @classmethod
     def list_all(cls):
         return list(cls._dict_codename2port_all().values())
-
-
 
     @classmethod
     def port2codename(cls, port):
@@ -78,19 +77,22 @@ class Port:
     #     products = cls.port2products(port)
     #
     #     for product in products:
-    #         tg_codename_product = Product.product2tradegood_codename(product)
+    #         tg_codename_product = Product.product2tradegood(product)
     #         if tg_codename == tg_codename_product:
     #             return True
     #     return False
 
     @classmethod
     def _dict_tradegood2ports(cls,):
-        def tradegood_port_iter():
+        def h_tradegood2ports_iter():
             for port in cls.list_all():
-                for tg_codename in Product.product2tradegood_codename(cls.port2products(port) or []):
-                    yield (tg_codename, port)
+                for product in cls.port2products(port):
+                    yield {Product.product2tradegood(product): [port]}
 
-        return GroupbyTool.dict_groupby_tree(tradegood_port_iter(), [ig(0)])
+        h_tg2ports_list = list(h_tradegood2ports_iter())
+        h_tg2ports = merge_dicts(h_tg2ports_list, vwrite=DictTool.VWrite.extend)
+        # raise Exception(h_tg2ports)
+        return h_tg2ports
 
     @classmethod
     def tradegood2ports(cls, tg_codename):
@@ -98,11 +100,13 @@ class Port:
 
     @classmethod
     def _dict_culture2ports(cls, ):
-        def culture_port_iter():
+        def h_culture2ports_iter():
             for port in cls.list_all():
-                yield (cls.port2culture(port), port)
+                yield {cls.port2culture(port): [port]}
 
-        return GroupbyTool.dict_groupby_tree(culture_port_iter(), [ig(0)])
+        h_culture2ports = merge_dicts(h_culture2ports_iter(), vwrite=DictTool.VWrite.extend)
+        return h_culture2ports
+        # return GroupbyTool.dict_groupby_tree(culture_port_iter(), [ig(0)])
 
     @classmethod
     def culture2ports(cls, culture_codename):
@@ -110,9 +114,13 @@ class Port:
 
 
 class Product:
+    class Field:
+        TRADEGOOD = "tradegood"
+
     @classmethod
-    def product2tradegood_codename(cls, product):
-        return JsonTool.down(product, ["name", "en"])
+    def product2tradegood(cls, product):
+        return product.get(cls.Field.TRADEGOOD)
+
 
 
 

@@ -13,6 +13,7 @@ class TestPortEntity(TestCase):
 
     def test_01(self):
         ports = Port.tradegood2ports("Dashima")
+
         hyp = smap(Port.port2codename, ports)
         ref = {'Hanyang', 'Busan', 'Pohang'}
 

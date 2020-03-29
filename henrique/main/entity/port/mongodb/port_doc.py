@@ -4,6 +4,7 @@ from foxylib.tools.collections.collections_tool import IterTool, merge_dicts, vw
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.json.json_tool import JsonTool
+from henrique.main.entity.port.port import Product
 from henrique.main.entity.port.port_entity import Port
 from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb
 
@@ -56,8 +57,12 @@ class PortDoc:
             langs = ["en", "ko"]
 
             tradegoods = doc.get("tradegoods") or []
+            product_list = [{Product.Field.TRADEGOOD:JsonTool.down(tg, ["name", "en"])}
+                            for tg in tradegoods]
+
             port_partial = {Port.Field.ALIASES: {lang: cls.doc_lang2text_list(doc, lang) for lang in langs},
-                            Port.Field.PRODUCTS: [JsonTool.down(tg, ["name", "en"]) for tg in tradegoods]
+                            Port.Field.PRODUCTS: product_list,
+                            Port.Field.CODENAME: PortDoc.doc2key(doc)
                             }
             return port_partial
 
