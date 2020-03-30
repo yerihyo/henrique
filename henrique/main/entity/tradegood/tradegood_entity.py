@@ -41,12 +41,12 @@ class TradegoodDoc:
     F = Field
 
     @classmethod
-    def doc2dict_lang2texts(cls, doc):
+    def doc2dict_lang2names(cls, doc):
         return doc.get(cls.Field.NAMES) or {}
 
     @classmethod
     def doc_lang2text_list(cls, doc, lang):
-        h_lang2texts = cls.doc2dict_lang2texts(doc)
+        h_lang2texts = cls.doc2dict_lang2names(doc)
         return h_lang2texts.get(lang) or []
 
     @classmethod

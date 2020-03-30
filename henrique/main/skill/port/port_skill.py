@@ -58,8 +58,8 @@ class PortSkill:
         from henrique.main.skill.port.port_tradegood.port_tradegood_response import PortTradegoodResponse
         from henrique.main.skill.port.port_culture.port_culture_response import PortCultureResponse
 
-        h_type2func = {PortEntity.TYPE: partial(PortTradegoodResponse.codename_lang2response, lang=lang),
-                       TradegoodEntity.TYPE: partial(PortPortResponse.codename_lang2response, lang=lang),
+        h_type2func = {PortEntity.TYPE: partial(PortPortResponse.codename_lang2response, lang=lang),
+                       TradegoodEntity.TYPE: partial(PortTradegoodResponse.codename_lang2response, lang=lang),
                        CultureEntity.TYPE: partial(PortCultureResponse.codename_lang2response, lang=lang),
                        }
 
