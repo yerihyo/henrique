@@ -5,6 +5,7 @@ from functools import lru_cache
 from nose.tools import assert_equal
 from psycopg2.sql import Identifier, SQL
 
+from foxylib.tools.cache.cache_tool import CacheTool
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, IterTool
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.database.postgres.postgres_tool import PostgresTool
@@ -78,7 +79,6 @@ class TradegoodDoc:
         return cls._dict_codename2doc().get(codename)
 
 
-
 class TradegoodEntity:
     TYPE = "tradegood"
 
@@ -101,14 +101,15 @@ class TradegoodEntity:
                 yield from TradegoodDoc.doc_lang2text_list(doc, _lang)
 
         h_value2aliases = merge_dicts([{TradegoodDoc.doc2codename(doc): list(doc2aliases(doc))} for doc in doc_list],
-                                    vwrite=vwrite_no_duplicate_key)
+                                      vwrite=vwrite_no_duplicate_key)
 
         config = {GazetteerMatcher.Config.Key.NORMALIZER: cls.text2norm}
         matcher = GazetteerMatcher(h_value2aliases, config)
         return matcher
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=HenriqueEntity.Cache.DEFAULT_SIZE))
+    @CacheTool.cache2hashable(cache=lru_cache(maxsize=HenriqueEntity.Cache.DEFAULT_SIZE),
+                              f_pair=CacheTool.JSON.func_pair(), )
     def text2entity_list(cls, text_in, config=None):
         locale = Entity.Config.config2locale(config) or HenriqueLocale.DEFAULT
         lang = LocaleTool.locale2lang(locale) or LocaleTool.locale2lang(HenriqueLocale.DEFAULT)

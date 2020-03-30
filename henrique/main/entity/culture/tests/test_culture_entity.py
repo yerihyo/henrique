@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from future.utils import lmap
 
-from henrique.main.entity.culture.culture_entity import Culture
+from henrique.main.entity.culture.culture import Culture
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 
 

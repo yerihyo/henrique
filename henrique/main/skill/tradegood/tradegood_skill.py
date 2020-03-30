@@ -1,17 +1,20 @@
 import os
 import sys
 
-from functools import partial
-from future.utils import lmap
-from nose.tools import assert_equals
+import re
+from functools import lru_cache, partial
 
-from foxylib.tools.collections.collections_tool import lchain, smap
+from foxylib.tools.collections.collections_tool import lchain
+from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
+from foxylib.tools.json.json_tool import jdown
+from foxylib.tools.json.yaml_tool import YAMLTool
 from foxylib.tools.locale.locale_tool import LocaleTool
-from henrique.main.entity.culture.culture_entity import CultureEntity
+from foxylib.tools.regex.regex_tool import RegexTool
 from henrique.main.entity.henrique_entity import Entity
 from henrique.main.entity.port.port_entity import PortEntity
-from henrique.main.entity.tradegood.tradegood_entity import TradegoodEntity
+from henrique.main.singleton.env.henrique_env import HenriqueEnv
+from henrique.main.tool.skillnote_tool import SkillnoteTool
 from khalalib.packet.packet import KhalaPacket
 
 FILE_PATH = os.path.realpath(__file__)
@@ -21,8 +24,8 @@ FILE_DIR = os.path.dirname(FILE_PATH)
 MODULE = sys.modules[__name__]
 WARMER = Warmer(MODULE)
 
-class PortSkill:
-    CODENAME = "port"
+class TradegoodSkill:
+    CODENAME = "tradegood"
 
     # @classmethod
     # @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
@@ -36,7 +39,7 @@ class PortSkill:
     # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     # def h_reversed(cls, ):
     #     return YAMLTool.j_yaml2h_reversed(cls.j_yaml())
-
+    #
     # @classmethod
     # @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
@@ -46,24 +49,13 @@ class PortSkill:
     #     return p
 
     @classmethod
-    def target_entity_classes(cls):
-        return {PortEntity, TradegoodEntity, CultureEntity}
-
-    @classmethod
     def _entity_lang2response(cls, entity, lang):
         entity_type = Entity.entity2type(entity)
         codename = Entity.entity2value(entity)
 
         from henrique.main.skill.port.port_port.port_port_response import PortPortResponse
-        from henrique.main.skill.port.port_tradegood.port_tradegood_response import PortTradegoodResponse
-        from henrique.main.skill.port.port_culture.port_culture_response import PortCultureResponse
-
-        h_type2func = {PortEntity.TYPE: partial(PortTradegoodResponse.codename_lang2response, lang=lang),
-                       TradegoodEntity.TYPE: partial(PortPortResponse.codename_lang2response, lang=lang),
-                       CultureEntity.TYPE: partial(PortCultureResponse.codename_lang2response, lang=lang),
+        h_type2func = {PortEntity.TYPE: partial(PortPortResponse.codename_lang2response, lang=lang),
                        }
-
-        assert_equals(set(h_type2func.keys()), smap(lambda c: c.TYPE, cls.target_entity_classes()))
 
         codename2response = h_type2func.get(entity_type)
         if not codename2response:
@@ -76,7 +68,7 @@ class PortSkill:
     def packet2response(cls, packet):
         lang = LocaleTool.locale2lang(KhalaPacket.packet2locale(packet))
 
-        entity_classes = cls.target_entity_classes()
+        entity_classes = {PortEntity}
         text_in = KhalaPacket.packet2text(packet)
         config = {Entity.Config.Field.LOCALE:KhalaPacket.packet2locale(packet)}
         entity_list_raw = lchain(*[c.text2entity_list(text_in, config=config) for c in entity_classes])

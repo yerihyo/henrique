@@ -6,7 +6,7 @@ from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_du
     IterTool, DictTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.googleapi.sheets.googlesheets_tool import GooglesheetsTool
-from henrique.main.entity.culture.culture_entity import Culture
+from henrique.main.entity.culture.culture import Culture
 from henrique.main.singleton.google.googledoc.henrique_googleapi import HenriqueGoogleapi
 
 

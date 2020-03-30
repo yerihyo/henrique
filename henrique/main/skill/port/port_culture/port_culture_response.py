@@ -2,7 +2,7 @@ import os
 
 from foxylib.tools.jinja2.jinja2_tool import Jinja2Renderer
 from foxylib.tools.string.string_tool import str2strip
-from henrique.main.entity.culture.culture_entity import Culture
+from henrique.main.entity.culture.culture import Culture
 from henrique.main.entity.port.port_entity import Port
 
 FILE_PATH = os.path.realpath(__file__)
