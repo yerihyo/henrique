@@ -37,12 +37,8 @@ class PortEntity:
     def lang2matcher(cls, lang):
         langs_recognizable = HenriqueLocale.lang2langs_recognizable(lang)
 
-        def port2aliases(port):
-            for _lang in langs_recognizable:
-                yield from Port.port_lang2aliases(port, _lang)
-
-        h_codename2aliases = merge_dicts([{Port.port2codename(port): list(port2aliases(port))}
-                                          for port in Port.lis_all()],
+        h_codename2aliases = merge_dicts([{Port.port2codename(port): Port.port_langs2aliases(port, langs_recognizable)}
+                                          for port in Port.list_all()],
                                          vwrite=vwrite_no_duplicate_key)
 
         config = {GazetteerMatcher.Config.Key.NORMALIZER: cls.text2norm}

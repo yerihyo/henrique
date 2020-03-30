@@ -65,6 +65,11 @@ class Port:
         return JsonTool.down(port, [cls.Field.ALIASES, lang])
 
     @classmethod
+    def port_langs2aliases(cls, port, langs):
+        return luniq(chain(*[cls.port_lang2aliases(port, lang) for lang in langs]))
+
+
+    @classmethod
     def port_lang2name(cls, port, lang):
         return IterTool.first(cls.port_lang2aliases(port, lang))
 
@@ -100,11 +105,8 @@ class Port:
 
     @classmethod
     def _dict_culture2ports(cls, ):
-        def h_culture2ports_iter():
-            for port in cls.list_all():
-                yield {cls.port2culture(port): [port]}
-
-        h_culture2ports = merge_dicts(h_culture2ports_iter(), vwrite=DictTool.VWrite.extend)
+        h_culture2ports = merge_dicts([{cls.port2culture(port): [port]} for port in cls.list_all()],
+                                      vwrite=DictTool.VWrite.extend)
         return h_culture2ports
         # return GroupbyTool.dict_groupby_tree(culture_port_iter(), [ig(0)])
 

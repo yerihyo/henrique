@@ -23,7 +23,7 @@ class Culture:
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def dict_codename2culture(cls):
+    def _dict_codename2culture(cls):
         from henrique.main.entity.culture.googlesheets.culture_googlesheets import CultureGooglesheets
         culture_list = CultureGooglesheets.culture_list_all()
 
@@ -32,12 +32,16 @@ class Culture:
         return h_codename2culture
 
     @classmethod
+    def list_all(cls):
+        return list(cls._dict_codename2culture().values())
+
+    @classmethod
     def culture2codename(cls, culture):
         return culture[cls.Field.CODENAME]
 
     @classmethod
     def codename2culture(cls, codename):
-        return cls.dict_codename2culture().get(codename)
+        return cls._dict_codename2culture().get(codename)
 
     @classmethod
     def culture_lang2aliases(cls, culture, lang):
