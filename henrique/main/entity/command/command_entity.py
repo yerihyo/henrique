@@ -20,16 +20,18 @@ class CommandEntity:
     TYPE = "command"
 
     @classmethod
-    def set(cls):
+    def skill_set(cls):
         from henrique.main.skill.port.port_skill import PortSkill
+        from henrique.main.skill.tradegood.tradegood_skill import TradegoodSkill
         return {PortSkill,
+                TradegoodSkill,
                 }
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def h_name2skill(cls):
         return merge_dicts([{skill.CODENAME: skill}
-                            for skill in cls.set()],
+                            for skill in cls.skill_set()],
                            vwrite=vwrite_no_duplicate_key)
 
     @classmethod
