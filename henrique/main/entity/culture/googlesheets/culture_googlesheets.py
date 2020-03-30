@@ -6,7 +6,7 @@ from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_du
     IterTool, DictTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.googleapi.sheets.googlesheets_tool import GooglesheetsTool
-from henrique.main.entity.culture.culture import Culture
+from henrique.main.entity.culture.culture import Culture, PreferredTradegood
 from henrique.main.singleton.google.googledoc.henrique_googleapi import HenriqueGoogleapi
 
 
@@ -40,7 +40,13 @@ class PreferredtradegoodSheet:
     def dict_codename2tradegoods(cls):
         data_ll = CultureGooglesheets.sheetname2data_ll(cls.NAME)
 
-        h = merge_dicts([{row[0]: row[1:]} for row in data_ll[1:]],
+        def row2preferred_tradegoods(row):
+            preferred_tradegoods = [{PreferredTradegood.Field.CODENAME: tg_codename}
+                                    for tg_codename in row[1:]]
+            return preferred_tradegoods
+
+        h = merge_dicts([{row[0]: row2preferred_tradegoods(row)}
+                         for row in data_ll[1:]],
                         vwrite=vwrite_no_duplicate_key)
         return h
 
@@ -84,10 +90,9 @@ class CultureGooglesheets:
                                        "ko": h_codename2aliases_ko.get(codename),
                                        })
 
-            culture = {Culture.Field.CODENAME: codename,
-                       Culture.Field.ALIASES: aliases,
-                       Culture.Field.PREFERRED_TRADEGOODS: h_codename2tradegoods.get(codename),
-                       }
+            culture_raw = {Culture.Field.CODENAME: codename,
+                           Culture.Field.ALIASES: aliases,
+                           Culture.Field.PREFERRED_TRADEGOODS: h_codename2tradegoods.get(codename),
+                           }
+            culture = DictTool.filter(lambda k, v: v, culture_raw)
             yield culture
-
-

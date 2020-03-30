@@ -44,6 +44,10 @@ class Culture:
         return culture[cls.Field.CODENAME]
 
     @classmethod
+    def culture2preferred_tradegoods(cls, culture):
+        return culture.get(cls.Field.PREFERRED_TRADEGOODS) or []
+
+    @classmethod
     def codename2culture(cls, codename):
         return cls._dict_codename2culture().get(codename)
 
@@ -59,3 +63,12 @@ class Culture:
     @classmethod
     def culture_lang2name(cls, culture, lang):
         return IterTool.first(cls.culture_lang2aliases(culture, lang))
+
+
+class PreferredTradegood:
+    class Field:
+        CODENAME = "codename"
+
+    @classmethod
+    def preferred_tradegood2codename(cls, obj):
+        return obj[cls.Field.CODENAME]
