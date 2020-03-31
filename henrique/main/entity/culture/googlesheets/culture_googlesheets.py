@@ -1,4 +1,5 @@
 from functools import lru_cache
+from future.utils import lmap
 from google_auth_oauthlib.flow import InstalledAppFlow
 from itertools import chain
 
@@ -6,7 +7,7 @@ from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_du
     IterTool, DictTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.googleapi.sheets.googlesheets_tool import GooglesheetsTool
-from henrique.main.entity.culture.culture import Culture, PreferredTradegood
+from henrique.main.entity.culture.culture import Culture, Prefer
 from henrique.main.singleton.google.googledoc.henrique_googleapi import HenriqueGoogleapi
 
 
@@ -33,19 +34,22 @@ class NamesenSheet:
                         vwrite=vwrite_no_duplicate_key)
         return h
 
-class PreferredtradegoodSheet:
-    NAME = "preferred_tradegood"
+class PrefersSheet:
+    NAME = "prefers"
 
     @classmethod
-    def dict_codename2tradegoods(cls):
+    def dict_codename2prefers(cls):
         data_ll = CultureGooglesheets.sheetname2data_ll(cls.NAME)
 
-        def row2preferred_tradegoods(row):
-            preferred_tradegoods = [{PreferredTradegood.Field.CODENAME: tg_codename}
+        def row2prefers(row):
+            culture_codename = row[0]
+            preferred_tradegoods = [{Prefer.Field.TRADEGOOD: tg_codename,
+                                     Prefer.Field.CULTURE: culture_codename,
+                                     }
                                     for tg_codename in row[1:]]
             return preferred_tradegoods
 
-        h = merge_dicts([{row[0]: row2preferred_tradegoods(row)}
+        h = merge_dicts([{row[0]: row2prefers(row)}
                          for row in data_ll[1:]],
                         vwrite=vwrite_no_duplicate_key)
         return h
@@ -76,23 +80,25 @@ class CultureGooglesheets:
     def culture_list_all(cls):
         h_codename2aliases_en = NamesenSheet.dict_codename2aliases()
         h_codename2aliases_ko = NameskoSheet.dict_codename2aliases()
-        h_codename2tradegoods = PreferredtradegoodSheet.dict_codename2tradegoods()
+        h_codename2prefers = PrefersSheet.dict_codename2prefers()
 
         codename_list = luniq(chain(h_codename2aliases_en.keys(),
                                     h_codename2aliases_ko.keys(),
-                                    h_codename2tradegoods.keys(),
+                                    h_codename2prefers.keys(),
                                     )
                               )
 
-        for codename in codename_list:
+        def codename2culture(codename):
             aliases = DictTool.filter(lambda k,v:v,
                                       {"en": h_codename2aliases_en.get(codename),
                                        "ko": h_codename2aliases_ko.get(codename),
                                        })
 
-            culture_raw = {Culture.Field.CODENAME: codename,
-                           Culture.Field.ALIASES: aliases,
-                           Culture.Field.PREFERRED_TRADEGOODS: h_codename2tradegoods.get(codename),
-                           }
-            culture = DictTool.filter(lambda k, v: v, culture_raw)
-            yield culture
+            culture = {Culture.Field.CODENAME: codename,
+                       Culture.Field.ALIASES: aliases,
+                       Culture.Field.PREFERS: h_codename2prefers.get(codename) or [],
+                       }
+            return DictTool.filter(lambda k, v: v, culture)
+
+        return lmap(codename2culture, codename_list)
+
