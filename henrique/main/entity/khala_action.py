@@ -10,9 +10,6 @@ from foxylib.tools.regex.regex_tool import RegexTool
 from foxylib.tools.string.string_tool import str2split
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 
-MODULE = sys.modules[__name__]
-WARMER = Warmer(MODULE)
-
 class KhalaAction:
     class Field:
         DEFAULT_ACTION_NAMES = "default_action_names"
@@ -29,5 +26,3 @@ class KhalaAction:
         l = str2split(text_body)
         m = p.match(l[0])
         return m
-
-WARMER.warmup()

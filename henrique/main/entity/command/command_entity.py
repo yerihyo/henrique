@@ -1,4 +1,5 @@
 import os
+import sys
 from operator import itemgetter as ig
 
 import re
@@ -7,13 +8,19 @@ from future.utils import lmap
 
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, l_singleton2obj
 from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.nlp.contextfree.contextfree_tool import ContextfreeTool
 from foxylib.tools.string.string_tool import StringTool
 from henrique.main.entity.henrique_entity import HenriqueEntity, Entity
+from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.skill.henrique_skill import HenriqueSkill
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
+
+
+MODULE = sys.modules[__name__]
+WARMER = Warmer(MODULE)
 
 
 class CommandEntity:
@@ -35,6 +42,7 @@ class CommandEntity:
                            vwrite=vwrite_no_duplicate_key)
 
     @classmethod
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def pattern_prefix(cls):
         return re.compile(r"^\s*\?", re.I)
@@ -82,3 +90,6 @@ class CommandEntity:
 
         skill_code = Entity.entity2value(entity)
         return skill_code
+
+
+WARMER.warmup()

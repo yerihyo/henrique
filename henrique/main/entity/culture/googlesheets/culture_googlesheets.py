@@ -76,7 +76,6 @@ class CultureGooglesheets:
         return data_ll
 
     @classmethod
-    @IterTool.f_iter2f_list
     def culture_list_all(cls):
         h_codename2aliases_en = NamesenSheet.dict_codename2aliases()
         h_codename2aliases_ko = NameskoSheet.dict_codename2aliases()

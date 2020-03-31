@@ -18,9 +18,6 @@ FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 
 
-MODULE = sys.modules[__name__]
-WARMER = Warmer(MODULE)
-
 class PortSkill:
     CODENAME = "port"
 
@@ -65,9 +62,3 @@ class PortSkill:
         response = "\n\n".join([cls._entity_lang2response(entity, lang) for entity in entity_list])
         return response
 
-
-
-
-
-
-WARMER.warmup()

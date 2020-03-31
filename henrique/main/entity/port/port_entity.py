@@ -18,19 +18,11 @@ from henrique.main.singleton.locale.henrique_locale import HenriqueLocale
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 
-MODULE = sys.modules[__name__]
-WARMER = Warmer(MODULE)
-
 class PortEntity:
     TYPE = "port"
 
     @classmethod
     def text2norm(cls, text): return str2lower(text)
-
-    # @classmethod
-    # @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
-    # def _dict_lang2matcher(cls,):
-    #     return {lang: cls.lang2matcher(lang) for lang in HenriqueLocale.langs()}
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=HenriqueLocale.lang_count()))
@@ -63,14 +55,5 @@ class PortEntity:
                        for span, value in span_value_list]
 
         return entity_list
-
-
-
-
-
-
-
-
-WARMER.warmup()
 
 

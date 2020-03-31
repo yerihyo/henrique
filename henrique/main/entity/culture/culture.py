@@ -11,9 +11,6 @@ from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.json.json_tool import JsonTool
 
-MODULE = sys.modules[__name__]
-WARMER = Warmer(MODULE)
-
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 

@@ -100,18 +100,18 @@ class MarkettrendCollection:
     class YAML:
         NAME = "name"
 
-    @classmethod
-    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def j_yaml(cls):
-        filepath = os.path.join(FILE_DIR, "tradegood_collection.yaml")
-        j = YAMLTool.filepath2j(filepath)
-        return j
+    # @classmethod
+    # @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
+    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    # def j_yaml(cls):
+    #     filepath = os.path.join(FILE_DIR, "tradegood_collection.yaml")
+    #     j = YAMLTool.filepath2j(filepath)
+    #     return j
 
-    @classmethod
-    def lang2name(cls, lang):
-        j_yaml = cls.j_yaml()
-        return jdown(j_yaml, [cls.YAML.NAME,lang])
+    # @classmethod
+    # def lang2name(cls, lang):
+    #     j_yaml = cls.j_yaml()
+    #     return jdown(j_yaml, [cls.YAML.NAME,lang])
 
     @classmethod
     def collection(cls, *_, **__):

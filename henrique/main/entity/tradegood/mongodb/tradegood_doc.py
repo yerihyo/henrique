@@ -11,9 +11,6 @@ from foxylib.tools.json.json_tool import JsonTool
 from henrique.main.entity.tradegood.tradegood import Tradegood
 from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb
 
-MODULE = sys.modules[__name__]
-WARMER = Warmer(MODULE)
-
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 
@@ -60,5 +57,3 @@ class TradegoodDoc:
                             for doc in cls.doc_iter_all()],
                            vwrite=DictTool.VWrite.f_vwrite2f_hvwrite(vwrite_no_duplicate_key),
                            )
-
-WARMER.warmup()
