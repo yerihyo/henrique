@@ -2,7 +2,6 @@ import logging
 from pprint import pprint
 from unittest import TestCase
 
-from henrique.main.entity.command.command_entity import CommandEntity
 from henrique.main.entity.server.server_entity import ServerEntity
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 

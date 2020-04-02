@@ -17,7 +17,6 @@ class PortCollection:
         return db.get_collection("port", *_, **__)
 
 
-
 class PortDoc:
     class Field:
         KEY = "key"
@@ -48,6 +47,36 @@ class PortDoc:
         collection = PortCollection.collection()
         doc_iter = MongoDBTool.result2j_doc_iter(collection.find({}))
         return list(doc_iter)
+
+    @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def _dict_codename2id(cls,):
+        doc_list = cls.doc_list_all()
+
+        h = merge_dicts([{cls.doc2key(doc): MongoDBTool.doc2id(doc)}
+                         for doc in doc_list],
+                        vwrite=vwrite_no_duplicate_key)
+        return h
+
+    @classmethod
+    def codename2id(cls, codename):
+        h = cls._dict_codename2id()
+        return h[codename]
+
+    @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def _dict_id2codename(cls, ):
+        doc_list = cls.doc_list_all()
+
+        h = merge_dicts([{MongoDBTool.doc2id(doc):cls.doc2key(doc)}
+                         for doc in doc_list],
+                        vwrite=vwrite_no_duplicate_key)
+        return h
+
+    @classmethod
+    def id2codename(cls, doc_id):
+        h = cls._dict_id2codename()
+        return h[doc_id]
 
     @classmethod
     def dict_codename2port_partial(cls):

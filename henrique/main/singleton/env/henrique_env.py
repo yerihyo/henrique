@@ -12,6 +12,7 @@ from foxylib.tools.native.native_tool import BooleanTool
 from foxylib.tools.string.string_tool import str2lower
 
 from foxylib.tools.env.env_tool import EnvTool
+from henrique.main.singleton.jinja2.henrique_jinja2 import HenriqueJinja2
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
@@ -66,7 +67,7 @@ class HenriqueEnv:
             return None
 
         data = {"ENV": env, "HOME_DIR": str(Path.home()), "REPO_DIR": REPO_DIR, }
-        utf8 = Jinja2Renderer.textfile2text(filepath, data)
+        utf8 = HenriqueJinja2.textfile2text(filepath, data)
         json_yaml = yaml.load(utf8, Loader=BaseLoader)
         return json_yaml
 

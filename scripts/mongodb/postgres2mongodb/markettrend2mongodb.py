@@ -57,7 +57,7 @@ class Markettrend2MongoDB:
 
                     j_doc = {MarkettrendDocument.F.SERVER: jdown(j_postgres, ["server","name"]),
                              MarkettrendDocument.F.CREATED_AT: datetime.fromisoformat(j_postgres["created_at"]),
-                             MarkettrendDocument.F.PORT_ID: MongoDBTool.j_doc2id(j_port_list[i]),
+                             MarkettrendDocument.F.PORT_ID: MongoDBTool.doc2id(j_port_list[i]),
                              MarkettrendDocument.F.TRADEGOOD_ID: tradegood_id_list[i],
                              MarkettrendDocument.F.RATE: rate_list[i],
                              MarkettrendDocument.F.TREND: trend_list[i],
