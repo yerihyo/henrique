@@ -5,25 +5,32 @@ from foxylib.tools.string.string_tool import str2strip
 from henrique.main.entity.port.port_entity import Port
 from henrique.main.entity.tradegood.tradegood import Tradegood
 from henrique.main.singleton.jinja2.henrique_jinja2 import HenriqueJinja2
+from henrique.main.singleton.khala.henrique_khala import HenriqueKhala
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 
 
 class PortTradegoodResponse:
+    class Field:
+        TRADEGOOD_NAME = "tradegood_name"
+        PORT_NAMES = "port_names"
+
     @classmethod
-    def codename_lang2response(cls, tg_codename, lang):
+    def codename_lang2json(cls, tradegood_codename, lang):
+        ports = Port.tradegood2ports(tradegood_codename)
+        tradegood = Tradegood.codename2tradegood(tradegood_codename)
 
-        ports = Port.tradegood2ports(tg_codename)
-        tradegood = Tradegood.codename2tradegood(tg_codename)
-        # assert_is_not_none(tradegood_doc, tg_codename)
-
-        filepath = os.path.join(FILE_DIR, "tmplt.{}.part.txt".format(lang))
-
-        data = {"tg_name": Tradegood.tradegood_lang2name(tradegood, lang),
-                "port_names": ", ".join([Port.port_lang2name(port, lang) for port in ports]),
+        data = {cls.Field.TRADEGOOD_NAME: Tradegood.tradegood_lang2name(tradegood, lang),
+                cls.Field.PORT_NAMES: sorted([Port.port_lang2name(port, lang) for port in ports],)
                 }
-        text_out = str2strip(HenriqueJinja2.textfile2text(filepath, data))
+        return data
 
-        return text_out
+    @classmethod
+    def codename_lang2text(cls, culture_codename, lang):
+        filepath = os.path.join(FILE_DIR, "tmplt.{}.part.txt".format(lang))
+        data = cls.codename_lang2json(culture_codename, lang)
+        text_out = HenriqueJinja2.textfile2text(filepath, data)
+        return HenriqueKhala.response2norm(text_out)
+
 

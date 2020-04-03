@@ -7,14 +7,18 @@ from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.skill.port.port_culture.port_culture_response import PortCultureResponse
 
 
+NORM = PortCultureResponse.data2norm_unittest
+
 class TestPortCultureResponse(TestCase):
     @classmethod
     def setUpClass(cls):
         HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
 
     def test_01(self):
-        hyp = HenriqueKhala.response2norm(PortCultureResponse.codename_lang2response("Northern Europe", "ko"))
-        ref = "[북유럽] 항구 - 베르겐, 단치히, 스톡홀름, 코콜라, 코펜하겐, 오슬로, 리가, 뤼베크, 비스뷔"
+        hyp = NORM(PortCultureResponse.codename_lang2json("Northern Europe", "ko"))
+        ref = {'culture_name': '북유럽',
+               'port_names': {'스톡홀름', '오슬로', '뤼베크', '리가', '코펜하겐', '단치히', '베르겐', '코콜라', '비스뷔'},
+               }
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)

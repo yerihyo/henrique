@@ -1,1 +1,1 @@
-[{{culture_name}}] 항구 - {{port_names}}
+[{{culture_name}}] 항구 - {{port_names|join(", ")}}

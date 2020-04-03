@@ -13,7 +13,7 @@ class TestTradegoodCultureResponse(TestCase):
         HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
 
     def test_01(self):
-        hyp = HenriqueKhala.response2norm(TradegoodCultureResponse.codename_lang2response("Iberia", "ko"))
+        hyp = HenriqueKhala.response2norm(TradegoodCultureResponse.codename_lang2text("Iberia", "ko"))
         ref = """[이베리아] 우대 교역품
 - 타네가시마 총
 - 대만 목각

@@ -12,7 +12,7 @@ FILE_DIR = os.path.dirname(FILE_PATH)
 
 class CulturePortResponse:
     @classmethod
-    def codename_lang2response(cls, port_codename, lang):
+    def codename_lang2text(cls, port_codename, lang):
 
         port = Port.codename2port(port_codename)
         culture = Culture.codename2culture(Port.port2culture(port))

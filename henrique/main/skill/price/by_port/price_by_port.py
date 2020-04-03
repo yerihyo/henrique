@@ -1,4 +1,5 @@
 import os
+from itertools import chain
 
 from foxylib.tools.collections.collections_tool import lchain
 
@@ -7,6 +8,7 @@ from henrique.main.entity.port.port import Port
 from henrique.main.entity.price.price import PriceDict, Price
 from henrique.main.entity.tradegood.tradegood import Tradegood
 from henrique.main.singleton.jinja2.henrique_jinja2 import HenriqueJinja2
+from henrique.main.skill.henrique_skill import Rowsblock
 from henrique.main.skill.price.price_skill import PriceSkill
 
 FILE_PATH = os.path.realpath(__file__)
@@ -24,7 +26,7 @@ class PriceByPort:
         return title
 
     @classmethod
-    def port2response_block(cls, port_codename, tradegood_codename_list, price_dict, lang):
+    def port2text(cls, port_codename, tradegood_codename_list, price_dict, lang):
 
         port = Port.codename2port(port_codename)
         str_title = cls.port_lang2title(port, lang)
@@ -35,11 +37,9 @@ class PriceByPort:
         price_list = sorted(price_list_raw, key=Price.key_default)
 
         rows_body = [cls._price_lang2text(price, lang)
-                              for price in price_list]
+                     for price in price_list]
 
-        return {PriceSkill.ResponseBlock.Field.TITLE: str_title,
-                PriceSkill.ResponseBlock.Field.ROWS: rows_body,
-                }
+        return Rowsblock.rows2text(chain([str_title], rows_body))
 
 
     @classmethod

@@ -13,7 +13,7 @@ class TestTradegoodTradegoodResponse(TestCase):
         HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
 
     def test_01(self):
-        hyp = HenriqueKhala.response2norm(TradegoodTradegoodResponse.codename_lang2response("Wheat", "ko"))
+        hyp = HenriqueKhala.response2norm(TradegoodTradegoodResponse.codename_lang2text("Wheat", "ko"))
         ref = '[밀]'
 
         # pprint(hyp)

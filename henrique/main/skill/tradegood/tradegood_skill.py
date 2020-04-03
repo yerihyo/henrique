@@ -42,9 +42,9 @@ class TradegoodSkill:
         from henrique.main.skill.tradegood.tradegood_tradegood.tradegood_tradegood_response import TradegoodTradegoodResponse
         from henrique.main.skill.tradegood.tradegood_culture.tradegood_culture_response import TradegoodCultureResponse
 
-        h_type2func = {PortEntity.TYPE: partial(TradegoodPortResponse.codename_lang2response, lang=lang),
-                       TradegoodEntity.TYPE: partial(TradegoodTradegoodResponse.codename_lang2response, lang=lang),
-                       CultureEntity.TYPE: partial(TradegoodCultureResponse.codename_lang2response, lang=lang),
+        h_type2func = {PortEntity.TYPE: partial(TradegoodPortResponse.codename_lang2text, lang=lang),
+                       TradegoodEntity.TYPE: partial(TradegoodTradegoodResponse.codename_lang2text, lang=lang),
+                       CultureEntity.TYPE: partial(TradegoodCultureResponse.codename_lang2text, lang=lang),
                        }
 
         assert_equals(set(h_type2func.keys()), smap(lambda c: c.TYPE, cls.target_entity_classes()))

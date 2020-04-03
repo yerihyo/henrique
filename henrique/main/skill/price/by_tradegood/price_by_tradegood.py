@@ -1,11 +1,13 @@
 import os
 
-from foxylib.tools.jinja2.jinja2_tool import Jinja2Renderer
+from itertools import chain
+
 from foxylib.tools.string.string_tool import str2strip
 from henrique.main.entity.port.port import Port
 from henrique.main.entity.price.price import PriceDict, Price
 from henrique.main.entity.tradegood.tradegood import Tradegood
 from henrique.main.singleton.jinja2.henrique_jinja2 import HenriqueJinja2
+from henrique.main.skill.henrique_skill import Rowsblock
 from henrique.main.skill.price.price_skill import PriceSkill
 
 FILE_PATH = os.path.realpath(__file__)
@@ -23,7 +25,7 @@ class PriceByTradegood:
         return title
 
     @classmethod
-    def tradegood2response_block(cls, tradegood_codename, port_codename_list, price_dict, lang):
+    def tradegood2text(cls, tradegood_codename, port_codename_list, price_dict, lang):
         tradegood = Tradegood.codename2tradegood(tradegood_codename)
         str_title = cls.tradegood_lang2title(tradegood, lang)
 
@@ -35,9 +37,8 @@ class PriceByTradegood:
         rows_body = [cls._price_lang2text(price, lang)
                      for price in price_list]
 
-        return {PriceSkill.ResponseBlock.Field.TITLE: str_title,
-                PriceSkill.ResponseBlock.Field.ROWS: rows_body,
-                }
+        return Rowsblock.rows2text(chain([str_title], rows_body, ))
+
 
     @classmethod
     def _price_lang2text(cls, price, lang):

@@ -13,7 +13,7 @@ class TestCultureCultureResponse(TestCase):
         HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
 
     def test_01(self):
-        hyp = HenriqueKhala.response2norm(CultureCultureResponse.codename_lang2response("Iberia", "ko"))
+        hyp = HenriqueKhala.response2norm(CultureCultureResponse.codename_lang2text("Iberia", "ko"))
         ref = '[이베리아]'
 
         # pprint(hyp)

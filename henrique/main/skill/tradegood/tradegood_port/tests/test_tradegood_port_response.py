@@ -13,7 +13,7 @@ class TestTradegoodPortResponse(TestCase):
         HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
 
     def test_01(self):
-        hyp = HenriqueKhala.response2norm(TradegoodPortResponse.codename_lang2response("Lisbon", "ko"))
+        hyp = HenriqueKhala.response2norm(TradegoodPortResponse.codename_lang2text("Lisbon", "ko"))
         ref = """[리스본] 상품
 - 햄
 - 아몬드유

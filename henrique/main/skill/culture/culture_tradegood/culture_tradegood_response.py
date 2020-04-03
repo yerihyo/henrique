@@ -14,7 +14,7 @@ FILE_DIR = os.path.dirname(FILE_PATH)
 
 class CultureTradegoodResponse:
     @classmethod
-    def codename_lang2response(cls, tradegood_codename, lang):
+    def codename_lang2text(cls, tradegood_codename, lang):
         tradegood = Tradegood.codename2tradegood(tradegood_codename)
 
         prefer_list = Prefer.tradegood2prefers(tradegood_codename)
