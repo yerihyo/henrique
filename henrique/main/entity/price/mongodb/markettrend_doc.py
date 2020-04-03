@@ -38,7 +38,7 @@ class MarkettrendDoc:
         return Price.Trend.Value.list()[v - 1]
 
     @classmethod
-    def ports_tradegoods2prices_latest(cls, port_codenames, tradegood_codenames):
+    def ports_tradegoods2price_list_latest(cls, port_codenames, tradegood_codenames):
         port_ids = lmap(PortDoc.codename2id, port_codenames)
         tradegood_ids = lmap(TradegoodDoc.codename2id, tradegood_codenames)
 
@@ -74,13 +74,6 @@ class MarkettrendDoc:
             return price
 
         return lmap(result_item2price, item_list)
-
-    @classmethod
-    def ports_tradegoods2price_dict(cls, port_codenames, tradegood_codenames):
-        price_list = cls.ports_tradegoods2prices_latest(port_codenames, tradegood_codenames)
-        price_dict = PriceDict.prices2price_dict(price_list)
-        return price_dict
-
 
 
     # @classmethod

@@ -3,7 +3,7 @@ import os
 from foxylib.tools.jinja2.jinja2_tool import Jinja2Renderer
 from foxylib.tools.string.string_tool import str2strip
 from henrique.main.entity.port.port import Port
-from henrique.main.entity.price.price import PriceDict
+from henrique.main.entity.price.price import PriceDict, Price
 from henrique.main.entity.tradegood.tradegood import Tradegood
 from henrique.main.singleton.jinja2.henrique_jinja2 import HenriqueJinja2
 from henrique.main.skill.price.price_skill import PriceSkill
@@ -25,20 +25,21 @@ class PriceByTradegood:
     @classmethod
     def tradegood2response(cls, tradegood_codename, port_codename_list, price_dict, lang):
         tradegood = Tradegood.codename2tradegood(tradegood_codename)
-        title = cls.tradegood_lang2title(tradegood, lang)
+        str_title = cls.tradegood_lang2title(tradegood, lang)
 
-        str_portlikes = "\n".join([cls._entity_pair2response(tradegood_codename, port_codename, price_dict, lang)
-                                   for port_codename in port_codename_list])
+        price_list_raw = [PriceDict.lookup(price_dict, port_codename, tradegood_codename)
+                          for port_codename in port_codename_list]
 
-        return "\n".join([title, str_portlikes])
+        price_list = sorted(price_list_raw, key=Price.key_default)
 
+        str_body = "\n".join([cls._price_lang2text(price, lang)
+                              for price in price_list])
+
+        return "\n".join([str_title, str_body])
 
     @classmethod
-    def _entity_pair2response(cls, tradegood_codename, port_codename, price_dict, lang):
-        port = Port.codename2port(port_codename)
-        port_name = Port.port_lang2name(port, lang)
-
-        price = PriceDict.lookup(price_dict, port_codename, tradegood_codename)
+    def _price_lang2text(cls, price, lang):
         price_text = PriceSkill.price_lang2text(price, lang)
-        return "[{}] {}".format(port_name, price_text)
+        port_name = Port.port_lang2name(Port.codename2port(Price.price2port(price)), lang)
+        return "{} {}".format(port_name, price_text)
 

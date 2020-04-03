@@ -1,0 +1,4 @@
+[{{culture_name}}] 우대 교역품 {% if not preferred_tradegood_data_list %}: 없음{% else %}
+{% for preferred_tg_data in preferred_tradegood_data_list %} - {{preferred_tg_data.name}}
+{% endfor %}
+{% endif %}

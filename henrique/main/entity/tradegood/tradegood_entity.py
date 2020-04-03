@@ -1,18 +1,21 @@
 import os
+import re
 import sys
 
 from functools import lru_cache
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_in
 from psycopg2.sql import Identifier, SQL
 
 from foxylib.tools.cache.cache_tool import CacheTool
-from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, IterTool
+from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, IterTool, lchain
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.database.postgres.postgres_tool import PostgresTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.locale.locale_tool import LocaleTool
 from foxylib.tools.nlp.gazetteer.gazetteer_matcher import GazetteerMatcher
+from foxylib.tools.regex.regex_tool import RegexTool
+from foxylib.tools.span.span_tool import SpanTool
 from foxylib.tools.string.string_tool import str2lower, StringTool
 from henrique.main.entity.henrique_entity import Entity, HenriqueEntity
 from henrique.main.entity.tradegood.tradegood import Tradegood
@@ -26,6 +29,64 @@ WARMER = Warmer(MODULE)
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
+
+class TradegoodEntitySpecialcase:
+
+    @classmethod
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def pattern_ko(cls):
+        return re.compile(RegexTool.rstr2rstr_words(r"육메(?:크|클)?"))
+
+    @classmethod
+    def text2entity_list(cls, text_in, config=None):
+        locale = Entity.Config.config2locale(config)
+        lang = LocaleTool.locale2lang(locale)
+        langs_recognizable = HenriqueLocale.lang2langs_recognizable(lang)
+
+        if "ko" not in langs_recognizable:
+            return []
+
+        match_list = list(cls.pattern_ko().finditer(text_in))
+
+        def match2entity_list(match):
+            span = match.span()
+            assert_in(SpanTool.span2len(span), (2, 3))
+            entity_list = []
+
+            s,e = span
+            span_nutmeg = (s, s + 1)
+            entity_nutmeg = {Entity.Field.SPAN: span_nutmeg,
+                             Entity.Field.TEXT: StringTool.str_span2substr(text_in, span_nutmeg),
+                             Entity.Field.VALUE: "Nutmeg",
+                             Entity.Field.TYPE: TradegoodEntity.TYPE,
+                             }
+            entity_list.append(entity_nutmeg)
+
+            span_mace = (s + 1, s + 2)
+            entity_mace = {Entity.Field.SPAN: span_mace,
+                           Entity.Field.TEXT: StringTool.str_span2substr(text_in, span_mace),
+                           Entity.Field.VALUE: "Mace",
+                           Entity.Field.TYPE: TradegoodEntity.TYPE,
+                           }
+            entity_list.append(entity_mace)
+
+            if SpanTool.span2len(span) == 3:
+                span_clove = (s + 2, s + 3)
+                entity_cloves = {Entity.Field.SPAN: span_clove,
+                               Entity.Field.TEXT: StringTool.str_span2substr(text_in, span_clove),
+                               Entity.Field.VALUE: "Cloves",
+                               Entity.Field.TYPE: TradegoodEntity.TYPE,
+                               }
+                entity_list.append(entity_cloves)
+
+            return entity_list
+
+        entity_list = [entity
+                       for m in match_list
+                       for entity in match2entity_list(m)]
+        return entity_list
+
 
 class TradegoodEntity:
     TYPE = "tradegood"
@@ -59,6 +120,14 @@ class TradegoodEntity:
     @CacheTool.cache2hashable(cache=lru_cache(maxsize=HenriqueEntity.Cache.DEFAULT_SIZE),
                               f_pair=CacheTool.JSON.func_pair(), )
     def text2entity_list(cls, text_in, config=None):
+        entity_list_matcher = cls.text2entity_list_matcher(text_in, config=config)
+        entity_list_specialcase = TradegoodEntitySpecialcase.text2entity_list(text_in, config=config)
+
+        return lchain(entity_list_matcher, entity_list_specialcase)
+
+
+    @classmethod
+    def text2entity_list_matcher(cls, text_in, config=None):
         locale = Entity.Config.config2locale(config) or HenriqueLocale.DEFAULT
         lang = LocaleTool.locale2lang(locale) or LocaleTool.locale2lang(HenriqueLocale.DEFAULT)
 

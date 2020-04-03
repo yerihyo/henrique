@@ -19,7 +19,8 @@ from henrique.main.entity.culture.culture_entity import CultureEntity
 from henrique.main.entity.henrique_entity import Entity
 from henrique.main.entity.port.port import Port
 from henrique.main.entity.port.port_entity import PortEntity
-from henrique.main.entity.price.price import PriceDict
+from henrique.main.entity.price.price import PriceDict, Price
+from henrique.main.entity.tradegood.tradegood import Tradegood
 from henrique.main.entity.tradegood.tradegood_entity import TradegoodEntity
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from khalalib.packet.packet import KhalaPacket
@@ -31,6 +32,7 @@ FILE_DIR = os.path.dirname(FILE_PATH)
 
 MODULE = sys.modules[__name__]
 WARMER = Warmer(MODULE)
+
 
 class Portlike:
     @classmethod
@@ -46,10 +48,9 @@ class Portlike:
         if entity_type == CultureEntity.TYPE:
             culture_codename = Entity.entity2value(entity_portlike)
             port_list = Port.culture2ports(culture_codename)
-            return lmap(Entity.entity2value, port_list)
+            return lmap(Port.port2codename, port_list)
 
         raise RuntimeError({"entity_type": entity_type})
-
 
 
 class PriceSkill:
@@ -59,10 +60,13 @@ class PriceSkill:
     def target_entity_classes(cls):
         return {PortEntity, TradegoodEntity, CultureEntity}
 
-
     @classmethod
     def price_lang2text(cls, price, lang):
-        raise NotImplementedError()
+        rate = Price.price2rate(price)
+        trend = Price.price2trend(price)
+        arrow = Price.Trend.trend2arrow(trend)
+
+        return " ".join([str(rate), arrow])
 
     @classmethod
     def packet2response(cls, packet):
@@ -81,9 +85,9 @@ class PriceSkill:
         assert_true(entity_list_portlike)
         assert_true(entity_list_tradegood)
 
-        port_codename_list = lchain(*map(Portlike.entity_portlike2port_codenames, entity_list_tradegood))
+        port_codename_list = lchain(*map(Portlike.entity_portlike2port_codenames, entity_list_portlike))
         tradegood_codename_list = lmap(Entity.entity2value, entity_list_tradegood)
-        price_dict = PriceDict.codename_lists2price_dict(port_codename_list, tradegood_codename_list)
+        price_dict = PriceDict.ports_tradegoods2price_dict(port_codename_list, tradegood_codename_list)
 
         def codename_lists2response(_port_codename_list, _tradegood_codename_list):
             if len(_port_codename_list) == 1:
