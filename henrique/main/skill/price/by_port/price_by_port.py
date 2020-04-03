@@ -1,5 +1,7 @@
 import os
 
+from foxylib.tools.collections.collections_tool import lchain
+
 from foxylib.tools.string.string_tool import str2strip
 from henrique.main.entity.port.port import Port
 from henrique.main.entity.price.price import PriceDict, Price
@@ -22,7 +24,7 @@ class PriceByPort:
         return title
 
     @classmethod
-    def port2response(cls, port_codename, tradegood_codename_list, price_dict, lang):
+    def port2response_block(cls, port_codename, tradegood_codename_list, price_dict, lang):
 
         port = Port.codename2port(port_codename)
         str_title = cls.port_lang2title(port, lang)
@@ -32,10 +34,12 @@ class PriceByPort:
 
         price_list = sorted(price_list_raw, key=Price.key_default)
 
-        str_body = "\n".join([cls._price_lang2text(price, lang)
-                              for price in price_list])
+        rows_body = [cls._price_lang2text(price, lang)
+                              for price in price_list]
 
-        return "\n".join([str_title, str_body])
+        return {PriceSkill.ResponseBlock.Field.TITLE: str_title,
+                PriceSkill.ResponseBlock.Field.ROWS: rows_body,
+                }
 
 
     @classmethod

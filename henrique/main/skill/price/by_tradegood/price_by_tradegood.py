@@ -23,7 +23,7 @@ class PriceByTradegood:
         return title
 
     @classmethod
-    def tradegood2response(cls, tradegood_codename, port_codename_list, price_dict, lang):
+    def tradegood2response_block(cls, tradegood_codename, port_codename_list, price_dict, lang):
         tradegood = Tradegood.codename2tradegood(tradegood_codename)
         str_title = cls.tradegood_lang2title(tradegood, lang)
 
@@ -32,10 +32,12 @@ class PriceByTradegood:
 
         price_list = sorted(price_list_raw, key=Price.key_default)
 
-        str_body = "\n".join([cls._price_lang2text(price, lang)
-                              for price in price_list])
+        rows_body = [cls._price_lang2text(price, lang)
+                     for price in price_list]
 
-        return "\n".join([str_title, str_body])
+        return {PriceSkill.ResponseBlock.Field.TITLE: str_title,
+                PriceSkill.ResponseBlock.Field.ROWS: rows_body,
+                }
 
     @classmethod
     def _price_lang2text(cls, price, lang):

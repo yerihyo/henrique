@@ -56,6 +56,34 @@ class Portlike:
 class PriceSkill:
     CODENAME = "price"
 
+    class ResponseBlock:
+        class Field:
+            TITLE = "title"
+            ROWS = "rows"
+
+        @classmethod
+        def block2title(cls, block):
+            return block[cls.Field.TITLE]
+
+        @classmethod
+        def block2rows(cls, block):
+            return block[cls.Field.ROWS]
+
+        @classmethod
+        def block2text(cls, block):
+            l = lchain([cls.block2title(block)], cls.block2rows(block))
+            return "\n".join(l)
+
+
+        @classmethod
+        def blocks2norm_for_unittest(cls, blocks):
+            def block2norm_for_unittest(block):
+                title = cls.block2title(block)
+                row_headers = set(" ".join(row.split()[:-2]) for row in cls.block2rows(block))
+                return title, row_headers
+
+            return lmap(block2norm_for_unittest, blocks)
+
     @classmethod
     def target_entity_classes(cls):
         return {PortEntity, TradegoodEntity, CultureEntity}
@@ -69,7 +97,7 @@ class PriceSkill:
         return " ".join([str(rate), arrow])
 
     @classmethod
-    def packet2response(cls, packet):
+    def packet2response_blocks(cls, packet):
         lang = LocaleTool.locale2lang(KhalaPacket.packet2locale(packet))
 
         entity_classes = cls.target_entity_classes()
@@ -89,19 +117,24 @@ class PriceSkill:
         tradegood_codename_list = lmap(Entity.entity2value, entity_list_tradegood)
         price_dict = PriceDict.ports_tradegoods2price_dict(port_codename_list, tradegood_codename_list)
 
-        def codename_lists2response(_port_codename_list, _tradegood_codename_list):
+        def codename_lists2response_blocks(_port_codename_list, _tradegood_codename_list):
             if len(_port_codename_list) == 1:
                 port_codename = l_singleton2obj(_port_codename_list)
                 from henrique.main.skill.price.by_port.price_by_port import PriceByPort
-                return PriceByPort.port2response(port_codename, _tradegood_codename_list, price_dict, lang)
+                return [PriceByPort.port2response_block(port_codename, _tradegood_codename_list, price_dict, lang)]
 
             from henrique.main.skill.price.by_tradegood.price_by_tradegood import PriceByTradegood
-            response_list = [PriceByTradegood.tradegood2response(tg_codename, _port_codename_list, price_dict, lang)
-                             for tg_codename in _tradegood_codename_list]
-            return "\n\n".join(response_list)
+            block_list = [PriceByTradegood.tradegood2response_block(tg_codename, _port_codename_list, price_dict, lang)
+                                   for tg_codename in _tradegood_codename_list]
+            return block_list
 
-        body = codename_lists2response(port_codename_list, tradegood_codename_list)
-        return body
+        blocks = codename_lists2response_blocks(port_codename_list, tradegood_codename_list)
+        return blocks
+
+    @classmethod
+    def packet2response(cls, packet):
+        blocks = cls.packet2response_blocks(packet)
+        return "\n\n".join(map(cls.ResponseBlock.block2text, blocks))
 
 
 # @classmethod
