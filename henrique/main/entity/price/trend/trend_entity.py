@@ -98,7 +98,7 @@ class TrendEntity:
     def lang2pattern(cls, lang):
         from henrique.main.entity.price.rate.rate_entity import RateEntity
         rstr = format_str(r"{}\s*{}",
-                          RegexTool.rstr2wrapped(RateEntity.rstr_number()),
+                          RegexTool.rstr2wrapped(RateEntity.rstr()),
                           RegexTool.name_rstr2named("trend", cls.lang2rstr(lang),)
                           )
         return re.compile(RegexTool.rstr2rstr_words(rstr), re.I)

@@ -3,11 +3,11 @@ import os
 from functools import lru_cache
 from future.utils import lmap
 
-from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.json.json_tool import JsonTool
 from henrique.main.entity.port.mongodb.port_doc import PortDoc
-from henrique.main.entity.price.marketprice import MarketpriceDict, Marketprice
+from henrique.main.entity.price.marketprice import Marketprice
+from henrique.main.entity.price.trend.trend_entity import Trend
 from henrique.main.entity.tradegood.mongodb.tradegood_doc import TradegoodDoc
 from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb
 
@@ -35,7 +35,7 @@ class MarkettrendDoc:
 
     @classmethod
     def trend_int2trend_price(cls, v):
-        return Marketprice.Trend.Value.list()[v - 1]
+        return Trend.Value.list()[v - 1]
 
     @classmethod
     def ports_tradegoods2price_list_latest(cls, port_codenames, tradegood_codenames):

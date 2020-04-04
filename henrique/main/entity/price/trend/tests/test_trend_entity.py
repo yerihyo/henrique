@@ -56,7 +56,6 @@ class TestTrendEntity(TestCase):
 
         self.assertEqual(hyp, ref)
 
-
     def test_05(self):
         logger = HenriqueLogger.func_level2logger(self.test_03, logging.DEBUG)
 

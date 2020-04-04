@@ -12,6 +12,7 @@ from henrique.main.entity.henrique_entity import Entity
 from henrique.main.entity.port.port import Port
 from henrique.main.entity.port.port_entity import PortEntity
 from henrique.main.entity.price.marketprice import MarketpriceDict, Marketprice
+from henrique.main.entity.price.trend.trend_entity import Trend
 from henrique.main.entity.tradegood.tradegood_entity import TradegoodEntity
 from henrique.main.skill.henrique_skill import Rowsblock
 from khalalib.packet.packet import KhalaPacket
@@ -56,7 +57,7 @@ class PriceSkill:
     def price_lang2text(cls, price, lang):
         rate = Marketprice.price2rate(price)
         trend = Marketprice.price2trend(price)
-        arrow = Marketprice.Trend.trend2arrow(trend)
+        arrow = Trend.trend2arrow(trend)
 
         return " ".join([str(rate), arrow])
 

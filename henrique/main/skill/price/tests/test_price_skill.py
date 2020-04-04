@@ -19,7 +19,7 @@ class TestPriceSkill(TestCase):
 
     def test_02(self):
 
-        packet = {KhalaPacket.Field.TEXT:"?price 리스본 세비야 육두구 메이스",
+        packet = {KhalaPacket.Field.TEXT: "?price 리스본 세비야 육두구 메이스",
                   KhalaPacket.Field.LOCALE: "ko-KR",
                   }
 

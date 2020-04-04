@@ -66,10 +66,15 @@ class RateEntity:
     def lang2pattern(cls, lang):
         from henrique.main.entity.price.trend.trend_entity import TrendEntity
 
-        rstr_trend = TrendEntity.lang2rstr(lang)
+        rstr_suffix = format_str("{}?",
+                                 RegexTool.rstr2wrapped(TrendEntity.lang2rstr(lang)),
+                                 )
 
         rstr_prefixed = RegexTool.rstr2rstr_words_prefixed(cls.rstr())
-        rstr_suffixed = RegexTool.rstr2rstr_line_suffixed(rstr_prefixed, rstr_suffix=rstr_trend)
+        rstr_suffixed = RegexTool.rstr2rstr_words_suffixed(rstr_prefixed, rstr_suffix=rstr_suffix)
+
+        # raise Exception({"rstr_trend": rstr_trend, "rstr_suffixed": rstr_suffixed})
+        # return re.compile(RegexTool.rstr2rstr_words(cls.rstr()))
         return re.compile(rstr_suffixed, re.I)
 
 

@@ -5,6 +5,7 @@ from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_du
 from henrique.main.entity.port.mongodb.port_doc import PortDoc
 
 
+
 class Marketprice:
     class Field:
         PORT = "port"
@@ -19,8 +20,10 @@ class Marketprice:
 
     @classmethod
     def key_default(cls, price):
+        from henrique.main.entity.price.trend.trend_entity import Trend
+
         rate = Marketprice.price2rate(price)
-        v_trend = Marketprice.Trend.trend2int(Marketprice.price2trend(price))
+        v_trend = Trend.trend2int(Marketprice.price2trend(price))
 
         return -rate, -v_trend
 
