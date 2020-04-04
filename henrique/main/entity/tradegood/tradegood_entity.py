@@ -40,7 +40,7 @@ class TradegoodEntitySpecialcase:
 
     @classmethod
     def text2entity_list(cls, text_in, config=None):
-        locale = Entity.Config.config2locale(config)
+        locale = Entity.Config.config2locale(config) or HenriqueLocale.DEFAULT
         lang = LocaleTool.locale2lang(locale)
         langs_recognizable = HenriqueLocale.lang2langs_recognizable(lang)
 

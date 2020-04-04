@@ -7,7 +7,7 @@ from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.json.json_tool import JsonTool
 from henrique.main.entity.port.mongodb.port_doc import PortDoc
-from henrique.main.entity.price.price import PriceDict, Price
+from henrique.main.entity.price.marketprice import MarketpriceDict, Marketprice
 from henrique.main.entity.tradegood.mongodb.tradegood_doc import TradegoodDoc
 from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb
 
@@ -35,7 +35,7 @@ class MarkettrendDoc:
 
     @classmethod
     def trend_int2trend_price(cls, v):
-        return Price.Trend.Value.list()[v - 1]
+        return Marketprice.Trend.Value.list()[v - 1]
 
     @classmethod
     def ports_tradegoods2price_list_latest(cls, port_codenames, tradegood_codenames):
@@ -66,10 +66,10 @@ class MarkettrendDoc:
             port_id = JsonTool.down(item, ["_id", cls.Field.PORT_ID])
             tradegood_id = JsonTool.down(item, ["_id", cls.Field.TRADEGOOD_ID])
 
-            price = {Price.Field.PORT: PortDoc.id2codename(port_id),
-                     Price.Field.TRADEGOOD: TradegoodDoc.id2codename(tradegood_id),
-                     Price.Field.RATE: int(item[cls.Field.RATE]),
-                     Price.Field.TREND: cls.trend_int2trend_price(item[cls.Field.TREND]),
+            price = {Marketprice.Field.PORT: PortDoc.id2codename(port_id),
+                     Marketprice.Field.TRADEGOOD: TradegoodDoc.id2codename(tradegood_id),
+                     Marketprice.Field.RATE: int(item[cls.Field.RATE]),
+                     Marketprice.Field.TREND: cls.trend_int2trend_price(item[cls.Field.TREND]),
                      }
             return price
 
@@ -82,8 +82,8 @@ class MarkettrendDoc:
     #     def doc2price_partial(doc):
     #         langs = ["en", "ko"]
     #
-    #         port_partial = {Price.Field.PORT: {lang: cls.doc_lang2names(doc, lang) for lang in langs},
-    #                         Price.Field.TRADEGOOD: cls.doc2key(doc)
+    #         port_partial = {Marketprice.Field.PORT: {lang: cls.doc_lang2names(doc, lang) for lang in langs},
+    #                         Marketprice.Field.TRADEGOOD: cls.doc2key(doc)
     #                         }
     #         return port_partial
     #

@@ -12,9 +12,14 @@ class Entity:
         SPAN = "span"
         VALUE = "value"
 
+    class Step:
+        PRECISION = "precision"
+        RECALL = "recall"
+
     class Config:
         class Field:
             LOCALE = "locale"
+            STEP = "step"
 
         @classmethod
         def config2locale(cls, j):
