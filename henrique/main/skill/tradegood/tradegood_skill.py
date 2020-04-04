@@ -17,6 +17,7 @@ from henrique.main.entity.henrique_entity import Entity
 from henrique.main.entity.port.port_entity import PortEntity
 from henrique.main.entity.tradegood.tradegood_entity import TradegoodEntity
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
+from henrique.main.skill.henrique_skill import Rowsblock, HenriqueSkill
 from henrique.main.tool.skillnote_tool import SkillnoteTool
 from khalalib.packet.packet import KhalaPacket
 
@@ -53,7 +54,8 @@ class TradegoodSkill:
         if not codename2response:
             raise NotImplementedError("Invalid entity_type: {}".format(entity_type))
 
-        return codename2response(codename)
+        text_out = codename2response(codename)
+        return Rowsblock.text2norm(text_out)
 
 
     @classmethod
@@ -67,7 +69,7 @@ class TradegoodSkill:
 
         entity_list = sorted(entity_list_raw, key=Entity.entity2span)
 
-        response = "\n\n".join([cls._entity_lang2response(entity, lang) for entity in entity_list])
+        response = Rowsblock.blocks2text([cls._entity_lang2response(entity, lang) for entity in entity_list])
         return response
 
 

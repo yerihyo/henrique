@@ -8,7 +8,7 @@ from functools import lru_cache
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.json.yaml_tool import YAMLTool
 from foxylib.tools.nlp.gazetteer.gazetteer_matcher import GazetteerMatcher
-from foxylib.tools.string.string_tool import str2lower, str2strip
+from foxylib.tools.string.string_tool import str2lower, str2strip, StringTool
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
@@ -64,3 +64,10 @@ class Rowsblock:
     def blocks2text(cls, blocks):
         return "\n\n".join(lfilter(bool, map(str2strip, blocks)))
 
+    @classmethod
+    def text2norm(cls, text_in):
+        if not text_in:
+            return text_in
+
+        text_out = StringTool.str2strip_eachline(StringTool.str2strip(text_in))
+        return text_out

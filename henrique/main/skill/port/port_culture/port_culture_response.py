@@ -6,6 +6,7 @@ from henrique.main.entity.culture.culture import Culture
 from henrique.main.entity.port.port_entity import Port
 from henrique.main.singleton.jinja2.henrique_jinja2 import HenriqueJinja2
 from henrique.main.singleton.khala.henrique_khala import HenriqueKhala
+from henrique.main.skill.henrique_skill import Rowsblock
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
@@ -45,5 +46,4 @@ class PortCultureResponse:
         filepath = os.path.join(FILE_DIR, "tmplt.{}.part.txt".format(lang))
         data = cls.codename_lang2json(culture_codename, lang)
         text_out = HenriqueJinja2.textfile2text(filepath, data)
-        return HenriqueKhala.response2norm(text_out)
-
+        return Rowsblock.text2norm(text_out)

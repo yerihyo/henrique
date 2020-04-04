@@ -1,11 +1,5 @@
-from foxylib.tools.string.string_tool import StringTool
-from functools import lru_cache
-
-from foxylib.tools.collections.collections_tool import l_singleton2obj, lchain
-from foxylib.tools.function.function_tool import FunctionTool
 from henrique.main.entity.command.command_entity import CommandEntity
-from henrique.main.entity.henrique_entity import HenriqueEntity, Entity
-from henrique.main.skill.henrique_skill import HenriqueSkill
+from henrique.main.skill.henrique_skill import HenriqueSkill, Rowsblock
 from khalalib.packet.packet import KhalaPacket
 
 
@@ -50,13 +44,7 @@ class HenriqueKhala:
 
         skill_class = HenriqueSkill.codename2class(skill_code)
         response_raw = skill_class.packet2response(packet)
-        return cls.response2norm(response_raw)
+        return Rowsblock.text2norm(response_raw)
 
-    @classmethod
-    def response2norm(cls, text_in):
-        if not text_in:
-            return text_in
 
-        text_out = StringTool.str2strip_eachline(StringTool.str2strip(text_in))
-        return text_out
 
