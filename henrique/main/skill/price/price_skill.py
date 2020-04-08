@@ -49,8 +49,12 @@ WARMER = Warmer(MODULE)
 
 class Portlike:
     @classmethod
+    def entity_types(cls):
+        return {PortEntity.TYPE, CultureEntity.TYPE}
+
+    @classmethod
     def entity_type2is_portlike(cls, entity_type):
-        return entity_type in {PortEntity.TYPE, CultureEntity.TYPE}
+        return entity_type in cls.entity_types()
 
     @classmethod
     def entity_portlike2port_codenames(cls, entity_portlike):
@@ -444,8 +448,31 @@ class PriceSkill:
         h_port2indexes = Clique.cliques2dict_port2indexes(clique_list)
         h_tradegood2indexes = Clique.cliques2dict_tradegood2indexes(clique_list)
 
-        is_groupby_port = len(h_port2indexes) == 1 and len(h_tradegood2indexes) > 1
-        groupby_parameter_type = Param.Type.PORTLIKE if is_groupby_port else Param.Type.TRADEGOOD
+        def _groupby_paramter_type():
+            entity_list_portlike = lfilter(lambda x: Entity.entity2type(x) in Portlike.entity_types(), entity_list)
+            entity_list_tradegood = lfilter(lambda x: Entity.entity2type(x) == TradegoodEntity.TYPE, entity_list)
+
+            if not entity_list_portlike:
+                return Param.Type.TRADEGOOD
+
+            if not entity_list_tradegood:
+                return Param.Type.PORTLIKE
+
+            if len(h_port2indexes) > 1:
+                return Param.Type.TRADEGOOD
+
+            if len(h_tradegood2indexes) > 1:
+                return Param.Type.PORTLIKE
+
+            span_portlike = Entity.entity2span(entity_list_portlike[0])
+            span_tradegood = Entity.entity2span(entity_list_tradegood[0])
+
+            if span_portlike[0] < span_tradegood[0]:
+                return Param.Type.PORTLIKE
+            else:
+                return Param.Type.TRADEGOOD
+
+        groupby_parameter_type = _groupby_paramter_type()
 
         port_tradegood_list = lchain(*map(Clique.clique2port_tradegood_iter, clique_list))
         price_dict = MarketpriceDict.port_tradegood_iter2price_dict(port_tradegood_list)
