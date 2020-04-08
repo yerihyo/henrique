@@ -5,7 +5,8 @@ from functools import lru_cache
 from future.utils import lfilter
 from itertools import chain
 
-from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, IterTool, luniq, DictTool, \
+from foxylib.tools.collections.iter_tool import IterTool
+from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, luniq, DictTool, \
     vwrite_update_if_identical
 from foxylib.tools.collections.groupby_tool import GroupbyTool
 from foxylib.tools.function.function_tool import FunctionTool

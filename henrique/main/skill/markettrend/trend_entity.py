@@ -6,14 +6,12 @@ import re
 from functools import lru_cache
 from future.utils import lmap, lfilter
 
-from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, iter2duplicate_list, \
-    iter2singleton
+from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts
+from foxylib.tools.collections.iter_tool import IterTool, iter2singleton
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
-from foxylib.tools.entity.entity_tool import HenriqueEntity
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.json.json_tool import jdown
-from foxylib.tools.json.yaml_tool import YAMLTool
 from foxylib.tools.regex.regex_tool import RegexTool, MatchTool
 from foxylib.tools.string.string_tool import str2lower
 from henrique.main.entity.henrique_entity import Entity
@@ -47,13 +45,13 @@ class MarkettrendEntity:
                   for name in name_list_lang
                   ]
 
-        logger.debug({"h_list":iter2duplicate_list(lmap(lambda h:iter2singleton(h.keys()), h_list)),
+        logger.debug({"h_list":IterTool.iter2duplicate_list(lmap(lambda h:iter2singleton(h.keys()), h_list)),
                       "jpath":jpath,
                       "j_doc_list[0]":j_doc_list[0],
                       "query[0]":jdown(j_doc_list[0],jpath)
                       })
 
-        qterm_list_duplicate = iter2duplicate_list(map(lambda h:iter2singleton(h.keys()),h_list))
+        qterm_list_duplicate = IterTool.iter2duplicate_list(map(lambda h:iter2singleton(h.keys()),h_list))
         h_list_clean = lfilter(lambda h:iter2singleton(h.keys()) not in qterm_list_duplicate, h_list)
 
         h = merge_dicts(h_list_clean,vwrite=vwrite_no_duplicate_key)

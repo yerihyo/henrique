@@ -26,12 +26,12 @@ class PriceByPort:
         return title
 
     @classmethod
-    def port2text(cls, port_codename, tradegood_codename_list, price_dict, lang):
+    def port2text(cls, port_codename, tradegood_codename_list, marketprice_dict, lang):
 
         port = Port.codename2port(port_codename)
         str_title = cls.port_lang2title(port, lang)
 
-        price_list_raw = [MarketpriceDict.lookup(price_dict, port_codename, tradegood_codename)
+        price_list_raw = [MarketpriceDict.lookup(marketprice_dict, port_codename, tradegood_codename)
                           for tradegood_codename in tradegood_codename_list]
 
         price_list = sorted(price_list_raw, key=Marketprice.key_default)

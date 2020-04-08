@@ -2,7 +2,8 @@ import os
 import sys
 from itertools import chain
 
-from foxylib.tools.collections.collections_tool import merge_dicts, luniq, IterTool
+from foxylib.tools.collections.iter_tool import IterTool
+from foxylib.tools.collections.collections_tool import merge_dicts, luniq
 from functools import lru_cache
 from nose.tools import assert_is_not_none
 

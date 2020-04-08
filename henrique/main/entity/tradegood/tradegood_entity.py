@@ -1,15 +1,12 @@
 import os
-import re
 import sys
 
+import re
 from functools import lru_cache
-from nose.tools import assert_equal, assert_in
-from psycopg2.sql import Identifier, SQL
+from nose.tools import assert_in
 
 from foxylib.tools.cache.cache_tool import CacheTool
-from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, IterTool, lchain
-from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
-from foxylib.tools.database.postgres.postgres_tool import PostgresTool
+from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, lchain
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.locale.locale_tool import LocaleTool
@@ -21,8 +18,6 @@ from henrique.main.entity.henrique_entity import Entity, HenriqueEntity
 from henrique.main.entity.tradegood.tradegood import Tradegood
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.singleton.locale.henrique_locale import HenriqueLocale
-from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb
-from henrique.main.singleton.postgres.henrique_postgres import HenriquePostgres
 
 MODULE = sys.modules[__name__]
 WARMER = Warmer(MODULE)

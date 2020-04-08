@@ -3,7 +3,8 @@ import sys
 from itertools import chain
 from nose.tools import assert_is_not_none
 
-from foxylib.tools.collections.collections_tool import merge_dicts, IterTool, luniq
+from foxylib.tools.collections.iter_tool import IterTool
+from foxylib.tools.collections.collections_tool import merge_dicts, luniq
 from functools import lru_cache
 
 from foxylib.tools.collections.groupby_tool import dict_groupby_tree, GroupbyTool

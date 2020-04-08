@@ -1,7 +1,8 @@
 from functools import lru_cache
 from itertools import chain
 
-from foxylib.tools.collections.collections_tool import luniq, IterTool
+from foxylib.tools.collections.iter_tool import IterTool
+from foxylib.tools.collections.collections_tool import luniq
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.json.json_tool import JsonTool
 

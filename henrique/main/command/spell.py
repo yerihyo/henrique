@@ -1,4 +1,4 @@
-from foxylib.tools.collections.collections_tool import IterTool
+from foxylib.tools.collections.iter_tool import IterTool
 
 
 class Spell:
