@@ -1,11 +1,82 @@
+import logging
 from pprint import pprint
 from unittest import TestCase
 
-from henrique.main.skill.price.price_skill import PriceSkill
+from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
+from henrique.main.skill.price.price_skill import PriceSkill, PriceSkillClique
 from khalalib.packet.packet import KhalaPacket
 
 NORM = PriceSkill.blocks2norm_for_unittest
+
+
+class TestPriceSkillClique(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
+
+    def test_01(self):
+        entities_list = [[{'span': (7, 10), 'text': '리스본', 'value': 'Lisbon', 'type': 'port'}],
+                         [{'span': (11, 14), 'text': '육두구', 'value': 'Nutmeg', 'type': 'tradegood'}],
+                         ]
+        hyp = PriceSkillClique.entities_list2clique(entities_list)
+        ref = {'ports': ['Lisbon'], 'tradegoods': ['Nutmeg']}
+
+        # pprint(hyp)
+        self.assertEqual(hyp, ref)
+
+    def test_02(self):
+        entities_list = [[{'span': (6, 10), 'text': '이베리아', 'value': 'Iberia', 'type': 'culture'}],
+                         [{'span': (11, 14), 'text': '육두구', 'value': 'Nutmeg', 'type': 'tradegood'}],
+                         ]
+        hyp = PriceSkillClique.entities_list2clique(entities_list)
+        ref = {'ports': ['Las Palmas',
+                         'Faro',
+                         'Casablanca',
+                         'Gijon',
+                         'Palma',
+                         'Madeira',
+                         'Vianna do Castelo',
+                         'Lisbon',
+                         'Sagres',
+                         'Bilbao',
+                         'Seville',
+                         'Barcelona',
+                         'Porto',
+                         'Malaga',
+                         'Ceuta',
+                         'Montpellier',
+                         'Valencia'],
+               'tradegoods': ['Nutmeg']}
+
+        # pprint(hyp)
+        self.assertEqual(hyp, ref)
+
+    def test_03(self):
+        entities_list = [[{'span': (7, 10), 'text': '리스본', 'value': 'Lisbon', 'type': 'port'}],
+                         [{'span': (11, 14), 'text': '육두구', 'value': 'Nutmeg', 'type': 'tradegood'}],
+                         ]
+        hyp = PriceSkillClique.text_entities_list2entities_spans_clique("?price 리스본 육두구", entities_list)
+        ref = [(0, 2)]
+
+        # pprint(hyp)
+        self.assertEqual(hyp, ref)
+
+    def test_04(self):
+        entities_list = [[{'span': (7, 10), 'text': '리스본', 'value': 'Lisbon', 'type': 'port'}],
+                         [{'span': (11, 14), 'text': '육두구', 'value': 'Nutmeg', 'type': 'tradegood'}],
+                         ]
+        hyp = PriceSkillClique.text_entities_list2clique_list("?price 리스본 육두구", entities_list)
+        ref = [{'ports': ['Lisbon'], 'tradegoods': ['Nutmeg']}]
+
+        # pprint(hyp)
+        self.assertEqual(hyp, ref)
+
+
 class TestPriceSkill(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
+
     def test_01(self):
         packet = {KhalaPacket.Field.TEXT: "?price 리스본 육두구",
                   KhalaPacket.Field.LOCALE: "ko-KR",
@@ -47,3 +118,6 @@ class TestPriceSkill(TestCase):
 
         # pprint({"hyp": hyp})
         self.assertEqual(hyp, ref)
+
+
+

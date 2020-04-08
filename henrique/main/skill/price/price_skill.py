@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 from datetime import datetime
@@ -34,6 +35,7 @@ from henrique.main.document.price.trend.trend_entity import Trend, TrendEntity
 from henrique.main.document.tradegood.mongodb.tradegood_doc import TradegoodDoc
 from henrique.main.document.tradegood.tradegood import Tradegood
 from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
+from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.skill.henrique_skill import Rowsblock
 from khalalib.packet.packet import KhalaPacket
 
@@ -88,7 +90,7 @@ class PriceSkillParameter:
         @classmethod
         def entity_group2parameter_type(cls, entity_list):
             entity_types = map(Entity.entity2type, entity_list)
-            return iter2singleton(map(cls.entity_type2parameter_type,entity_types))
+            return iter2singleton(map(cls.entity_type2parameter_type, entity_types))
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
@@ -180,12 +182,12 @@ class PriceSkillClique:
         field = cls.parameter_type2field(param_type)
 
         if field == cls.Field.PORTS:
-            port_list = lmap(lambda x: Port.codename2port(Portlike.entity_portlike2port_codenames(x)), entities)
-            return {field:port_list}
+            port_codenames = lchain(*map(lambda x: Portlike.entity_portlike2port_codenames(x), entities))
+            return {field: port_codenames}
 
         if field == cls.Field.TRADEGOODS:
-            tradegood_list = lmap(lambda x: Tradegood.codename2tradegood(Entity.entity2value(x)), entities)
-            return {field: tradegood_list}
+            tradegood_codenames = lmap(Entity.entity2value, entities)
+            return {field: tradegood_codenames}
 
         if field == cls.Field.RATE:
             entity = l_singleton2obj(entities)
@@ -224,23 +226,30 @@ class PriceSkillClique:
 
     @classmethod
     def clique_list2update_mongodb(cls, packet, clique_list):
+        if not clique_list:
+            return None
+
         doc_list = [cls.clique2doc_insert(packet, clique) for clique in clique_list]
         collection = MarketpriceCollection.collection()
         mongo_result = collection.insert_many(doc_list)
         return mongo_result
 
-class PriceSkill:
-    CODENAME = "price"
+
+
+
 
     @classmethod
     def entity_group2span(cls, entity_group):
         s1, e1 = Entity.entity2span(entity_group[0])
-        s2, e2 = Entity.entity2span(entity_group[1])
+        s2, e2 = Entity.entity2span(entity_group[-1])
         return s1, e2
 
     @classmethod
     def text_entities_list2is_contiguous(cls, text, entities_list):
         n = len(entities_list)
+        # if any(filter(lambda l: len(l) <= 1, entities_list)):
+        #     raise Exception({"entities_list": entities_list})
+
         span_list = lmap(cls.entity_group2span, entities_list)
 
         for i in range(1, n):
@@ -249,7 +258,6 @@ class PriceSkill:
                 return False
 
         return True
-
 
     @classmethod
     def text_entities_list2entities_spans_clique(cls, text, entities_list):
@@ -270,14 +278,16 @@ class PriceSkill:
 
             j_portlike, j_tradegood = j_param_types2j_latest(j, [Param.Type.PORTLIKE,Param.Type.TRADEGOOD])
 
-            if not all([j_portlike, j_tradegood]):
+            if not all(map(is_not_none, [j_portlike, j_tradegood])):
                 return False
 
             if {j - 1, j} != {j_portlike, j_tradegood}:
                 return False
 
-            entities_pair = SpanTool.list_span2sublist(entities_list, (j - 1, j))
-            if not cls.text_entities_list2is_contiguous(text, entities_pair):
+            entities_prev, entities_this = entities_list[j-1], entities_list[j]
+            # if j == 1:
+            #     raise Exception({"entities_pair": entities_pair, "entities_list": entities_list})
+            if not cls.text_entities_list2is_contiguous(text, [entities_prev, entities_this]):
                 return False
 
             if j + 1 == p:
@@ -317,7 +327,7 @@ class PriceSkill:
 
             entity_latter = max([entity_portlike, entity_tradegood], key=Entity.entity2span)
 
-            entities_list = [entity_latter, entity_rate, entity_trend]
+            entities_list = [[entity_latter], [entity_rate], [entity_trend]]
             if not cls.text_entities_list2is_contiguous(text, entities_list):
                 return False
 
@@ -330,11 +340,11 @@ class PriceSkill:
 
             if param_type_this == Param.Type.TREND:
                 if j2valid_trend(j):
-                    return j-3, j
+                    return j-3, j+1
 
             if param_type_this in {Param.Type.PORTLIKE, Param.Type.TRADEGOOD}:
                 if j2valid_portlike_tradegood(j):
-                    return j-1, j
+                    return j-1, j+1
 
             return None
 
@@ -350,6 +360,15 @@ class PriceSkill:
                        for span in entities_spans_clique]
         return clique_list
 
+
+class PriceSkill:
+    CODENAME = "price"
+
+
+
+
+
+
     @classmethod
     def price_lang2text(cls, price, lang):
         rate = MarketpriceDoc.price2rate(price)
@@ -362,7 +381,8 @@ class PriceSkill:
     def entity_pair2is_appendable(cls, text, entity_pair, ):
         Param = PriceSkillParameter
 
-        param_type_pair = lmap(Param.Type.entity_type2parameter_type, entity_pair)
+        entity_type_pair = lmap(Entity.entity2type, entity_pair)
+        param_type_pair = lmap(Param.Type.entity_type2parameter_type, entity_type_pair)
         for param_type in param_type_pair:
             if param_type not in {Param.Type.PORTLIKE, Param.Type.TRADEGOOD}:
                 return False
@@ -417,10 +437,14 @@ class PriceSkill:
                              key=Entity.entity2span)
 
         entities_list = cls.entity_list2entities_list_grouped(text_in, entity_list)
-        clique_list = cls.text_entities_list2clique_list(text_in, entities_list)
+        clique_list = Clique.text_entities_list2clique_list(text_in, entities_list)
+        # raise Exception({"entities_list": entities_list,
+        #                  "clique_list": clique_list,
+        #                  })
 
         clique_list_update = lfilter(lambda x: Clique.clique2type(x) == Clique.Type.UPDATE, clique_list)
-        Clique.clique_list2update_mongodb(packet, clique_list_update)
+        if clique_list_update:
+            Clique.clique_list2update_mongodb(packet, clique_list_update)
 
         h_port2indexes = Clique.cliques2dict_port2indexes(clique_list)
         h_tradegood2indexes = Clique.cliques2dict_tradegood2indexes(clique_list)
@@ -436,6 +460,9 @@ class PriceSkill:
 
     @classmethod
     def port_tradegood_lists2blocks(cls, port_tradegood_list, price_dict, lang, groupby_parameter_type):
+        logger = HenriqueLogger.func_level2logger(cls.port_tradegood_lists2blocks, logging.DEBUG)
+        logger.debug({"port_tradegood_list": port_tradegood_list})
+
         if groupby_parameter_type == PriceSkillParameter.Type.PORTLIKE:
             from henrique.main.skill.price.by_port.price_by_port import PriceByPort
             blocks = [PriceByPort.port2text(port_codename, lmap(ig(1), l), price_dict, lang)
@@ -444,6 +471,8 @@ class PriceSkill:
 
         if groupby_parameter_type == PriceSkillParameter.Type.TRADEGOOD:
             from henrique.main.skill.price.by_tradegood.price_by_tradegood import PriceByTradegood
+
+
             blocks = [PriceByTradegood.tradegood2text(tg_codename, lmap(ig(0), l), price_dict, lang)
                       for tg_codename, l in gb_tree_global(port_tradegood_list, [ig(1)])]
             return blocks

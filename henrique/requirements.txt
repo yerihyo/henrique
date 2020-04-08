@@ -1,6 +1,6 @@
 wheel
 setuptools==41.0.1
-git+https://github.com/foxytrixy-com/foxylib.git@v0.4.19#egg=foxylib
+git+https://github.com/foxytrixy-com/foxylib.git@v0.4.20#egg=foxylib
 connexion[swagger-ui]==2.2.0
 Flask==1.0.2
 argparse==1.4.0
