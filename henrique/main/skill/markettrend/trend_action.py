@@ -8,7 +8,7 @@ from foxylib.tools.env.env_tool import EnvTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.json.yaml_tool import YAMLTool
-from henrique.main.entity.tradegood.tradegood_entity import TradegoodEntity
+from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from khalalib.packet.packet import KhalaPacket
 from khalalib.response.khala_response import KhalaResponse
@@ -32,7 +32,7 @@ class TradegoodAction:
 
     @classmethod
     def respond(cls, packet):
-        from henrique.main.entity.tradegood.subaction.tradegood_subactions import TradegoodTradegoodSubaction
+        from henrique.main.document.tradegood.subaction.tradegood_subactions import TradegoodTradegoodSubaction
 
         text = KhalaPacket.packet2text(packet)
         

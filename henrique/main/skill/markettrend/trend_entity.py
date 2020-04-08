@@ -14,7 +14,7 @@ from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.json.json_tool import jdown
 from foxylib.tools.regex.regex_tool import RegexTool, MatchTool
 from foxylib.tools.string.string_tool import str2lower
-from henrique.main.entity.henrique_entity import Entity
+from henrique.main.document.henrique_entity import Entity
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb
@@ -141,31 +141,6 @@ class MarkettrendDocument:
         yield from MongoDBTool.result2j_doc_iter(collection.find({}))
 
 
-class PortTradegoodStateTable:
-    NAME = "unchartedwatersonline_porttradegoodstate"
-
-    @classmethod
-    def index_json(cls): return 2
-
-    @classmethod
-    def tuple2j(cls, t): return t[cls.index_json()]
-
-    @classmethod
-    def tuple2port_name_en(cls, t):
-        return jdown(cls.tuple2j(t),["market_status","port","name","en"])
-
-    @classmethod
-    def tuple2tradegood_name_en(cls, t):
-        return jdown(cls.tuple2j(t), ["market_status", "tradegood", "name", "en"])
-
-    @classmethod
-    def tuple2rate(cls, t):
-        return jdown(cls.tuple2j(t), ["market_status", "rate"])
-
-    @classmethod
-    def tuple2trend(cls, t):
-        trend = jdown(cls.tuple2j(t), ["market_status", "trend", "value"])
-        return trend - 2
 
 
 WARMER.warmup()

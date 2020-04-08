@@ -3,9 +3,9 @@ import os
 from itertools import chain
 
 from foxylib.tools.string.string_tool import str2strip
-from henrique.main.entity.port.port import Port
-from henrique.main.entity.price.marketprice import MarketpriceDict, Marketprice
-from henrique.main.entity.tradegood.tradegood import Tradegood
+from henrique.main.document.port.port import Port
+from henrique.main.document.price.mongodb.marketprice_doc import MarketpriceDict, MarketpriceDoc
+from henrique.main.document.tradegood.tradegood import Tradegood
 from henrique.main.singleton.jinja2.henrique_jinja2 import HenriqueJinja2
 from henrique.main.skill.henrique_skill import Rowsblock
 from henrique.main.skill.price.price_skill import PriceSkill
@@ -32,7 +32,7 @@ class PriceByTradegood:
         price_list_raw = [MarketpriceDict.lookup(price_dict, port_codename, tradegood_codename)
                           for port_codename in port_codename_list]
 
-        price_list = sorted(price_list_raw, key=Marketprice.key_default)
+        price_list = sorted(price_list_raw, key=MarketpriceDoc.key_default)
 
         rows_body = [cls._price_lang2text(price, lang)
                      for price in price_list]
@@ -43,6 +43,6 @@ class PriceByTradegood:
     @classmethod
     def _price_lang2text(cls, price, lang):
         price_text = PriceSkill.price_lang2text(price, lang)
-        port_name = Port.port_lang2name(Port.codename2port(Marketprice.price2port(price)), lang)
+        port_name = Port.port_lang2name(Port.codename2port(MarketpriceDoc.price2port(price)), lang)
         return "{} {}".format(port_name, price_text)
 

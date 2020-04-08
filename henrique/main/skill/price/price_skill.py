@@ -1,37 +1,39 @@
-import copy
 import os
-from itertools import chain, product
-
-import re
 import sys
-from collections import defaultdict
-from functools import lru_cache
+from datetime import datetime
 from operator import itemgetter as ig
 
-from foxylib.tools.collections.groupby_tool import dict_groupby_tree
+import pytz
+import re
+from functools import lru_cache
 from future.utils import lmap, lfilter
-from nose.tools import assert_true, assert_equal
+from itertools import chain, product
+from nose.tools import assert_equal
 
 from foxylib.tools.collections.collections_tool import lchain, l_singleton2obj, merge_dicts, vwrite_no_duplicate_key, \
     luniq
+from foxylib.tools.collections.groupby_tool import gb_tree_global
 from foxylib.tools.collections.iter_tool import iter2singleton, IterTool
-from foxylib.tools.compare.minimax_tool import minimax
-from foxylib.tools.coroutine.coro_tool import CoroTool
+from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.locale.locale_tool import LocaleTool
+from foxylib.tools.native.native_tool import is_not_none
 from foxylib.tools.regex.regex_tool import RegexTool
 from foxylib.tools.span.span_tool import SpanTool
 from foxylib.tools.string.string_tool import StringTool
-from henrique.main.entity.culture.culture_entity import CultureEntity
-from henrique.main.entity.henrique_entity import Entity
-from henrique.main.entity.port.port import Port
-from henrique.main.entity.port.port_entity import PortEntity
-from henrique.main.entity.price.marketprice import MarketpriceDict, Marketprice
-from henrique.main.entity.price.rate.rate_entity import RateEntity
-from henrique.main.entity.price.trend.trend_entity import Trend, TrendEntity
-from henrique.main.entity.tradegood.tradegood import Tradegood
-from henrique.main.entity.tradegood.tradegood_entity import TradegoodEntity
+from henrique.main.document.culture.culture_entity import CultureEntity
+from henrique.main.document.henrique_entity import Entity
+from henrique.main.document.port.mongodb.port_doc import PortDoc
+from henrique.main.document.port.port import Port
+from henrique.main.document.port.port_entity import PortEntity
+from henrique.main.document.price.mongodb.marketprice_doc import MarketpriceDict, MarketpriceDoc, MarketpriceCollection
+from henrique.main.document.price.mongodb.markettrend_doc import MarkettrendDoc
+from henrique.main.document.price.rate.rate_entity import RateEntity
+from henrique.main.document.price.trend.trend_entity import Trend, TrendEntity
+from henrique.main.document.tradegood.mongodb.tradegood_doc import TradegoodDoc
+from henrique.main.document.tradegood.tradegood import Tradegood
+from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
 from henrique.main.skill.henrique_skill import Rowsblock
 from khalalib.packet.packet import KhalaPacket
 
@@ -61,36 +63,6 @@ class Portlike:
 
         raise RuntimeError({"entity_type": entity_type})
 
-class PriceSkillBlock:
-    pass
-
-# class PriceSkillPacketdata:
-#     def __init__(self, text, locale):
-#         self.text = text
-#         self.locale = locale
-#
-#     @classmethod
-#     def entity_classes(cls):
-#         return {PortEntity, TradegoodEntity, CultureEntity, RateEntity, TrendEntity, }
-#
-#     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-#     def entity_list(self):
-#         cls = self.__class__
-#         config = {Entity.Config.Field.LOCALE: self.locale}
-#         return lchain(*[c.text2entity_list(self.text, config=config) for c in cls.entity_classes()])
-#
-#     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-#     def entity_span_list(self):
-#         entity_list = self.entity_list()
-#         entity_type_list = lmap(Entity.entity2type, entity_list)
-#         parameter_type_list = lmap(PriceSkillParameterType.entity_type2parameter_type, entity_type_list)
-#         return list(PriceSkillParameterType.types2spans(parameter_type_list))
-#
-#     def _parameter_type2entity_span_latest_list(self):
-#         entity_list = self.entity_list()
-#         entity_span_list = self.entity_span_list()
-#
-#         n, p = len(entity_list), len(entity_span_list)
 
 class PriceSkillParameter:
     class Type:
@@ -128,8 +100,6 @@ class PriceSkillParameter:
         return RegexTool.pattern_str2match_full(cls.pattern_delim(), text)
 
 
-
-
 class PriceSkillClique:
     class Field:
         PORTS = "ports"
@@ -142,12 +112,31 @@ class PriceSkillClique:
         LOOKUP = "lookup"
 
     @classmethod
+    def clique2type(cls, clique):
+        has_rate = iter2singleton(map(is_not_none,
+                                      [cls.clique2rate(clique),
+                                       cls.clique2trend(clique),
+                                       ]))
+
+        if has_rate:
+            return cls.Type.UPDATE
+        return cls.Type.LOOKUP
+
+    @classmethod
     def clique2ports(cls, clique):
         return clique[cls.Field.PORTS]
 
     @classmethod
     def clique2tradegoods(cls, clique):
         return clique[cls.Field.TRADEGOODS]
+
+    @classmethod
+    def clique2rate(cls, clique):
+        return clique.get(cls.Field.RATE)
+
+    @classmethod
+    def clique2trend(cls, clique):
+        return clique.get(cls.Field.TREND)
 
     @classmethod
     def clique2port_tradegood_iter(cls, clique):
@@ -210,7 +199,35 @@ class PriceSkillClique:
 
         raise Exception(entities)
 
+    @classmethod
+    def clique2doc_insert(cls, packet, clique):
+        ports = cls.clique2ports(clique)
+        tradegoods = cls.clique2tradegoods(clique)
+        rate = cls.clique2rate(clique)
+        trend = cls.clique2trend(clique)
 
+        port_codename = l_singleton2obj(ports)
+        tradegood_codename = l_singleton2obj(tradegoods)
+
+        chatroom_user_id = KhalaPacket.packet2chatroom_user_id(packet)
+
+        doc = {MarketpriceDoc.Field.CREATED_AT: datetime.now(pytz.utc),
+               MarketpriceDoc.Field.PORT: port_codename,
+               MarketpriceDoc.Field.TRADEGOOD: tradegood_codename,
+               MarketpriceDoc.Field.RATE: rate,
+               MarketpriceDoc.Field.TREND: trend,
+
+               MarketpriceDoc.Field.CHATROOM_USER_ID: chatroom_user_id,
+               }
+
+        return doc
+
+    @classmethod
+    def clique_list2update_mongodb(cls, packet, clique_list):
+        doc_list = [cls.clique2doc_insert(packet, clique) for clique in clique_list]
+        collection = MarketpriceCollection.collection()
+        mongo_result = collection.insert_many(doc_list)
+        return mongo_result
 
 class PriceSkill:
     CODENAME = "price"
@@ -240,12 +257,12 @@ class PriceSkill:
         p = len(entities_list)
 
         param_type_list = lmap(Param.Type.entity_group2parameter_type, entities_list)
-        h_param_type2j_latest_list = list(IterTool.iter2dict_value2latest_index_iter(param_type_list))
+        h_param_type2j_latest_series = list(IterTool.iter2dict_value2latest_index_series(param_type_list))
 
         def j_param_types2j_latest(j, param_types):
-            nonlocal h_param_type2j_latest_list
+            nonlocal h_param_type2j_latest_series
 
-            h_param_type2j_latest = h_param_type2j_latest_list[j]
+            h_param_type2j_latest = h_param_type2j_latest_series[j]
             return lmap(h_param_type2j_latest.get, param_types)
 
         def j2valid_portlike_tradegood(j):
@@ -335,71 +352,11 @@ class PriceSkill:
 
     @classmethod
     def price_lang2text(cls, price, lang):
-        rate = Marketprice.price2rate(price)
-        trend = Marketprice.price2trend(price)
+        rate = MarketpriceDoc.price2rate(price)
+        trend = MarketpriceDoc.price2trend(price)
         arrow = Trend.trend2arrow(trend)
 
         return " ".join([str(rate), arrow])
-
-
-
-    # @classmethod
-    # def text_entity_list2valid_tuples(cls, text, entity_list_in,):
-    #     entity_list_sorted = sorted(entity_list_in, key=Entity.entity2span)
-    #
-    #
-    #     # index_tuples_portlike, index_tuples_tradegood, index_tuples_rate, index_tuples_trend = [], [], [], []
-    #     n = len(entity_list_sorted)
-    #
-    #
-    #
-    #
-    #
-    #
-    #     def indexes2uptodate(indexes_target, indexes_base):
-    #         if not indexes_target:
-    #             return False
-    #
-    #         return indexes_target[0] > indexes_base[-1]
-    #
-    #     def index2valid_parameters(index, h_parameter_type2indexes):
-    #         entity = entity_list_sorted[index]
-    #         entity_type = Entity.entity2type(entity)
-    #         parameter_type = cls.ParameterType.entity_type2parameter_type(entity_type)
-    #
-    #         if parameter_type not in {cls.ParameterType.PORTLIKE, cls.ParameterType.TRADEGOOD}:
-    #             return None
-    #
-    #         indexes_portlike = h_parameter_type2indexes.get(cls.ParameterType.PORTLIKE)
-    #         indexes_tradegood = h_parameter_type2indexes.get(cls.ParameterType.TRADEGOOD)
-    #         indexes_rate = h_parameter_type2indexes.get(cls.ParameterType.RATE)
-    #         indexes_trend = h_parameter_type2indexes.get(cls.ParameterType.TREND)
-    #
-    #         if not indexes_portlike:
-    #             return None
-    #
-    #         if not indexes_tradegood:
-    #             return None
-    #
-    #         is_rate_uptodate = all([indexes2uptodate(indexes_rate, indexes_portlike),
-    #                                 indexes2uptodate(indexes_rate, indexes_tradegood),
-    #                                 ])
-    #
-    #         is_trend_uptodate = all([indexes2uptodate(indexes_trend, indexes_portlike),
-    #                                  indexes2uptodate(indexes_trend, indexes_tradegood),
-    #                                  ])
-    #
-    #     h_parameter_type2indexes_latest = defaultdict(list)
-    #
-    #     for i in range(n):
-    #         entity = entity_list_sorted[i]
-    #         parameter_type = cls.ParameterType.entity_type2parameter_type(Entity.entity2type(entity))
-    #
-    #         indexes_list = h_parameter_type2indexes_list.get(parameter_type)
-    #         if indexes_list and indexes_list[-1][-1] == i-1:
-    #             indexes_list[-1].append(i)
-    #         else:
-    #             indexes_list.append([i])
 
     @classmethod
     def entity_pair2is_appendable(cls, text, entity_pair, ):
@@ -449,6 +406,7 @@ class PriceSkill:
     @classmethod
     def packet2rowsblocks(cls, packet):
         Clique = PriceSkillClique
+        Param = PriceSkillParameter
 
         lang = LocaleTool.locale2lang(KhalaPacket.packet2locale(packet))
 
@@ -462,71 +420,35 @@ class PriceSkill:
         clique_list = cls.text_entities_list2clique_list(text_in, entities_list)
 
         clique_list_update = lfilter(lambda x: Clique.clique2type(x) == Clique.Type.UPDATE, clique_list)
-        Clique.clique_list2update_mongodb(clique_list_update)
+        Clique.clique_list2update_mongodb(packet, clique_list_update)
 
         h_port2indexes = Clique.cliques2dict_port2indexes(clique_list)
         h_tradegood2indexes = Clique.cliques2dict_tradegood2indexes(clique_list)
 
         is_port_grouped = len(h_port2indexes) == 1 or len(h_tradegood2indexes)>1
+        groupby_parameter_type = Param.Type.PORTLIKE if is_port_grouped else Param.Type.TRADEGOOD
 
-        def port_tradegood2key_sort(port_codename, tradegood_codename):
-            port_index = h_port2indexes[port_codename]
-            tradegood_index = h_tradegood2indexes[tradegood_codename]
-
-            if is_port_grouped:
-                return port_index, tradegood_index
-            else:
-                return tradegood_index, port_index
-
-        port_tradegood_list = sorted(chain(*map(Clique.clique2port_tradegood_iter, clique_list)),
-                                     key=lambda ptg: port_tradegood2key_sort(*ptg))
+        port_tradegood_list = lchain(*map(Clique.clique2port_tradegood_iter, clique_list))
         price_dict = MarketpriceDict.port_tradegood_iter2price_dict(port_tradegood_list)
 
-        def codename_lists2rowsblock_list(_port_tradegood_list):
-            if is_port_grouped:
-                from henrique.main.skill.price.by_port.price_by_port import PriceByPort
-                blocks = [PriceByPort.port2text(port_codename, lmap(ig(1), l), price_dict, lang)
-                          for port_codename, l in dict_groupby_tree(_port_tradegood_list, [ig(0)])]
-                return blocks
-            else:
-                from henrique.main.skill.price.by_tradegood.price_by_tradegood import PriceByTradegood
-                blocks = [PriceByTradegood.tradegood2text(tg_codename, lmap(ig(0), l), price_dict, lang)
-                          for tg_codename, l in dict_groupby_tree(_port_tradegood_list, [ig(0)])]
-                return blocks
+        block_list = cls.port_tradegood_lists2blocks(port_tradegood_list, price_dict, lang, groupby_parameter_type)
+        return block_list
 
-        if is_port_grouped:
+    @classmethod
+    def port_tradegood_lists2blocks(cls, port_tradegood_list, price_dict, lang, groupby_parameter_type):
+        if groupby_parameter_type == PriceSkillParameter.Type.PORTLIKE:
             from henrique.main.skill.price.by_port.price_by_port import PriceByPort
             blocks = [PriceByPort.port2text(port_codename, lmap(ig(1), l), price_dict, lang)
-                      for port_codename, l in dict_groupby_tree(port_tradegood_list, [ig(0)])]
+                      for port_codename, l in gb_tree_global(port_tradegood_list, [ig(0)])]
             return blocks
 
-        block_list = codename_lists2rowsblock_list(port_tradegood_list)
+        if groupby_parameter_type == PriceSkillParameter.Type.TRADEGOOD:
+            from henrique.main.skill.price.by_tradegood.price_by_tradegood import PriceByTradegood
+            blocks = [PriceByTradegood.tradegood2text(tg_codename, lmap(ig(0), l), price_dict, lang)
+                      for tg_codename, l in gb_tree_global(port_tradegood_list, [ig(1)])]
+            return blocks
 
-
-        # entities_list_for_update = lfilter(cls.entities2has_rate, entities_list_valid)
-        # entity_list_portlike = lfilter(lambda x: Portlike.entity_type2is_portlike(Entity.entity2type(x)), entity_list)
-        # entity_list_tradegood = lfilter(lambda x: Entity.entity2type(x) in {TradegoodEntity.TYPE, }, entity_list)
-        #
-        # assert_true(entity_list_portlike)
-        # assert_true(entity_list_tradegood)
-        #
-        # port_codename_list = lchain(*map(Portlike.entity_portlike2port_codenames, entity_list_portlike))
-        # tradegood_codename_list = lmap(Entity.entity2value, entity_list_tradegood)
-        # price_dict = MarketpriceDict.ports_tradegoods2price_dict(port_codename_list, tradegood_codename_list)
-
-        # def codename_lists2rowsblocks(_port_codename_list, _tradegood_codename_list):
-        #     if len(_port_codename_list) == 1:
-        #         port_codename = l_singleton2obj(_port_codename_list)
-        #         from henrique.main.skill.price.by_port.price_by_port import PriceByPort
-        #         return [PriceByPort.port2text(port_codename, _tradegood_codename_list, price_dict, lang)]
-        #
-        #     from henrique.main.skill.price.by_tradegood.price_by_tradegood import PriceByTradegood
-        #     blocks = [PriceByTradegood.tradegood2text(tg_codename, _port_codename_list, price_dict, lang)
-        #               for tg_codename in _tradegood_codename_list]
-        #     return blocks
-        #
-        # blocks = codename_lists2rowsblocks(port_codename_list, tradegood_codename_list)
-        return block_list
+        raise Exception(groupby_parameter_type)
 
     @classmethod
     def packet2response(cls, packet):
@@ -543,25 +465,5 @@ class PriceSkill:
 
         return lmap(block2norm_for_unittest, blocks)
 
-# @classmethod
-    # @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
-    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    # def j_yaml(cls):
-    #     filepath = os.path.join(FILE_DIR, "action.yaml")
-    #     return YAMLTool.filepath2j(filepath)
-    #
-    # @classmethod
-    # def respond(cls, packet):
-    #     from henrique.main.entity.tradegood.subaction.tradegood_subactions import TradegoodTradegoodSubaction
-    #
-    #     text = KhalaPacket.packet2text(packet)
-    #
-    #     tradegood_entity_list = TradegoodEntity.text2entity_list(text)
-    #
-    #     str_list = lmap(lambda p:TradegoodTradegoodSubaction.tradegood_entity2response(p,packet), tradegood_entity_list)
-    #
-    #     str_out = "\n\n".join(str_list)
-    #
-    #     return KhalaResponse.Builder.str2j_response(str_out)
 
 WARMER.warmup()

@@ -11,10 +11,10 @@ from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.database.postgres.postgres_tool import PostgresTool
 from foxylib.tools.json.json_tool import jdown
 from foxylib.tools.string.string_tool import str2lower
-from henrique.main.entity.markettrend.trend_entity import PortTradegoodStateTable, MarkettrendCollection, \
+from henrique.main.document.markettrend.trend_entity import PortTradegoodStateTable, MarkettrendCollection, \
     MarkettrendDocument
-from henrique.main.entity.port.port_entity import PortDoc
-from henrique.main.entity.tradegood.tradegood_entity import TradegoodDoc
+from henrique.main.document.port.port_entity import PortDoc
+from henrique.main.document.tradegood.tradegood_entity import TradegoodDoc
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.singleton.postgres.henrique_postgres import HenriquePostgres
 

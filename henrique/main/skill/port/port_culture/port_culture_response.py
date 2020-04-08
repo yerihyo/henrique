@@ -2,8 +2,8 @@ import os
 
 from foxylib.tools.jinja2.jinja2_tool import Jinja2Renderer
 from foxylib.tools.string.string_tool import str2strip
-from henrique.main.entity.culture.culture import Culture
-from henrique.main.entity.port.port_entity import Port
+from henrique.main.document.culture.culture import Culture
+from henrique.main.document.port.port_entity import Port
 from henrique.main.singleton.jinja2.henrique_jinja2 import HenriqueJinja2
 from henrique.main.singleton.khala.henrique_khala import HenriqueKhala
 from henrique.main.skill.henrique_skill import Rowsblock

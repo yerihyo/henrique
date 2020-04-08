@@ -4,8 +4,8 @@ from future.utils import lmap
 
 from foxylib.tools.jinja2.jinja2_tool import Jinja2Renderer
 from foxylib.tools.string.string_tool import str2strip
-from henrique.main.entity.culture.culture import Culture, Prefer
-from henrique.main.entity.tradegood.tradegood import Tradegood
+from henrique.main.document.culture.culture import Culture, Prefer
+from henrique.main.document.tradegood.tradegood import Tradegood
 from henrique.main.singleton.jinja2.henrique_jinja2 import HenriqueJinja2
 
 FILE_PATH = os.path.realpath(__file__)

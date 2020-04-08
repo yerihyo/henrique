@@ -8,10 +8,10 @@ from nose.tools import assert_equals
 from foxylib.tools.collections.collections_tool import lchain, smap
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.locale.locale_tool import LocaleTool
-from henrique.main.entity.culture.culture_entity import CultureEntity
-from henrique.main.entity.henrique_entity import Entity
-from henrique.main.entity.port.port_entity import PortEntity
-from henrique.main.entity.tradegood.tradegood_entity import TradegoodEntity
+from henrique.main.document.culture.culture_entity import CultureEntity
+from henrique.main.document.henrique_entity import Entity
+from henrique.main.document.port.port_entity import PortEntity
+from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
 from henrique.main.skill.henrique_skill import Rowsblock
 from khalalib.packet.packet import KhalaPacket
 

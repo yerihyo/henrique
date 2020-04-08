@@ -12,10 +12,10 @@ from foxylib.tools.json.json_tool import jdown
 from foxylib.tools.json.yaml_tool import YAMLTool
 from foxylib.tools.locale.locale_tool import LocaleTool
 from foxylib.tools.regex.regex_tool import RegexTool
-from henrique.main.entity.culture.culture_entity import CultureEntity
-from henrique.main.entity.henrique_entity import Entity
-from henrique.main.entity.port.port_entity import PortEntity
-from henrique.main.entity.tradegood.tradegood_entity import TradegoodEntity
+from henrique.main.document.culture.culture_entity import CultureEntity
+from henrique.main.document.henrique_entity import Entity
+from henrique.main.document.port.port_entity import PortEntity
+from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.skill.henrique_skill import Rowsblock, HenriqueSkill
 from henrique.main.tool.skillnote_tool import SkillnoteTool

@@ -1,7 +1,7 @@
 import os
 
 from foxylib.tools.string.string_tool import str2strip
-from henrique.main.entity.port.port_entity import Port
+from henrique.main.document.port.port_entity import Port
 from henrique.main.singleton.jinja2.henrique_jinja2 import HenriqueJinja2
 
 FILE_PATH = os.path.realpath(__file__)
