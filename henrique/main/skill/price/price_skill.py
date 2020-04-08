@@ -6,7 +6,9 @@ import re
 import sys
 from collections import defaultdict
 from functools import lru_cache
+from operator import itemgetter as ig
 
+from foxylib.tools.collections.groupby_tool import dict_groupby_tree
 from future.utils import lmap, lfilter
 from nose.tools import assert_true, assert_equal
 
@@ -441,8 +443,6 @@ class PriceSkill:
                 for span in cls.entity_list2group_spans(text, entity_list)]
 
     @classmethod
-    def entities2has_rate_entity(cls):
-    @classmethod
     def entities_list2update_mongodb(cls, entities_list):
         raise NotImplementedError()
 
@@ -462,6 +462,7 @@ class PriceSkill:
         clique_list = cls.text_entities_list2clique_list(text_in, entities_list)
 
         clique_list_update = lfilter(lambda x: Clique.clique2type(x) == Clique.Type.UPDATE, clique_list)
+        Clique.clique_list2update_mongodb(clique_list_update)
 
         h_port2indexes = Clique.cliques2dict_port2indexes(clique_list)
         h_tradegood2indexes = Clique.cliques2dict_tradegood2indexes(clique_list)
@@ -479,39 +480,53 @@ class PriceSkill:
 
         port_tradegood_list = sorted(chain(*map(Clique.clique2port_tradegood_iter, clique_list)),
                                      key=lambda ptg: port_tradegood2key_sort(*ptg))
-        MarketpriceDict.ports_tradegoods2price_dict()
+        price_dict = MarketpriceDict.port_tradegood_iter2price_dict(port_tradegood_list)
+
+        def codename_lists2rowsblock_list(_port_tradegood_list):
+            if is_port_grouped:
+                from henrique.main.skill.price.by_port.price_by_port import PriceByPort
+                blocks = [PriceByPort.port2text(port_codename, lmap(ig(1), l), price_dict, lang)
+                          for port_codename, l in dict_groupby_tree(_port_tradegood_list, [ig(0)])]
+                return blocks
+            else:
+                from henrique.main.skill.price.by_tradegood.price_by_tradegood import PriceByTradegood
+                blocks = [PriceByTradegood.tradegood2text(tg_codename, lmap(ig(0), l), price_dict, lang)
+                          for tg_codename, l in dict_groupby_tree(_port_tradegood_list, [ig(0)])]
+                return blocks
 
         if is_port_grouped:
             from henrique.main.skill.price.by_port.price_by_port import PriceByPort
-            PriceByPort.port2text()
-
-        entities_list_for_update = lfilter(cls.entities2has_rate, entities_list_valid)
-
-
-
-        entity_list_portlike = lfilter(lambda x: Portlike.entity_type2is_portlike(Entity.entity2type(x)), entity_list)
-        entity_list_tradegood = lfilter(lambda x: Entity.entity2type(x) in {TradegoodEntity.TYPE, }, entity_list)
-
-        assert_true(entity_list_portlike)
-        assert_true(entity_list_tradegood)
-
-        port_codename_list = lchain(*map(Portlike.entity_portlike2port_codenames, entity_list_portlike))
-        tradegood_codename_list = lmap(Entity.entity2value, entity_list_tradegood)
-        price_dict = MarketpriceDict.ports_tradegoods2price_dict(port_codename_list, tradegood_codename_list)
-
-        def codename_lists2rowsblocks(_port_codename_list, _tradegood_codename_list):
-            if len(_port_codename_list) == 1:
-                port_codename = l_singleton2obj(_port_codename_list)
-                from henrique.main.skill.price.by_port.price_by_port import PriceByPort
-                return [PriceByPort.port2text(port_codename, _tradegood_codename_list, price_dict, lang)]
-
-            from henrique.main.skill.price.by_tradegood.price_by_tradegood import PriceByTradegood
-            blocks = [PriceByTradegood.tradegood2text(tg_codename, _port_codename_list, price_dict, lang)
-                      for tg_codename in _tradegood_codename_list]
+            blocks = [PriceByPort.port2text(port_codename, lmap(ig(1), l), price_dict, lang)
+                      for port_codename, l in dict_groupby_tree(port_tradegood_list, [ig(0)])]
             return blocks
 
-        blocks = codename_lists2rowsblocks(port_codename_list, tradegood_codename_list)
-        return blocks
+        block_list = codename_lists2rowsblock_list(port_tradegood_list)
+
+
+        # entities_list_for_update = lfilter(cls.entities2has_rate, entities_list_valid)
+        # entity_list_portlike = lfilter(lambda x: Portlike.entity_type2is_portlike(Entity.entity2type(x)), entity_list)
+        # entity_list_tradegood = lfilter(lambda x: Entity.entity2type(x) in {TradegoodEntity.TYPE, }, entity_list)
+        #
+        # assert_true(entity_list_portlike)
+        # assert_true(entity_list_tradegood)
+        #
+        # port_codename_list = lchain(*map(Portlike.entity_portlike2port_codenames, entity_list_portlike))
+        # tradegood_codename_list = lmap(Entity.entity2value, entity_list_tradegood)
+        # price_dict = MarketpriceDict.ports_tradegoods2price_dict(port_codename_list, tradegood_codename_list)
+
+        # def codename_lists2rowsblocks(_port_codename_list, _tradegood_codename_list):
+        #     if len(_port_codename_list) == 1:
+        #         port_codename = l_singleton2obj(_port_codename_list)
+        #         from henrique.main.skill.price.by_port.price_by_port import PriceByPort
+        #         return [PriceByPort.port2text(port_codename, _tradegood_codename_list, price_dict, lang)]
+        #
+        #     from henrique.main.skill.price.by_tradegood.price_by_tradegood import PriceByTradegood
+        #     blocks = [PriceByTradegood.tradegood2text(tg_codename, _port_codename_list, price_dict, lang)
+        #               for tg_codename in _tradegood_codename_list]
+        #     return blocks
+        #
+        # blocks = codename_lists2rowsblocks(port_codename_list, tradegood_codename_list)
+        return block_list
 
     @classmethod
     def packet2response(cls, packet):

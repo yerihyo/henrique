@@ -1,6 +1,8 @@
+from operator import itemgetter as ig
+
 from nose.tools import assert_is_not_none
 
-from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key
+from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, smap
 
 from henrique.main.entity.port.mongodb.port_doc import PortDoc
 
@@ -46,11 +48,26 @@ class Marketprice:
 
 class MarketpriceDict:
     @classmethod
-    def ports_tradegoods2price_dict(cls, port_codenames, tradegood_codenames):
+    def port_tradegood_iter2price_dict(cls, port_tradegood_iter):
         from henrique.main.entity.price.mongodb.markettrend_doc import MarkettrendDoc
+        port_tradegood_set = set(port_tradegood_iter)
+
+        port_codenames = smap(ig(0), port_tradegood_set)
+        tradegood_codenames = smap(ig(1), port_tradegood_set)
+
         prices_latest = MarkettrendDoc.ports_tradegoods2price_list_latest(port_codenames, tradegood_codenames)
+
+        # def price2is_target(price):
+        #     return (Marketprice.price2port(price), Marketprice.price2tradegood(price)) in port_tradegood_set
         price_dict = cls.prices2price_dict(prices_latest)
         return price_dict
+
+    # @classmethod
+    # def ports_tradegoods2price_dict(cls, port_codenames, tradegood_codenames):
+    #     from henrique.main.entity.price.mongodb.markettrend_doc import MarkettrendDoc
+    #     prices_latest = MarkettrendDoc.ports_tradegoods2price_list_latest(port_codenames, tradegood_codenames)
+    #     price_dict = cls.prices2price_dict(prices_latest)
+    #     return price_dict
 
     @classmethod
     def prices2price_dict(cls, prices):
