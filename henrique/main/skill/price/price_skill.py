@@ -95,12 +95,7 @@ class PriceSkillParameter:
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def pattern_delim(cls):
-        return re.compile(r"[,\s]+")
-
-    @classmethod
-    def text2is_delim(cls, text):
-        return RegexTool.pattern_str2match_full(cls.pattern_delim(), text)
-
+        return re.compile(r"[,\s]*")
 
 class PriceSkillClique:
     class Field:
@@ -449,8 +444,8 @@ class PriceSkill:
         h_port2indexes = Clique.cliques2dict_port2indexes(clique_list)
         h_tradegood2indexes = Clique.cliques2dict_tradegood2indexes(clique_list)
 
-        is_port_grouped = len(h_port2indexes) == 1 or len(h_tradegood2indexes)>1
-        groupby_parameter_type = Param.Type.PORTLIKE if is_port_grouped else Param.Type.TRADEGOOD
+        is_groupby_port = len(h_port2indexes) == 1 and len(h_tradegood2indexes) > 1
+        groupby_parameter_type = Param.Type.PORTLIKE if is_groupby_port else Param.Type.TRADEGOOD
 
         port_tradegood_list = lchain(*map(Clique.clique2port_tradegood_iter, clique_list))
         price_dict = MarketpriceDict.port_tradegood_iter2price_dict(port_tradegood_list)
@@ -465,13 +460,13 @@ class PriceSkill:
 
         if groupby_parameter_type == PriceSkillParameter.Type.PORTLIKE:
             from henrique.main.skill.price.by_port.price_by_port import PriceByPort
+
             blocks = [PriceByPort.port2text(port_codename, lmap(ig(1), l), price_dict, lang)
                       for port_codename, l in gb_tree_global(port_tradegood_list, [ig(0)])]
             return blocks
 
         if groupby_parameter_type == PriceSkillParameter.Type.TRADEGOOD:
             from henrique.main.skill.price.by_tradegood.price_by_tradegood import PriceByTradegood
-
 
             blocks = [PriceByTradegood.tradegood2text(tg_codename, lmap(ig(0), l), price_dict, lang)
                       for tg_codename, l in gb_tree_global(port_tradegood_list, [ig(1)])]
