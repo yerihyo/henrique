@@ -138,7 +138,7 @@ class MarkettrendDocument:
     @classmethod
     def j_doc_iter_all(cls):
         collection = MarkettrendCollection.collection()
-        yield from MongoDBTool.result2j_doc_iter(collection.find({}))
+        yield from map(MongoDBTool.bson2json,collection.find({}))
 
 
 

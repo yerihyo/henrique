@@ -3,6 +3,7 @@ import os
 import sys
 
 from functools import lru_cache
+from future.utils import lmap
 
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, DictTool
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
@@ -42,7 +43,7 @@ class TradegoodDoc:
     @classmethod
     def doc_list_all(cls):
         collection = TradegoodCollection.collection()
-        return list(MongoDBTool.result2j_doc_iter(collection.find({})))
+        return lmap(MongoDBTool.bson2json, collection.find({}))
 
     @classmethod
     def dict_codename2tradegood_partial(cls):

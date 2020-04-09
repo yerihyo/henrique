@@ -1,14 +1,12 @@
-from functools import lru_cache
 from operator import itemgetter as ig
 
+from functools import lru_cache
 from future.utils import lmap
-from nose.tools import assert_is_not_none
 
-from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, smap, AbsoluteOrder
+from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, smap, AbsoluteOrder, \
+    lchain, DictTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.json.json_tool import JsonTool
-
-from henrique.main.document.port.mongodb.port_doc import PortDoc
 from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb
 
 
@@ -20,7 +18,6 @@ class MarketpriceCollection:
         return db.get_collection("marketprice", *_, **__)
 
 
-
 class MarketpriceDoc:
     class Field:
         CREATED_AT = "created_at"
@@ -29,12 +26,16 @@ class MarketpriceDoc:
         RATE = "rate"
         TREND = "trend"
 
-        CHATROOM_USER_ID = "chatroom_user_id"
+        CHANNEL_USER_KEY = "channel_user_key"
         SERVER = "server"
 
         @classmethod
         def set(cls):
-            return {cls.PORT, cls.TRADEGOOD, cls.RATE, cls.TREND}
+            return {cls.CREATED_AT, cls.PORT, cls.TRADEGOOD, cls.RATE, cls.TREND, cls.CHANNEL_USER_KEY, cls.SERVER}
+
+    @classmethod
+    def doc2norm_unittest(cls, doc):
+        return DictTool.keys2excluded(doc, [cls.Field.CREATED_AT])
 
 
     @classmethod
@@ -66,6 +67,14 @@ class MarketpriceDoc:
         return price[cls.Field.TREND]
 
     @classmethod
+    def price2created_at(cls, price):
+        return price[cls.Field.CREATED_AT]
+
+    @classmethod
+    def price2channel_user_key(cls, price):
+        return price[cls.Field.CHANNEL_USER_KEY]
+
+    @classmethod
     def ports_tradegoods2price_list_latest(cls, port_codenames, tradegood_codenames):
         port_codename_list = list(port_codenames)
         tradegood_codename_list = list(tradegood_codenames)
@@ -74,32 +83,41 @@ class MarketpriceDoc:
         mongo_query = {cls.Field.PORT: {"$in": port_codename_list},
                        cls.Field.TRADEGOOD: {"$in": tradegood_codename_list},
                        }
+
+        mongo_group_id = {
+            "_id": {
+                cls.Field.PORT: "${}".format(cls.Field.PORT),
+                cls.Field.TRADEGOOD: "${}".format(cls.Field.TRADEGOOD),
+            },
+        }
+
+        fields_others = cls.Field.set() - {cls.Field.PORT, cls.Field.TRADEGOOD}
+        mongo_group_list = lchain([mongo_group_id],
+                                  [{field: {"$last": "${}".format(field)}, }
+                                   for field in fields_others], )
+        mongo_group = merge_dicts(mongo_group_list, vwrite=vwrite_no_duplicate_key)
+
         mongo_pipeline = [
             {"$match": mongo_query},
-            {"$group": {
-                "_id": {cls.Field.PORT: "${}".format(cls.Field.PORT),
-                        cls.Field.TRADEGOOD: "${}".format(cls.Field.TRADEGOOD),
-                        },
-                cls.Field.RATE: {"$last": "${}".format(cls.Field.RATE)},
-                cls.Field.TREND: {"$last": "${}".format(cls.Field.TREND)},
-                cls.Field.SERVER: {"$last": "${}".format(cls.Field.SERVER)},
-                cls.Field.CREATED_AT: {"$last": "${}".format(cls.Field.CREATED_AT)},
-            }}
+            {"$group": mongo_group}
         ]
 
         def item2doc(item):
             port_codename = JsonTool.down(item, ["_id", cls.Field.PORT])
             tradegood_codename = JsonTool.down(item, ["_id", cls.Field.TRADEGOOD])
 
-            price = {MarketpriceDoc.Field.PORT: port_codename,
-                     MarketpriceDoc.Field.TRADEGOOD: tradegood_codename,
-                     MarketpriceDoc.Field.RATE: item[cls.Field.RATE],
-                     MarketpriceDoc.Field.TREND: item[cls.Field.TREND],
-                     }
+            price = merge_dicts([DictTool.keys2filtered(item, fields_others, ),
+                                 {cls.Field.PORT: port_codename,
+                                  cls.Field.TRADEGOOD: tradegood_codename,
+                                  },
+                                 ], vwrite=vwrite_no_duplicate_key
+                                )
+
             return price
 
         item_list = list(collection.aggregate(mongo_pipeline))
         doc_list = lmap(item2doc, item_list)
+
         return doc_list
 
 

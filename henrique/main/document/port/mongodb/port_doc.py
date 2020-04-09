@@ -46,7 +46,7 @@ class PortDoc:
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def doc_list_all(cls):
         collection = PortCollection.collection()
-        doc_iter = MongoDBTool.result2j_doc_iter(collection.find({}))
+        doc_iter = map(MongoDBTool.bson2json,collection.find({}))
         return list(doc_iter)
 
     @classmethod
@@ -114,5 +114,5 @@ class PortDoc:
 
         collection = PortCollection.collection()
         mongo_query = {"tradegoods.name.en": {"$in": tg_codename_list}}
-        doc_iter = MongoDBTool.result2j_doc_iter(collection.find(mongo_query))
+        doc_iter = map(MongoDBTool.bson2json,collection.find(mongo_query))
         yield from doc_iter

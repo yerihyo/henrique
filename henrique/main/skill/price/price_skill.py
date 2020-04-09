@@ -1,11 +1,11 @@
 import logging
 import os
 import sys
-from datetime import datetime
 from operator import itemgetter as ig
 
 import pytz
 import re
+from datetime import datetime
 from functools import lru_cache
 from future.utils import lmap, lfilter
 from itertools import chain, product
@@ -22,18 +22,16 @@ from foxylib.tools.locale.locale_tool import LocaleTool
 from foxylib.tools.native.native_tool import is_not_none, is_none
 from foxylib.tools.regex.regex_tool import RegexTool
 from foxylib.tools.span.span_tool import SpanTool
-from foxylib.tools.string.string_tool import StringTool, str2strip
+from foxylib.tools.string.string_tool import StringTool, str2strip, format_str
+from henrique.main.document.channel.channel import Channel
+from henrique.main.document.channel_user.mongodb.channel_user_doc import ChannelUserDoc
 from henrique.main.document.culture.culture_entity import CultureEntity
 from henrique.main.document.henrique_entity import Entity
-from henrique.main.document.port.mongodb.port_doc import PortDoc
 from henrique.main.document.port.port import Port
 from henrique.main.document.port.port_entity import PortEntity
 from henrique.main.document.price.mongodb.marketprice_doc import MarketpriceDict, MarketpriceDoc, MarketpriceCollection
-from henrique.main.document.price.mongodb.markettrend_doc import MarkettrendDoc
 from henrique.main.document.price.rate.rate_entity import RateEntity
 from henrique.main.document.price.trend.trend_entity import Trend, TrendEntity
-from henrique.main.document.tradegood.mongodb.tradegood_doc import TradegoodDoc
-from henrique.main.document.tradegood.tradegood import Tradegood
 from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.skill.henrique_skill import Rowsblock
@@ -215,15 +213,14 @@ class PriceSkillClique:
         port_codename = l_singleton2obj(ports)
         tradegood_codename = l_singleton2obj(tradegoods)
 
-        chatroom_user_id = KhalaPacket.packet2chatroom_user_id(packet)
+        channel_user_doc = ChannelUserDoc.packet2doc(packet)
 
         doc = {MarketpriceDoc.Field.CREATED_AT: datetime.now(pytz.utc),
                MarketpriceDoc.Field.PORT: port_codename,
                MarketpriceDoc.Field.TRADEGOOD: tradegood_codename,
                MarketpriceDoc.Field.RATE: rate,
                MarketpriceDoc.Field.TREND: trend,
-
-               MarketpriceDoc.Field.CHATROOM_USER_ID: chatroom_user_id,
+               MarketpriceDoc.Field.CHANNEL_USER_KEY: ChannelUserDoc.doc2key(channel_user_doc),
                }
 
         return doc
@@ -407,31 +404,43 @@ class PriceSkill:
                 }
 
     @classmethod
-    def text_idk(cls,):
-        return cls.rate_trend_lang2text(100, Trend.Value.AVERAGE)
+    def lang2text_idk(cls, lang):
+        raise NotImplementedError()
+        # doc = {MarketpriceDoc.Field.}
+        # return cls.rate_trend_date_lang2text(100, Trend.Value.AVERAGE)
 
     @classmethod
     def lang2text_idk_OLD(cls, lang):
         text_idk = cls.dict_lang2text_idk().get(lang)
 
         if text_idk is None:
-            raise NotImplementedError({"lang":lang})
+            raise NotImplementedError({"lang": lang})
 
         return text_idk
+
+    # @classmethod
+    # def _rate_trend_created_at2text(cls, rate, trend, created_at):
+    #     arrow = Trend.trend2arrow(trend)
+    #
+    #
+    #     return format_str("{} {} ({})", str(rate), arrow)
 
     @classmethod
     def price_lang2text(cls, price, lang):
         if price is None:
-            return cls.text_idk()
+            return cls.lang2text_idk(lang)
 
         rate = MarketpriceDoc.price2rate(price)
         trend = MarketpriceDoc.price2trend(price)
-        return cls.rate_trend_lang2text(rate, trend, lang)
+        channel_user_key = MarketpriceDoc.price2channel_user_key(price)
+        channel_user = ChannelUserDoc.key2doc(channel_user_key)
+        user_ailas = ChannelUserDoc.doc2user_alias(channel_user)
 
-    @classmethod
-    def rate_trend_lang2text(cls, rate, trend, lang):
+        created_at = MarketpriceDoc.price2created_at(price)
+
         arrow = Trend.trend2arrow(trend)
-        return " ".join([str(rate), arrow])
+        text_out = format_str("{}{} by {}", str(rate), arrow, user_ailas)
+        return text_out
 
     @classmethod
     def packet2rowsblocks(cls, packet):
@@ -523,7 +532,7 @@ class PriceSkill:
         # rstr_idk = RegexTool.rstr_iter2or(map(re.escape, cls.dict_lang2text_idk().values()))
 
         rstr_arrows = RegexTool.rstr_iter2or(map(re.escape, Trend.dict_trend2arrow().values()))
-        rstr_rate_trend = RegexTool.join(r" ", [r"\d{2,3}", rstr_arrows])
+        rstr_rate_trend = RegexTool.join(r"", [r"\d{2,3}", rstr_arrows])
 
         # rstr = r"{}\s*$".format(RegexTool.rstr_iter2or([rstr_idk, rstr_rate_trend]))
         rstr = r"{}\s*$".format(rstr_rate_trend

@@ -2,6 +2,10 @@ import logging
 from pprint import pprint
 from unittest import TestCase
 
+from future.utils import lmap
+
+from henrique.main.document.channel.channel import Channel
+from henrique.main.document.channel_user.mongodb.channel_user_doc import ChannelUserDoc
 from henrique.main.document.price.mongodb.marketprice_doc import MarketpriceDoc
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.skill.price.price_skill import PriceSkill, PriceSkillClique
@@ -196,22 +200,32 @@ class TestPriceSkill(TestCase):
         self.assertEqual(hyp, ref)
 
     def test_04(self):
+        # channel = Channel.Codename.KAKAOTALK_UWO  # discord
+
         packet = {KhalaPacket.Field.TEXT: "?price 육두구 리스본 120ㅅ",
                   KhalaPacket.Field.LOCALE: "ko-KR",
-                  KhalaPacket.Field.CHATROOM_USER_ID: "12321",
+                  KhalaPacket.Field.CHANNEL: "kakaotalk_uwo",
+                  KhalaPacket.Field.EXTRA: {"username": "iris"},
                   }
 
-        hyp_01 = NORM(PriceSkill.packet2rowsblocks(packet))
-        ref_01 = [('[육두구] 시세', {'리스본'})]
+        ChannelUserDoc.packet2upsert(packet)
 
-        # pprint({"hyp": hyp})
+        hyp_01 = PriceSkill.packet2response(packet)
+        ref_01 = """[육두구] 시세
+리스본 120⇗ by iris"""
+
+        # pprint({"hyp_01": hyp_01})
         self.assertEqual(hyp_01, ref_01)
 
-        hyp_02 = MarketpriceDoc.ports_tradegoods2price_list_latest(["Lisbon"], ["Nutmeg"])
+        price_list_latest = MarketpriceDoc.ports_tradegoods2price_list_latest(["Lisbon"], ["Nutmeg"])
+        hyp_02 = lmap(MarketpriceDoc.doc2norm_unittest, price_list_latest)
         ref_02 = [{'port': 'Lisbon',
                    'rate': 120,
                    'tradegood': 'Nutmeg',
-                   'trend': 'rise'}]
+                   'server': None,
+                   'trend': 'rise',
+                   'channel_user_key': 'kakaotalk_uwo-iris',
+                   }]
 
         # pprint({"hyp_02": hyp_02})
         self.assertEqual(hyp_02, ref_02)
