@@ -238,32 +238,11 @@ class PriceSkillClique:
         mongo_result = collection.insert_many(doc_list)
         return mongo_result
 
-
-
-
-
     @classmethod
     def entity_group2span(cls, entity_group):
         s1, e1 = Entity.entity2span(entity_group[0])
         s2, e2 = Entity.entity2span(entity_group[-1])
         return s1, e2
-
-    @classmethod
-    def text_entities_list2is_contiguous(cls, text, entities_list):
-        n = len(entities_list)
-        # if any(filter(lambda l: len(l) <= 1, entities_list)):
-        #     raise Exception({"entities_list": entities_list})
-
-        span_list = lmap(cls.entity_group2span, entities_list)
-
-
-        for i in range(1, n):
-            str_between = StringTool.str_span2substr(text, SpanTool.span_pair2between(span_list[i - 1], span_list[i]))
-            if not RegexTool.pattern_str2match_full(RegexTool.pattern_blank(), str_between):
-                raise Exception({"i": i, "str_between": str_between})
-                return False
-
-        return True
 
     @classmethod
     def text_entities_list2entities_spans_clique(cls, text, entities_list):
@@ -290,10 +269,9 @@ class PriceSkillClique:
             if {j - 1, j} != {j_portlike, j_tradegood}:
                 return False
 
-            entities_prev, entities_this = entities_list[j-1], entities_list[j]
-            # if j == 1:
-            #     raise Exception({"entities_pair": entities_pair, "entities_list": entities_list})
-            if not cls.text_entities_list2is_contiguous(text, [entities_prev, entities_this]):
+            span0, span1 = map(cls.entity_group2span, entities_list[j-1:j+1])
+            str_between = StringTool.str_span2substr(text, SpanTool.span_pair2between(span0, span1))
+            if not RegexTool.pattern_str2match_full(RegexTool.pattern_blank(), str_between):
                 return False
 
             if j + 1 == p:
@@ -333,8 +311,16 @@ class PriceSkillClique:
 
             entity_latter = max([entity_portlike, entity_tradegood], key=Entity.entity2span)
 
-            entities_list = [[entity_latter], [entity_rate], [entity_trend]]
-            if not cls.text_entities_list2is_contiguous(text, entities_list):
+            span_latter, span_rate, span_trend = lmap(Entity.entity2span, [entity_latter, entity_rate, entity_trend])
+
+            span_latter_rate = SpanTool.span_pair2between(span_latter, span_rate)
+            str_between_latter_rate = StringTool.str_span2substr(text, span_latter_rate)
+            if not RegexTool.pattern_str2match_full(RegexTool.pattern_blank(), str_between_latter_rate):
+                return False
+
+            span_rate_trend = SpanTool.span_pair2between(span_rate, span_trend)
+            str_between_rate_trend = StringTool.str_span2substr(text, span_rate_trend)
+            if not RegexTool.pattern_str2match_full(RegexTool.pattern_blank_or_nullstr(), str_between_rate_trend):
                 return False
 
             return True
@@ -423,26 +409,20 @@ class PriceSkill:
         return " ".join([str(rate), arrow])
 
     @classmethod
-    def entities_list2update_mongodb(cls, entities_list):
-        raise NotImplementedError()
-
-    @classmethod
     def packet2rowsblocks(cls, packet):
         Clique = PriceSkillClique
         Param = PriceSkillParameter
 
-        lang = LocaleTool.locale2lang(KhalaPacket.packet2locale(packet))
-
-
-        text_in = KhalaPacket.packet2text(packet)
+        text = KhalaPacket.packet2text(packet)
         config = {Entity.Config.Field.LOCALE: KhalaPacket.packet2locale(packet)}
-        entity_list = Entity.text_extractors2entity_list(text_in, Clique.entity_classes(), config=config)
-        clique_list = Clique.text_entity_list2clique_list(text_in, entity_list)
-        # raise Exception({"entities_list": entities_list,
-        #                  "clique_list": clique_list,
-        #                  })
-
+        entity_list = Entity.text_extractors2entity_list(text, Clique.entity_classes(), config=config)
+        clique_list = Clique.text_entity_list2clique_list(text, entity_list)
         clique_list_update = lfilter(lambda x: Clique.clique2type(x) == Clique.Type.UPDATE, clique_list)
+
+        # raise Exception({"entity_list": entity_list,
+        #                  "clique_list": clique_list,
+        #                  "clique_list_update":clique_list_update,
+        #                  })
         if clique_list_update:
             Clique.clique_list2update_mongodb(packet, clique_list_update)
 
@@ -478,6 +458,11 @@ class PriceSkill:
         port_tradegood_list = lchain(*map(Clique.clique2port_tradegood_iter, clique_list))
         price_dict = MarketpriceDict.port_tradegood_iter2price_dict(port_tradegood_list)
 
+        # raise Exception({"port_tradegood_list": port_tradegood_list,
+        #                  "price_dict": price_dict,
+        #                  "groupby_parameter_type": groupby_parameter_type,
+        #                  })
+        lang = LocaleTool.locale2lang(KhalaPacket.packet2locale(packet))
         block_list = cls.port_tradegood_lists2blocks(port_tradegood_list, price_dict, lang, groupby_parameter_type)
         return block_list
 

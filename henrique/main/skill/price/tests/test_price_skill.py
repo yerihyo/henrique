@@ -2,6 +2,7 @@ import logging
 from pprint import pprint
 from unittest import TestCase
 
+from henrique.main.document.price.mongodb.marketprice_doc import MarketpriceDoc
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.skill.price.price_skill import PriceSkill, PriceSkillClique
 from khalalib.packet.packet import KhalaPacket
@@ -135,11 +136,11 @@ class TestPriceSkillClique(TestCase):
         self.assertEqual(hyp, ref)
 
     def test_13(self):
-        text = "?price 리스본 육두구 120 ㅅ"
+        text = "?price 리스본 육두구 120ㅅ"
         entity_list = [{'span': (7, 10), 'text': '리스본', 'value': 'Lisbon', 'type': 'port'},
                        {'span': (11, 14), 'text': '육두구', 'value': 'Nutmeg', 'type': 'tradegood'},
                        {'span': (15, 18), 'text': '120', 'value': 120, 'type': 'rate'},
-                       {'span': (19, 20), 'text': 'ㅅ', 'value': "rise", 'type': 'trend'},
+                       {'span': (18, 19), 'text': 'ㅅ', 'value': "rise", 'type': 'trend'},
                        ]
         hyp = PriceSkillClique.text_entity_list2clique_list(text, entity_list)
         ref = [{'ports': ['Lisbon'], 'rate': 120, 'tradegoods': ['Nutmeg'], 'trend': 'rise'}]
@@ -197,16 +198,20 @@ class TestPriceSkill(TestCase):
     def test_04(self):
         packet = {KhalaPacket.Field.TEXT: "?price 육두구 리스본 120ㅅ",
                   KhalaPacket.Field.LOCALE: "ko-KR",
+                  KhalaPacket.Field.CHATROOM_USER_ID: "12321",
                   }
 
-        hyp = NORM(PriceSkill.packet2rowsblocks(packet))
-        ref = [('[육두구] 시세',
-                {'바르셀로나', '발렌시아', "히혼", "팔마", "빌바오", "세비야", "말라가", "사그레스", "리스본", "세우타", "파루", "라스팔마스", "마데이라",
-                 "비아나두카스텔루", "몽펠리에", "카사블랑카", "포르투", }),
-               ('[메이스] 시세',
-                {'바르셀로나', '발렌시아', "히혼", "팔마", "빌바오", "세비야", "말라가", "사그레스", "리스본", "세우타", "파루", "라스팔마스", "마데이라",
-                 "비아나두카스텔루", "몽펠리에", "카사블랑카", "포르투", }),
-               ]
+        hyp_01 = NORM(PriceSkill.packet2rowsblocks(packet))
+        ref_01 = [('[육두구] 시세', {'리스본'})]
 
         # pprint({"hyp": hyp})
-        self.assertEqual(hyp, ref)
+        self.assertEqual(hyp_01, ref_01)
+
+        hyp_02 = MarketpriceDoc.ports_tradegoods2price_list_latest(["Lisbon"], ["Nutmeg"])
+        ref_02 = [{'port': 'Lisbon',
+                   'rate': 120,
+                   'tradegood': 'Nutmeg',
+                   'trend': 'rise'}]
+
+        # pprint({"hyp_02": hyp_02})
+        self.assertEqual(hyp_02, ref_02)
