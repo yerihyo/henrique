@@ -407,7 +407,11 @@ class PriceSkill:
                 }
 
     @classmethod
-    def lang2text_idk(cls, lang):
+    def text_idk(cls,):
+        return cls.rate_trend_lang2text(100, Trend.Value.AVERAGE)
+
+    @classmethod
+    def lang2text_idk_OLD(cls, lang):
         text_idk = cls.dict_lang2text_idk().get(lang)
 
         if text_idk is None:
@@ -418,12 +422,15 @@ class PriceSkill:
     @classmethod
     def price_lang2text(cls, price, lang):
         if price is None:
-            return cls.lang2text_idk(lang)
+            return cls.text_idk()
 
         rate = MarketpriceDoc.price2rate(price)
         trend = MarketpriceDoc.price2trend(price)
-        arrow = Trend.trend2arrow(trend)
+        return cls.rate_trend_lang2text(rate, trend, lang)
 
+    @classmethod
+    def rate_trend_lang2text(cls, rate, trend, lang):
+        arrow = Trend.trend2arrow(trend)
         return " ".join([str(rate), arrow])
 
     @classmethod
@@ -513,12 +520,14 @@ class PriceSkill:
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def pattern_row_suffix(cls):
-        rstr_idk = RegexTool.rstr_iter2or(map(re.escape, cls.dict_lang2text_idk().values()))
+        # rstr_idk = RegexTool.rstr_iter2or(map(re.escape, cls.dict_lang2text_idk().values()))
 
         rstr_arrows = RegexTool.rstr_iter2or(map(re.escape, Trend.dict_trend2arrow().values()))
         rstr_rate_trend = RegexTool.join(r" ", [r"\d{2,3}", rstr_arrows])
 
-        rstr = r"{}\s*$".format(RegexTool.rstr_iter2or([rstr_idk, rstr_rate_trend]))
+        # rstr = r"{}\s*$".format(RegexTool.rstr_iter2or([rstr_idk, rstr_rate_trend]))
+        rstr = r"{}\s*$".format(rstr_rate_trend
+                                )
         return re.compile(RegexTool.rstr2rstr_words(rstr), re.I)
 
     @classmethod
