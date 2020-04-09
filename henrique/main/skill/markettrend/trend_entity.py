@@ -69,7 +69,7 @@ class MarkettrendEntity:
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def pattern(cls):
         h = cls.h_qterm2j_doc()
-        rstr = RegexTool.rstr_list2or(lmap(re.escape, h.keys()))
+        rstr = RegexTool.rstr_iter2or(lmap(re.escape, h.keys()))
         return re.compile(rstr, re.I)
 
 

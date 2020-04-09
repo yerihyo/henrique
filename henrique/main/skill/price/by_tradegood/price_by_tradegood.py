@@ -26,23 +26,25 @@ class PriceByTradegood:
 
     @classmethod
     def tradegood2text(cls, tradegood_codename, port_codename_list, price_dict, lang):
+        n = len(port_codename_list)
         tradegood = Tradegood.codename2tradegood(tradegood_codename)
         str_title = cls.tradegood_lang2title(tradegood, lang)
 
-        price_list_raw = [MarketpriceDict.lookup(price_dict, port_codename, tradegood_codename)
+        price_list = [MarketpriceDict.lookup(price_dict, port_codename, tradegood_codename)
                           for port_codename in port_codename_list]
 
-        price_list = sorted(price_list_raw, key=MarketpriceDoc.key_default)
+        i_list_sorted = sorted(range(n), key=lambda i: MarketpriceDoc.key_default(price_list[i]))
+        # price_list = sorted(price_list_raw, key=MarketpriceDoc.key_default)
 
-        rows_body = [cls._price_lang2text(price, lang)
-                     for price in price_list]
+        rows_body = [cls._price_lang2text(price_list[i], port_codename_list[i], lang)
+                     for i in i_list_sorted]
 
         return Rowsblock.rows2text(chain([str_title], rows_body, ))
 
 
     @classmethod
-    def _price_lang2text(cls, price, lang):
+    def _price_lang2text(cls, price, port_codename, lang):
         price_text = PriceSkill.price_lang2text(price, lang)
-        port_name = Port.port_lang2name(Port.codename2port(MarketpriceDoc.price2port(price)), lang)
+        port_name = Port.port_lang2name(Port.codename2port(port_codename), lang)
         return "{} {}".format(port_name, price_text)
 

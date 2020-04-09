@@ -18,7 +18,7 @@ class KhalaAction:
     def j_yaml2p_command(cls, j_yaml):
         h_lang2names = j_yaml.get("default_action_names")
 
-        rstr = RegexTool.rstr_list2or(lchain(*list(h_lang2names.values())))
+        rstr = RegexTool.rstr_iter2or(lchain(*list(h_lang2names.values())))
         return re.compile("{}$".format(rstr), re.I)
 
     @classmethod

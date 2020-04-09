@@ -4,7 +4,7 @@ from operator import itemgetter as ig
 from future.utils import lmap
 from nose.tools import assert_is_not_none
 
-from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, smap
+from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, smap, AbsoluteOrder
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.json.json_tool import JsonTool
 
@@ -40,6 +40,9 @@ class MarketpriceDoc:
     @classmethod
     def key_default(cls, price):
         from henrique.main.document.price.trend.trend_entity import Trend
+
+        if price is None:
+            return AbsoluteOrder.MAX
 
         rate = cls.price2rate(price)
         v_trend = Trend.trend2int(cls.price2trend(price))
@@ -130,5 +133,5 @@ class MarketpriceDict:
 
     @classmethod
     def lookup(cls, price_dict, port_codename, tradegood_codename):
-        return price_dict[(port_codename, tradegood_codename)]
+        return price_dict.get((port_codename, tradegood_codename))
 

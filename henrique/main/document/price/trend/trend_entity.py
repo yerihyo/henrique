@@ -57,14 +57,18 @@ class Trend:
         raise RuntimeError({"trend":trend})
 
     @classmethod
-    def trend2arrow(cls, trend):
+    def dict_trend2arrow(cls,):
         h = {cls.Value.SKYRISE: '⇑',
              cls.Value.RISE: '⇗',
              cls.Value.AVERAGE: '⇒',
              cls.Value.DOWN: '⇘',
              cls.Value.PLUMMET: '⇓',
              }
-        arrow = h.get(trend)
+        return h
+
+    @classmethod
+    def trend2arrow(cls, trend):
+        arrow = cls.dict_trend2arrow().get(trend)
         assert_is_not_none(arrow)
         return arrow
 
@@ -105,7 +109,7 @@ class TrendEntity:
     @classmethod
     def lang2rstr(cls, lang):
         aliases = cls._lang2dict_alias2codename(lang).keys()
-        return RegexTool.rstr_list2or(map(lambda x: re.escape(cls.text2norm(x)), aliases))
+        return RegexTool.rstr_iter2or(map(lambda x: re.escape(cls.text2norm(x)), aliases))
 
     @classmethod
     def lang2pattern(cls, lang):

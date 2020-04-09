@@ -29,7 +29,7 @@ class Metricprefix:
 
     @classmethod
     def rstr(cls):
-        return RegexTool.rstr_list2or(map(re.escape,cls.Value.set()))
+        return RegexTool.rstr_iter2or(map(re.escape,cls.Value.set()))
 
     @classmethod
     def text2multiple(cls, text):
