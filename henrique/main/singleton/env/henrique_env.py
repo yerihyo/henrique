@@ -55,7 +55,15 @@ class HenriqueEnv:
     @classmethod
     def is_skip_warmup(cls):
         nb = cls.key2nullboolean(cls.Key.SKIP_WARMUP)
-        return nb is True
+        if nb is True:
+            return True
+
+        if nb is False:
+            return True
+
+        # raise Exception({"cls.env()":cls.env()})
+        # return cls.env() in {cls.Value.LOCAL, cls.Value.DEV}
+        return cls.env() in {cls.Value.LOCAL, }
 
 
 

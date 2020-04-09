@@ -62,10 +62,10 @@ class TestPriceSkillClique(TestCase):
         self.assertEqual(hyp, ref)
 
     def test_04(self):
-        entities_list = [[{'span': (7, 10), 'text': '리스본', 'value': 'Lisbon', 'type': 'port'}],
-                         [{'span': (11, 14), 'text': '육두구', 'value': 'Nutmeg', 'type': 'tradegood'}],
-                         ]
-        hyp = PriceSkillClique.text_entities_list2clique_list("?price 리스본 육두구", entities_list)
+        entity_list = [{'span': (7, 10), 'text': '리스본', 'value': 'Lisbon', 'type': 'port'},
+                       {'span': (11, 14), 'text': '육두구', 'value': 'Nutmeg', 'type': 'tradegood'},
+                       ]
+        hyp = PriceSkillClique.text_entity_list2clique_list("?price 리스본 육두구", entity_list)
         ref = [{'ports': ['Lisbon'], 'tradegoods': ['Nutmeg']}]
 
         # pprint(hyp)
@@ -87,23 +87,66 @@ class TestPriceSkillClique(TestCase):
         entity_list = [{'span': (0, 1), 'text': '육', 'value': 'Nutmeg', 'type': 'tradegood'},
                        {'span': (1, 2), 'text': '메', 'value': 'Mace', 'type': 'tradegood'}
                        ]
-        hyp = list(PriceSkill.entity_list2group_spans("육메", entity_list))
+        hyp = list(PriceSkillClique.entity_list2group_spans("육메", entity_list))
         ref = [(0, 2)]
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)
 
     def test_07(self):
-        entities_list = [[{'span': (7, 10), 'text': '리스본', 'value': 'Lisbon', 'type': 'port'}],
-                         [{'span': (11, 12), 'text': '육', 'value': 'Nutmeg', 'type': 'tradegood'},
-                          {'span': (12, 13), 'text': '메', 'value': 'Mace', 'type': 'tradegood'},
-                          ],
-                         ]
-        hyp = PriceSkillClique.text_entities_list2clique_list("?price 리스본 육메", entities_list)
+        entity_list = [{'span': (7, 10), 'text': '리스본', 'value': 'Lisbon', 'type': 'port'},
+                       {'span': (11, 12), 'text': '육', 'value': 'Nutmeg', 'type': 'tradegood'},
+                       {'span': (12, 13), 'text': '메', 'value': 'Mace', 'type': 'tradegood'},
+
+                       ]
+        hyp = PriceSkillClique.text_entity_list2clique_list("?price 리스본 육메", entity_list)
         ref = [{'ports': ['Lisbon'], 'tradegoods': ['Nutmeg', 'Mace']}]
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)
+
+    def test_11(self):
+        entities_list = [[{'span': (7, 10), 'text': '리스본', 'value': 'Lisbon', 'type': 'port'}],
+                         [{'span': (11, 14), 'text': '육두구', 'value': 'Nutmeg', 'type': 'tradegood'}],
+                         [{'span': (15, 18), 'text': '120', 'value': 120, 'type': 'rate'}],
+                         [{'span': (19, 20), 'text': 'ㅅ', 'value': "rise", 'type': 'trend'}],
+                         ]
+        hyp = PriceSkillClique.entities_list2clique(entities_list)
+        ref = {'ports': ['Lisbon'], 'rate': 120, 'tradegoods': ['Nutmeg'], 'trend': 'rise'}
+
+        # pprint(hyp)
+        self.assertEqual(hyp, ref)
+
+    def test_12(self):
+        text = "?price 리스본 육두구 120 ㅅ"
+        entity_list = [{'span': (7, 10), 'text': '리스본', 'value': 'Lisbon', 'type': 'port'},
+                       {'span': (11, 14), 'text': '육두구', 'value': 'Nutmeg', 'type': 'tradegood'},
+                       {'span': (15, 18), 'text': '120', 'value': 120, 'type': 'rate'},
+                       {'span': (19, 20), 'text': 'ㅅ', 'value': "rise", 'type': 'trend'},
+                       ]
+        hyp = PriceSkillClique.entity_list2entities_list_grouped(text, entity_list)
+        ref = [[{'span': (7, 10), 'text': '리스본', 'value': 'Lisbon', 'type': 'port'}],
+               [{'span': (11, 14), 'text': '육두구', 'value': 'Nutmeg', 'type': 'tradegood'}],
+               [{'span': (15, 18), 'text': '120', 'value': 120, 'type': 'rate'}],
+               [{'span': (19, 20), 'text': 'ㅅ', 'value': "rise", 'type': 'trend'}],
+               ]
+
+        # pprint(hyp)
+        self.assertEqual(hyp, ref)
+
+    def test_13(self):
+        text = "?price 리스본 육두구 120 ㅅ"
+        entity_list = [{'span': (7, 10), 'text': '리스본', 'value': 'Lisbon', 'type': 'port'},
+                       {'span': (11, 14), 'text': '육두구', 'value': 'Nutmeg', 'type': 'tradegood'},
+                       {'span': (15, 18), 'text': '120', 'value': 120, 'type': 'rate'},
+                       {'span': (19, 20), 'text': 'ㅅ', 'value': "rise", 'type': 'trend'},
+                       ]
+        hyp = PriceSkillClique.text_entity_list2clique_list(text, entity_list)
+        ref = [{'ports': ['Lisbon'], 'rate': 120, 'tradegoods': ['Nutmeg'], 'trend': 'rise'}]
+
+        # pprint(hyp)
+        self.assertEqual(hyp, ref)
+
 
 class TestPriceSkill(TestCase):
     @classmethod
@@ -122,7 +165,6 @@ class TestPriceSkill(TestCase):
         self.assertEqual(hyp, ref)
 
     def test_02(self):
-
         packet = {KhalaPacket.Field.TEXT: "?price 리스본 세비야 육두구 메이스",
                   KhalaPacket.Field.LOCALE: "ko-KR",
                   }
@@ -149,8 +191,22 @@ class TestPriceSkill(TestCase):
                  "비아나두카스텔루", "몽펠리에", "카사블랑카", "포르투", }),
                ]
 
-        pprint({"hyp": hyp})
+        # pprint({"hyp": hyp})
         self.assertEqual(hyp, ref)
 
+    def test_04(self):
+        packet = {KhalaPacket.Field.TEXT: "?price 육두구 리스본 120ㅅ",
+                  KhalaPacket.Field.LOCALE: "ko-KR",
+                  }
 
+        hyp = NORM(PriceSkill.packet2rowsblocks(packet))
+        ref = [('[육두구] 시세',
+                {'바르셀로나', '발렌시아', "히혼", "팔마", "빌바오", "세비야", "말라가", "사그레스", "리스본", "세우타", "파루", "라스팔마스", "마데이라",
+                 "비아나두카스텔루", "몽펠리에", "카사블랑카", "포르투", }),
+               ('[메이스] 시세',
+                {'바르셀로나', '발렌시아', "히혼", "팔마", "빌바오", "세비야", "말라가", "사그레스", "리스본", "세우타", "파루", "라스팔마스", "마데이라",
+                 "비아나두카스텔루", "몽펠리에", "카사블랑카", "포르투", }),
+               ]
 
+        # pprint({"hyp": hyp})
+        self.assertEqual(hyp, ref)

@@ -1,3 +1,5 @@
+from itertools import chain
+
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, lchain
 from functools import lru_cache
 
@@ -43,6 +45,14 @@ class Entity:
     @classmethod
     def entity2value(cls, entity):
         return entity[cls.Field.VALUE]
+
+    @classmethod
+    def text_extractors2entity_list(cls, text_in, entity_classes, config):
+        entity_ll = [c.text2entity_list(text_in, config=config)
+                     for c in entity_classes]
+        entity_list = sorted(chain(*entity_ll), key=Entity.entity2span)
+        return entity_list
+
 
 class HenriqueEntity:
     class Cache:

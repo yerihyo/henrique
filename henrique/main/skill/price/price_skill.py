@@ -19,7 +19,7 @@ from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.locale.locale_tool import LocaleTool
-from foxylib.tools.native.native_tool import is_not_none
+from foxylib.tools.native.native_tool import is_not_none, is_none
 from foxylib.tools.regex.regex_tool import RegexTool
 from foxylib.tools.span.span_tool import SpanTool
 from foxylib.tools.string.string_tool import StringTool
@@ -113,6 +113,10 @@ class PriceSkillClique:
         LOOKUP = "lookup"
 
     @classmethod
+    def entity_classes(cls):
+        return {PortEntity, TradegoodEntity, CultureEntity, RateEntity, TrendEntity, }
+
+    @classmethod
     def clique2type(cls, clique):
         has_rate = iter2singleton(map(is_not_none,
                                       [cls.clique2rate(clique),
@@ -161,7 +165,7 @@ class PriceSkillClique:
     def parameter_type2field(cls, param_type):
         Param = PriceSkillParameter
 
-        h = {Param.Type.PORTLIKE:cls.Field.PORTS,
+        h = {Param.Type.PORTLIKE: cls.Field.PORTS,
              Param.Type.TRADEGOOD: cls.Field.TRADEGOODS,
              Param.Type.RATE: cls.Field.RATE,
              Param.Type.TREND: cls.Field.TREND,
@@ -171,6 +175,7 @@ class PriceSkillClique:
     @classmethod
     def entities_list2clique(cls, entities_list):
         h_list = lmap(cls._entities2dict_part, entities_list)
+        # raise Exception({"h_list": h_list, "entities_list": entities_list})
         clique = merge_dicts(h_list, vwrite=vwrite_no_duplicate_key)
         return clique
 
@@ -180,20 +185,20 @@ class PriceSkillClique:
         param_type = Param.Type.entity_group2parameter_type(entities)
         field = cls.parameter_type2field(param_type)
 
-        if field == cls.Field.PORTS:
+        if param_type == Param.Type.PORTLIKE:
             port_codenames = lchain(*map(lambda x: Portlike.entity_portlike2port_codenames(x), entities))
             return {field: port_codenames}
 
-        if field == cls.Field.TRADEGOODS:
+        if param_type == Param.Type.TRADEGOOD:
             tradegood_codenames = lmap(Entity.entity2value, entities)
             return {field: tradegood_codenames}
 
-        if field == cls.Field.RATE:
+        if param_type == Param.Type.RATE:
             entity = l_singleton2obj(entities)
             rate = Entity.entity2value(entity)
             return {field: rate}
 
-        if field == cls.Field.TREND:
+        if param_type == Param.Type.TREND:
             entity = l_singleton2obj(entities)
             trend = Entity.entity2value(entity)
             return {field: trend}
@@ -251,9 +256,11 @@ class PriceSkillClique:
 
         span_list = lmap(cls.entity_group2span, entities_list)
 
+
         for i in range(1, n):
             str_between = StringTool.str_span2substr(text, SpanTool.span_pair2between(span_list[i - 1], span_list[i]))
             if not RegexTool.pattern_str2match_full(RegexTool.pattern_blank(), str_between):
+                raise Exception({"i": i, "str_between": str_between})
                 return False
 
         return True
@@ -277,7 +284,7 @@ class PriceSkillClique:
 
             j_portlike, j_tradegood = j_param_types2j_latest(j, [Param.Type.PORTLIKE,Param.Type.TRADEGOOD])
 
-            if not all(map(is_not_none, [j_portlike, j_tradegood])):
+            if any(map(is_none, [j_portlike, j_tradegood])):
                 return False
 
             if {j - 1, j} != {j_portlike, j_tradegood}:
@@ -292,7 +299,7 @@ class PriceSkillClique:
             if j + 1 == p:
                 return True
 
-            if Param.Type.entity_group2parameter_type(entities_list[j+1]) == Param.Type.TREND:
+            if Param.Type.entity_group2parameter_type(entities_list[j+1]) == Param.Type.RATE:
                 return False
 
             return True
@@ -304,11 +311,11 @@ class PriceSkillClique:
                 return False
 
             j_tuple = j_param_types2j_latest(j, Param.Type.list())
-            if not all(j_tuple):
+            if any(map(is_none, j_tuple)):
                 return False
 
             entities_tuple = [entities_list[j] if j is not None else None for j in j_tuple]
-            if not all(map(lambda x: len(x) == 1, entities_tuple)):
+            if any(map(lambda x: len(x) != 1, entities_tuple)):
                 return False
 
             j_portlike, j_tradegood, j_rate, j_trend = j_tuple
@@ -353,30 +360,6 @@ class PriceSkillClique:
         return entity_span_list_out
 
     @classmethod
-    def text_entities_list2clique_list(cls, text, entities_list):
-        entities_spans_clique = cls.text_entities_list2entities_spans_clique(text, entities_list)
-        clique_list = [PriceSkillClique.entities_list2clique(SpanTool.list_span2sublist(entities_list, span))
-                       for span in entities_spans_clique]
-        return clique_list
-
-
-class PriceSkill:
-    CODENAME = "price"
-
-
-
-
-
-
-    @classmethod
-    def price_lang2text(cls, price, lang):
-        rate = MarketpriceDoc.price2rate(price)
-        trend = MarketpriceDoc.price2trend(price)
-        arrow = Trend.trend2arrow(trend)
-
-        return " ".join([str(rate), arrow])
-
-    @classmethod
     def entity_pair2is_appendable(cls, text, entity_pair, ):
         Param = PriceSkillParameter
 
@@ -404,7 +387,7 @@ class PriceSkill:
 
         i_last = 0
         for i in range(1, n):
-            if cls.entity_pair2is_appendable(text, (entity_list[i-1], entity_list[i]), ):
+            if cls.entity_pair2is_appendable(text, (entity_list[i - 1], entity_list[i]), ):
                 continue
 
             yield (i_last, i)
@@ -419,6 +402,27 @@ class PriceSkill:
                 for span in cls.entity_list2group_spans(text, entity_list)]
 
     @classmethod
+    def text_entity_list2clique_list(cls, text, entity_list):
+        entities_list = cls.entity_list2entities_list_grouped(text, entity_list)
+
+        entities_spans_clique = cls.text_entities_list2entities_spans_clique(text, entities_list)
+        clique_list = [PriceSkillClique.entities_list2clique(SpanTool.list_span2sublist(entities_list, span))
+                       for span in entities_spans_clique]
+        return clique_list
+
+
+class PriceSkill:
+    CODENAME = "price"
+
+    @classmethod
+    def price_lang2text(cls, price, lang):
+        rate = MarketpriceDoc.price2rate(price)
+        trend = MarketpriceDoc.price2trend(price)
+        arrow = Trend.trend2arrow(trend)
+
+        return " ".join([str(rate), arrow])
+
+    @classmethod
     def entities_list2update_mongodb(cls, entities_list):
         raise NotImplementedError()
 
@@ -429,14 +433,11 @@ class PriceSkill:
 
         lang = LocaleTool.locale2lang(KhalaPacket.packet2locale(packet))
 
-        entity_classes = {PortEntity, TradegoodEntity, CultureEntity, RateEntity, TrendEntity, }
+
         text_in = KhalaPacket.packet2text(packet)
         config = {Entity.Config.Field.LOCALE: KhalaPacket.packet2locale(packet)}
-        entity_list = sorted(chain(*[c.text2entity_list(text_in, config=config) for c in entity_classes]),
-                             key=Entity.entity2span)
-
-        entities_list = cls.entity_list2entities_list_grouped(text_in, entity_list)
-        clique_list = Clique.text_entities_list2clique_list(text_in, entities_list)
+        entity_list = Entity.text_extractors2entity_list(text_in, Clique.entity_classes(), config=config)
+        clique_list = Clique.text_entity_list2clique_list(text_in, entity_list)
         # raise Exception({"entities_list": entities_list,
         #                  "clique_list": clique_list,
         #                  })
