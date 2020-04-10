@@ -1,4 +1,6 @@
 import os
+
+from future.utils import lmap
 from itertools import chain
 
 from foxylib.tools.collections.collections_tool import lchain
@@ -32,8 +34,15 @@ class PriceByPort:
         port = Port.codename2port(port_codename)
         str_title = cls.port_lang2title(port, lang)
 
-        price_list = [MarketpriceDict.lookup(marketprice_dict, port_codename, tradegood_codename)
-                      for tradegood_codename in tradegood_codename_list]
+        def tradegood2price(tradegood_codename):
+            price = MarketpriceDict.lookup(marketprice_dict, port_codename, tradegood_codename)
+            if price:
+                return price
+
+            price_fake = MarketpriceDoc.price_tradegood2doc_fake(port_codename, tradegood_codename)
+            return price_fake
+
+        price_list = lmap(tradegood2price, tradegood_codename_list)
 
         i_list_sorted = sorted(range(n), key=lambda i: MarketpriceDoc.key_default(price_list[i]))
 

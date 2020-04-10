@@ -172,6 +172,7 @@ class TestPriceSkill(TestCase):
     def test_02(self):
         packet = {KhalaPacket.Field.TEXT: "?price 리스본 세비야 육두구 메이스",
                   KhalaPacket.Field.LOCALE: "ko-KR",
+                  KhalaPacket.Field.CHANNEL: Channel.Codename.KAKAOTALK_UWO,
                   }
 
         hyp = NORM(PriceSkill.packet2rowsblocks(packet))
@@ -217,7 +218,7 @@ class TestPriceSkill(TestCase):
         # pprint({"hyp_01": hyp_01})
         self.assertEqual(hyp_01, ref_01)
 
-        price_list_latest = MarketpriceDoc.ports_tradegoods2price_list_latest(["Lisbon"], ["Nutmeg"])
+        price_list_latest = MarketpriceDoc.ports_tradegoods2price_list_latest("Maris", ["Lisbon"], ["Nutmeg"])
         hyp_02 = lmap(MarketpriceDoc.doc2norm_unittest, price_list_latest)
         ref_02 = [{'port': 'Lisbon',
                    'rate': 120,

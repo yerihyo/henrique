@@ -2,6 +2,9 @@ import os
 import sys
 from itertools import chain
 
+from henrique.main.document.channel.channel import Channel
+from khalalib.packet.packet import KhalaPacket
+
 from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.collections.collections_tool import merge_dicts, luniq
 from functools import lru_cache
@@ -18,9 +21,25 @@ FILE_DIR = os.path.dirname(FILE_PATH)
 
 
 class Server:
+    class Codename:
+        MARIS = "maris"
+        HELENE = "helene"
+        EIRENE = "eirene"
+        POLARIS = "polaris"
+
     class Field:
         CODENAME = "codename"
         ALIASES = "aliases"
+
+    @classmethod
+    def packet2server(cls, packet):
+        channel = KhalaPacket.packet2channel(packet)
+        if channel == Channel.Codename.KAKAOTALK_UWO:
+            return Server.Codename.MARIS
+
+        raise NotImplementedError({"channel":channel})
+
+
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))

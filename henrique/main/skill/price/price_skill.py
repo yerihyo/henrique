@@ -32,6 +32,7 @@ from henrique.main.document.port.port_entity import PortEntity
 from henrique.main.document.price.mongodb.marketprice_doc import MarketpriceDict, MarketpriceDoc, MarketpriceCollection
 from henrique.main.document.price.rate.rate_entity import RateEntity
 from henrique.main.document.price.trend.trend_entity import Trend, TrendEntity
+from henrique.main.document.server.server import Server
 from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.skill.henrique_skill import Rowsblock
@@ -212,6 +213,7 @@ class PriceSkillClique:
 
         port_codename = l_singleton2obj(ports)
         tradegood_codename = l_singleton2obj(tradegoods)
+        server = Server.packet2server(packet)
 
         channel_user_doc = ChannelUserDoc.packet2doc(packet)
 
@@ -220,6 +222,8 @@ class PriceSkillClique:
                MarketpriceDoc.Field.TRADEGOOD: tradegood_codename,
                MarketpriceDoc.Field.RATE: rate,
                MarketpriceDoc.Field.TREND: trend,
+
+               MarketpriceDoc.Field.SERVER: server,
                MarketpriceDoc.Field.CHANNEL_USER_KEY: ChannelUserDoc.doc2key(channel_user_doc),
                }
 
@@ -448,6 +452,7 @@ class PriceSkill:
         Param = PriceSkillParameter
 
         text = KhalaPacket.packet2text(packet)
+        server = Server.packet2server(packet)
         config = {Entity.Config.Field.LOCALE: KhalaPacket.packet2locale(packet)}
         entity_list = Entity.text_extractors2entity_list(text, Clique.entity_classes(), config=config)
         clique_list = Clique.text_entity_list2clique_list(text, entity_list)
@@ -490,7 +495,7 @@ class PriceSkill:
         groupby_parameter_type = _groupby_paramter_type()
 
         port_tradegood_list = lchain(*map(Clique.clique2port_tradegood_iter, clique_list))
-        price_dict = MarketpriceDict.port_tradegood_iter2price_dict(port_tradegood_list)
+        price_dict = MarketpriceDict.port_tradegood_iter2price_dict(server, port_tradegood_list)
 
         # raise Exception({"port_tradegood_list": port_tradegood_list,
         #                  "price_dict": price_dict,

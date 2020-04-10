@@ -1,5 +1,7 @@
+from datetime import datetime, timedelta
 from operator import itemgetter as ig
 
+import pytz
 from functools import lru_cache
 from future.utils import lmap
 
@@ -7,6 +9,7 @@ from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_du
     lchain, DictTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.json.json_tool import JsonTool
+from henrique.main.document.price.trend.trend_entity import Trend
 from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb
 
 
@@ -33,6 +36,19 @@ class MarketpriceDoc:
         def set(cls):
             return {cls.CREATED_AT, cls.PORT, cls.TRADEGOOD, cls.RATE, cls.TREND, cls.CHANNEL_USER_KEY, cls.SERVER}
 
+    @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=200))
+    def price_tradegood2doc_fake(cls, port, tradegood):
+        rate_fake = 100 + sum(map(len, [port,tradegood])) % 20
+        trend_fake = Trend.int2trend(sum(map(len, [port,tradegood])) % 5 - 2)
+        created_at_fake = datetime.now(pytz.utc) - timedelta(days=3)
+        return {cls.Field.CREATED_AT: created_at_fake,
+                cls.Field.PORT: port,
+                cls.Field.TRADEGOOD: tradegood,
+                cls.Field.RATE: rate_fake,
+                cls.Field.TREND: trend_fake,
+
+                }
     @classmethod
     def doc2norm_unittest(cls, doc):
         return DictTool.keys2excluded(doc, [cls.Field.CREATED_AT])
@@ -75,13 +91,14 @@ class MarketpriceDoc:
         return price[cls.Field.CHANNEL_USER_KEY]
 
     @classmethod
-    def ports_tradegoods2price_list_latest(cls, port_codenames, tradegood_codenames):
+    def ports_tradegoods2price_list_latest(cls, server, port_codenames, tradegood_codenames):
         port_codename_list = list(port_codenames)
         tradegood_codename_list = list(tradegood_codenames)
         # https://stackoverflow.com/a/29368862
         collection = MarketpriceCollection.collection()
         mongo_query = {cls.Field.PORT: {"$in": port_codename_list},
                        cls.Field.TRADEGOOD: {"$in": tradegood_codename_list},
+                       cls.Field.SERVER: server,
                        }
 
         mongo_group_id = {
@@ -123,13 +140,13 @@ class MarketpriceDoc:
 
 class MarketpriceDict:
     @classmethod
-    def port_tradegood_iter2price_dict(cls, port_tradegood_iter):
+    def port_tradegood_iter2price_dict(cls, server, port_tradegood_iter):
         port_tradegood_set = set(port_tradegood_iter)
 
         port_codenames = smap(ig(0), port_tradegood_set)
         tradegood_codenames = smap(ig(1), port_tradegood_set)
 
-        prices_latest = MarketpriceDoc.ports_tradegoods2price_list_latest(port_codenames, tradegood_codenames)
+        prices_latest = MarketpriceDoc.ports_tradegoods2price_list_latest(server, port_codenames, tradegood_codenames)
 
         price_dict = cls.prices2price_dict(prices_latest)
         return price_dict

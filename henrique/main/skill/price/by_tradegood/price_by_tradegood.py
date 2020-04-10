@@ -1,5 +1,6 @@
 import os
 
+from future.utils import lmap
 from itertools import chain
 
 from foxylib.tools.string.string_tool import str2strip
@@ -30,8 +31,15 @@ class PriceByTradegood:
         tradegood = Tradegood.codename2tradegood(tradegood_codename)
         str_title = cls.tradegood_lang2title(tradegood, lang)
 
-        price_list = [MarketpriceDict.lookup(price_dict, port_codename, tradegood_codename)
-                          for port_codename in port_codename_list]
+        def port2price(port_codename):
+            price = MarketpriceDict.lookup(price_dict, port_codename, tradegood_codename)
+            if price:
+                return price
+
+            price_fake = MarketpriceDoc.price_tradegood2doc_fake(port_codename, tradegood_codename)
+            return price_fake
+
+        price_list = lmap(port2price, port_codename_list)
 
         i_list_sorted = sorted(range(n), key=lambda i: MarketpriceDoc.key_default(price_list[i]))
         # price_list = sorted(price_list_raw, key=MarketpriceDoc.key_default)
