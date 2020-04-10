@@ -166,7 +166,7 @@ class TestPriceSkill(TestCase):
         hyp = NORM(PriceSkill.packet2rowsblocks(packet))
         ref = [('[리스본] 시세', {'육두구'})]
 
-        # pprint(hyp)
+        pprint(hyp)
         self.assertEqual(hyp, ref)
 
     def test_02(self):

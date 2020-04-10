@@ -20,7 +20,7 @@ from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.locale.locale_tool import LocaleTool
 from foxylib.tools.native.native_tool import is_not_none, is_none
-from foxylib.tools.regex.regex_tool import RegexTool
+from foxylib.tools.regex.regex_tool import RegexTool, MatchTool
 from foxylib.tools.span.span_tool import SpanTool
 from foxylib.tools.string.string_tool import StringTool, str2strip, format_str
 from henrique.main.document.channel.channel import Channel
@@ -528,21 +528,27 @@ class PriceSkill:
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def pattern_row_suffix(cls):
+    def pattern_rate_trend(cls):
         # rstr_idk = RegexTool.rstr_iter2or(map(re.escape, cls.dict_lang2text_idk().values()))
 
         rstr_arrows = RegexTool.rstr_iter2or(map(re.escape, Trend.dict_trend2arrow().values()))
         rstr_rate_trend = RegexTool.join(r"", [r"\d{2,3}", rstr_arrows])
 
         # rstr = r"{}\s*$".format(RegexTool.rstr_iter2or([rstr_idk, rstr_rate_trend]))
-        rstr = r"{}\s*$".format(rstr_rate_trend
-                                )
-        return re.compile(RegexTool.rstr2rstr_words(rstr), re.I)
+        # rstr = r"{}\s*$".format(rstr_rate_trend)
+
+        # raise Exception(rstr)
+        pattern = re.compile(RegexTool.rstr2rstr_words(rstr_rate_trend), re.I)
+        return pattern
 
     @classmethod
     def blocks2norm_for_unittest(cls, blocks):
         def row2header(row):
-            return str2strip(cls.pattern_row_suffix().sub("", row))
+            match_list = list(cls.pattern_rate_trend().finditer(row))
+            match = l_singleton2obj(match_list)
+            s,e = MatchTool.match2span(match)
+            return str2strip(row[:s])
+            # return str2strip(cls.pattern_rate_trend().sub("", row))
 
         def block2norm_for_unittest(block):
             rows = block.splitlines()
