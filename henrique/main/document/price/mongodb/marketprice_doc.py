@@ -29,12 +29,12 @@ class MarketpriceDoc:
         RATE = "rate"
         TREND = "trend"
 
-        CHANNEL_USER_KEY = "channel_user_key"
+        CHANNEL_USER = "channel_user"
         SERVER = "server"
 
         @classmethod
         def set(cls):
-            return {cls.CREATED_AT, cls.PORT, cls.TRADEGOOD, cls.RATE, cls.TREND, cls.CHANNEL_USER_KEY, cls.SERVER}
+            return {cls.CREATED_AT, cls.PORT, cls.TRADEGOOD, cls.RATE, cls.TREND, cls.CHANNEL_USER, cls.SERVER}
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=200))
@@ -83,12 +83,17 @@ class MarketpriceDoc:
         return price[cls.Field.TREND]
 
     @classmethod
-    def price2created_at(cls, price):
-        return price[cls.Field.CREATED_AT]
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def created_at_default(cls):
+        return datetime(2020,1,1, tzinfo=pytz.utc)
 
     @classmethod
-    def price2channel_user_key(cls, price):
-        return price[cls.Field.CHANNEL_USER_KEY]
+    def price2created_at(cls, price):
+        return price.get(cls.Field.CREATED_AT) or cls.created_at_default()
+
+    @classmethod
+    def price2channel_user(cls, price):
+        return price.get(cls.Field.CHANNEL_USER)
 
     @classmethod
     def ports_tradegoods2price_list_latest(cls, server, port_codenames, tradegood_codenames):

@@ -4,12 +4,14 @@ from unittest import TestCase
 
 from future.utils import lmap
 
-from henrique.main.document.channel.channel import Channel
-from henrique.main.document.channel_user.mongodb.channel_user_doc import ChannelUserDoc
+from khala.document.channel.channel import Channel, KakaotalkChannel
+from khala.document.channel_user.channel_user import ChannelUser
+from khala.document.channel_user.mongodb.channel_user_doc import ChannelUserDoc
 from henrique.main.document.price.mongodb.marketprice_doc import MarketpriceDoc
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.skill.price.price_skill import PriceSkill, PriceSkillClique
-from khalalib.packet.packet import KhalaPacket
+from khala.document.chatroom.chatroom import KakaotalkUWOChatroom
+from khala.document.packet.packet import KhalaPacket
 
 NORM = PriceSkill.blocks2norm_for_unittest
 
@@ -160,7 +162,7 @@ class TestPriceSkill(TestCase):
 
     def test_01(self):
         packet = {KhalaPacket.Field.TEXT: "?price 리스본 육두구",
-                  KhalaPacket.Field.LOCALE: "ko-KR",
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
                   }
 
         hyp = NORM(PriceSkill.packet2rowsblocks(packet))
@@ -171,8 +173,7 @@ class TestPriceSkill(TestCase):
 
     def test_02(self):
         packet = {KhalaPacket.Field.TEXT: "?price 리스본 세비야 육두구 메이스",
-                  KhalaPacket.Field.LOCALE: "ko-KR",
-                  KhalaPacket.Field.CHANNEL: Channel.Codename.KAKAOTALK_UWO,
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
                   }
 
         hyp = NORM(PriceSkill.packet2rowsblocks(packet))
@@ -185,7 +186,7 @@ class TestPriceSkill(TestCase):
 
     def test_03(self):
         packet = {KhalaPacket.Field.TEXT: "?price 육메 이베",
-                  KhalaPacket.Field.LOCALE: "ko-KR",
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
                   }
 
         hyp = NORM(PriceSkill.packet2rowsblocks(packet))
@@ -204,12 +205,12 @@ class TestPriceSkill(TestCase):
         # channel = Channel.Codename.KAKAOTALK_UWO  # discord
 
         packet = {KhalaPacket.Field.TEXT: "?price 육두구 리스본 120ㅅ",
-                  KhalaPacket.Field.LOCALE: "ko-KR",
-                  KhalaPacket.Field.CHANNEL: "kakaotalk_uwo",
-                  KhalaPacket.Field.EXTRA: {"username": "iris"},
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
+                  KhalaPacket.Field.CHANNEL_USER: KakaotalkChannel.username2channel_user_codename("iris"),
+                  KhalaPacket.Field.SENDER_NAME: "iris",
                   }
 
-        ChannelUserDoc.packet2upsert(packet)
+        ChannelUser.packet2upsert(packet)
 
         hyp_01 = PriceSkill.packet2response(packet)
         ref_01 = """[육두구] 시세
@@ -225,7 +226,7 @@ class TestPriceSkill(TestCase):
                    'tradegood': 'Nutmeg',
                    'server': None,
                    'trend': 'rise',
-                   'channel_user_key': 'kakaotalk_uwo-iris',
+                   'channel_user': 'kakaotalk_uwo-iris',
                    }]
 
         # pprint({"hyp_02": hyp_02})

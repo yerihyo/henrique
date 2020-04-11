@@ -10,8 +10,8 @@ from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.json.yaml_tool import YAMLTool
 from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
-from khalalib.packet.packet import KhalaPacket
-from khalalib.response.khala_response import KhalaResponse
+from khala.document.packet.packet import KhalaPacket
+from khala.response.khala_response import KhalaResponse
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)

@@ -1,6 +1,6 @@
 from henrique.main.document.command.command_entity import CommandEntity
 from henrique.main.skill.henrique_skill import HenriqueSkill, Rowsblock
-from khalalib.packet.packet import KhalaPacket
+from khala.document.packet.packet import KhalaPacket
 
 
 # class Breakdown:

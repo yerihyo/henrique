@@ -19,7 +19,8 @@ from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.skill.henrique_skill import Rowsblock, HenriqueSkill
 from henrique.main.tool.skillnote_tool import SkillnoteTool
-from khalalib.packet.packet import KhalaPacket
+from khala.document.chatroom.chatroom import Chatroom
+from khala.document.packet.packet import KhalaPacket
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
@@ -60,11 +61,13 @@ class TradegoodSkill:
 
     @classmethod
     def packet2response(cls, packet):
-        lang = LocaleTool.locale2lang(KhalaPacket.packet2locale(packet))
+        chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))
+        locale = Chatroom.chatroom2locale(chatroom)
+        lang = LocaleTool.locale2lang(locale)
 
         entity_classes = cls.target_entity_classes()
         text_in = KhalaPacket.packet2text(packet)
-        config = {Entity.Config.Field.LOCALE:KhalaPacket.packet2locale(packet)}
+        config = {Entity.Config.Field.LOCALE: locale}
         entity_list_raw = lchain(*[c.text2entity_list(text_in, config=config) for c in entity_classes])
 
         entity_list = sorted(entity_list_raw, key=Entity.entity2span)

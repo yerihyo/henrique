@@ -7,9 +7,10 @@ from functools import lru_cache
 from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.function.warmer import Warmer
-from henrique.main.document.channel.channel import Channel, DiscordChannel, KakaotalkUWOChannel
+from khala.document.channel.channel import Channel, DiscordChannel, KakaotalkChannel
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
-from khalalib.packet.packet import KhalaPacket
+from khala.document.channel_user.channel_user import ChannelUser
+from khala.document.packet.packet import KhalaPacket
 
 from foxylib.tools.function.function_tool import FunctionTool
 from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb
@@ -30,9 +31,9 @@ class ChannelUserCollection:
 class ChannelUserDocCache:
     @classmethod
     def doc2cache(cls, doc):
-        cls.key2doc.doc2cache(doc)
+        cls.codename2doc.doc2cache(doc)
 
-    class key2doc:
+    class codename2doc:
         MAXSIZE = 200
 
         @classmethod
@@ -43,8 +44,8 @@ class ChannelUserDocCache:
         @classmethod
         def doc2cache(cls, doc):
             cache = cls.cache()
-            key = ChannelUserDoc.doc2key(doc)
-            cache[key] = doc
+            codename = ChannelUserDoc.doc2codename(doc)
+            cache[codename] = doc
 
         @classmethod
         @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
@@ -60,51 +61,26 @@ class ChannelUserDoc:
 
     class Field:
         CHANNEL = "channel"
-        KEY = "key"
-        USER_ALIAS = "user_alias"
+        CODENAME = "codename"
+        ALIAS = "alias"
         # USER_ID = "user_id" # in the future
 
     @classmethod
-    def doc2key(cls, doc):
-        return doc[cls.Field.KEY]
+    def doc2codename(cls, doc):
+        return doc[cls.Field.CODENAME]
 
     @classmethod
-    def doc2user_alias(cls, doc):
-        return doc.get(cls.Field.USER_ALIAS)
-
-    @classmethod
-    @cached(ChannelUserDocCache.key2doc.cache())
-    def key2doc(cls, key):
+    @cached(ChannelUserDocCache.codename2doc.cache())
+    def codename2doc(cls, codename):
         collection = ChannelUserCollection.collection()
-        doc = MongoDBTool.bson2json(collection.find_one({cls.Field.KEY: key}))
+        doc = MongoDBTool.bson2json(collection.find_one({cls.Field.CODENAME: codename}))
         return doc
 
     @classmethod
-    def packet2key(cls, packet):
-        channel = KhalaPacket.packet2channel(packet)
-        channel_key = cls.packet2channel_key(packet)
-        return "-".join([channel, channel_key])
-
-    @classmethod
-    def packet2channel_key(cls, packet,):
-        channel = KhalaPacket.packet2channel(packet)
-
-        if channel == Channel.Codename.DISCORD:
-            return DiscordChannel.packet2channel_key(packet)
-
-        if channel == Channel.Codename.KAKAOTALK_UWO:
-            return KakaotalkUWOChannel.packet2username(packet)
-
-        raise NotImplementedError({"channel": channel})
-
-    @classmethod
     def packet2upsert(cls, packet):
-        doc = {cls.Field.CHANNEL: KhalaPacket.packet2channel(packet),
-               cls.Field.KEY: cls.packet2key(packet),
-               cls.Field.USER_ALIAS: Channel.packet2user_alias(packet),
-               }
 
-        doc_filter = DictTool.keys2filtered(doc, [cls.Field.KEY])
+        doc = cls.packet2doc(packet)
+        doc_filter = DictTool.keys2filtered(doc, [cls.Field.CODENAME])
 
         collection = ChannelUserCollection.collection()
         mongo_result = MongoDBTool.j_pair_list2upsert(collection, [(doc_filter, doc)])
@@ -112,7 +88,19 @@ class ChannelUserDoc:
 
     @classmethod
     def packet2doc(cls, packet):
-        return cls.key2doc(cls.packet2key(packet))
+        codename = ChannelUser.packet2codename(packet)
+        channel = KhalaPacket.packet2channel(packet)
+
+        channel = KhalaPacket.packet2channel(packet)
+        if channel == Channel.Codename.DISCORD:
+            return DiscordChannel.packet2channel_user_doc(packet)
+
+        if channel == Channel.Codename.KAKAOTALK:
+            return KakaotalkChannel.packet2channel_user_doc(packet)
+
+        raise NotImplementedError({"channel":channel})
+
+
 
 
 

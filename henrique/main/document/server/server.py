@@ -2,8 +2,8 @@ import os
 import sys
 from itertools import chain
 
-from henrique.main.document.channel.channel import Channel
-from khalalib.packet.packet import KhalaPacket
+from khala.document.channel.channel import Channel
+from khala.document.packet.packet import KhalaPacket
 
 from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.collections.collections_tool import merge_dicts, luniq
@@ -34,7 +34,7 @@ class Server:
     @classmethod
     def packet2server(cls, packet):
         channel = KhalaPacket.packet2channel(packet)
-        if channel == Channel.Codename.KAKAOTALK_UWO:
+        if channel == Channel.Codename.KAKAOTALK:
             return Server.Codename.MARIS
 
         raise NotImplementedError({"channel":channel})

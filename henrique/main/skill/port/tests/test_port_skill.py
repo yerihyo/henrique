@@ -2,14 +2,15 @@ from pprint import pprint
 from unittest import TestCase
 
 from henrique.main.skill.port.port_skill import PortSkill
-from khalalib.packet.packet import KhalaPacket
+from khala.document.chatroom.chatroom import KakaotalkUWOChatroom
+from khala.document.packet.packet import KhalaPacket
 
 
 class TestPortSkill(TestCase):
     def test_01(self):
 
         packet = {KhalaPacket.Field.TEXT:"?port 리스본",
-                  KhalaPacket.Field.LOCALE: "ko-KR",
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
                   }
 
         hyp = PortSkill.packet2response(packet)
@@ -21,7 +22,7 @@ class TestPortSkill(TestCase):
     def test_02(self):
 
         packet = {KhalaPacket.Field.TEXT:"?port 이베리아",
-                  KhalaPacket.Field.LOCALE: "ko-KR",
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
                   }
 
         hyp = PortSkill.packet2response(packet)

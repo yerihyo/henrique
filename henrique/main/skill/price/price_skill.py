@@ -15,7 +15,6 @@ from foxylib.tools.collections.collections_tool import lchain, l_singleton2obj, 
     luniq
 from foxylib.tools.collections.groupby_tool import gb_tree_global
 from foxylib.tools.collections.iter_tool import iter2singleton, IterTool
-from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.locale.locale_tool import LocaleTool
@@ -23,8 +22,6 @@ from foxylib.tools.native.native_tool import is_not_none, is_none
 from foxylib.tools.regex.regex_tool import RegexTool, MatchTool
 from foxylib.tools.span.span_tool import SpanTool
 from foxylib.tools.string.string_tool import StringTool, str2strip, format_str
-from henrique.main.document.channel.channel import Channel
-from henrique.main.document.channel_user.mongodb.channel_user_doc import ChannelUserDoc
 from henrique.main.document.culture.culture_entity import CultureEntity
 from henrique.main.document.henrique_entity import Entity
 from henrique.main.document.port.port import Port
@@ -36,7 +33,10 @@ from henrique.main.document.server.server import Server
 from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.skill.henrique_skill import Rowsblock
-from khalalib.packet.packet import KhalaPacket
+from khala.document.channel_user.channel_user import ChannelUser
+from khala.document.channel_user.mongodb.channel_user_doc import ChannelUserDoc
+from khala.document.chatroom.chatroom import Chatroom
+from khala.document.packet.packet import KhalaPacket
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
@@ -215,7 +215,7 @@ class PriceSkillClique:
         tradegood_codename = l_singleton2obj(tradegoods)
         server = Server.packet2server(packet)
 
-        channel_user_doc = ChannelUserDoc.packet2doc(packet)
+        channel_user = ChannelUser.packet2channel_user(packet)
 
         doc = {MarketpriceDoc.Field.CREATED_AT: datetime.now(pytz.utc),
                MarketpriceDoc.Field.PORT: port_codename,
@@ -224,7 +224,7 @@ class PriceSkillClique:
                MarketpriceDoc.Field.TREND: trend,
 
                MarketpriceDoc.Field.SERVER: server,
-               MarketpriceDoc.Field.CHANNEL_USER_KEY: ChannelUserDoc.doc2key(channel_user_doc),
+               MarketpriceDoc.Field.CHANNEL_USER: channel_user,
                }
 
         return doc
@@ -436,9 +436,8 @@ class PriceSkill:
 
         rate = MarketpriceDoc.price2rate(price)
         trend = MarketpriceDoc.price2trend(price)
-        channel_user_key = MarketpriceDoc.price2channel_user_key(price)
-        channel_user = ChannelUserDoc.key2doc(channel_user_key)
-        user_ailas = ChannelUserDoc.doc2user_alias(channel_user)
+        channel_user = ChannelUser.codename2channel_user(MarketpriceDoc.price2channel_user(price))
+        user_ailas = ChannelUser.channel_user2alias(channel_user)
 
         created_at = MarketpriceDoc.price2created_at(price)
 
@@ -453,7 +452,9 @@ class PriceSkill:
 
         text = KhalaPacket.packet2text(packet)
         server = Server.packet2server(packet)
-        config = {Entity.Config.Field.LOCALE: KhalaPacket.packet2locale(packet)}
+
+        chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))
+        config = {Entity.Config.Field.LOCALE: Chatroom.chatroom2locale(chatroom)}
         entity_list = Entity.text_extractors2entity_list(text, Clique.entity_classes(), config=config)
         clique_list = Clique.text_entity_list2clique_list(text, entity_list)
         clique_list_update = lfilter(lambda x: Clique.clique2type(x) == Clique.Type.UPDATE, clique_list)
@@ -501,7 +502,8 @@ class PriceSkill:
         #                  "price_dict": price_dict,
         #                  "groupby_parameter_type": groupby_parameter_type,
         #                  })
-        lang = LocaleTool.locale2lang(KhalaPacket.packet2locale(packet))
+        chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))
+        lang = LocaleTool.locale2lang(Chatroom.chatroom2locale(chatroom))
         block_list = cls.port_tradegood_lists2blocks(port_tradegood_list, price_dict, lang, groupby_parameter_type)
         return block_list
 
