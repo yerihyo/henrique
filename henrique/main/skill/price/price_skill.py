@@ -31,6 +31,7 @@ from henrique.main.document.price.rate.rate_entity import RateEntity
 from henrique.main.document.price.trend.trend_entity import Trend, TrendEntity
 from henrique.main.document.server.server import Server
 from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
+from henrique.main.singleton.datetime.henrique_datetime import HenriqueDatetime
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.skill.henrique_skill import Rowsblock
 from khala.document.channel_user.channel_user import ChannelUser
@@ -437,12 +438,21 @@ class PriceSkill:
         rate = MarketpriceDoc.price2rate(price)
         trend = MarketpriceDoc.price2trend(price)
         channel_user = ChannelUser.codename2channel_user(MarketpriceDoc.price2channel_user(price))
-        user_ailas = ChannelUser.channel_user2alias(channel_user)
+
 
         created_at = MarketpriceDoc.price2created_at(price)
+        td = datetime.now(pytz.utc) - created_at
+        str_timedelta = HenriqueDatetime.timedelta_lang2str(td, lang)
 
         arrow = Trend.trend2arrow(trend)
-        text_out = format_str("{}{} by {}", str(rate), arrow, user_ailas)
+        text_out_base = format_str("{}{} @ {}", str(rate), arrow, str_timedelta)
+
+        if td >= HenriqueDatetime.Constant.TIMEDELTA_OUTDATED:
+            return text_out_base
+
+        user_alias = ChannelUser.channel_user2alias(channel_user)
+        str_user_alias = "[{}]".format(user_alias)
+        text_out = " ".join([text_out_base, str_user_alias])
         return text_out
 
     @classmethod

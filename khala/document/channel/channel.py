@@ -12,8 +12,7 @@ class Channel:
     def packet2alias(cls, packet):
         from khala.document.chatroom.chatroom import Chatroom
         chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))
-
-        channel = Chatroom.chatroom2locale(chatroom)
+        channel = Chatroom.chatroom2channel(chatroom)
 
         if channel == cls.Codename.KAKAOTALK:
             return KakaotalkChannel.packet2username(packet)
@@ -50,29 +49,21 @@ class DiscordChannel:
 
 
 class KakaotalkChannel:
-    class PacketExtra:
-        class Field:
-            USERNAME = "username"
-
-        @classmethod
-        def extra2channel_username(cls, extra):
-            return extra.get(cls.Field.USERNAME)
+    # class PacketExtra:
+    #     class Field:
+    #         USERNAME = "username"
+    #
+    #     @classmethod
+    #     def extra2channel_username(cls, extra):
+    #         return extra.get(cls.Field.USERNAME)
 
     @classmethod
     def packet2channel_user_codename(cls, packet):
-        extra = KhalaPacket.packet2extra(packet)
-        username = cls.PacketExtra.extra2channel_username(extra)
-
-        from khala.document.channel_user.channel_user import ChannelUser
-        return ChannelUser.channel_suffix2codename(Channel.Codename.DISCORD, username)
-
+        return cls.username2channel_user_codename(cls.packet2username(packet))
 
     @classmethod
     def packet2username(cls, packet):
-        extra = KhalaPacket.packet2extra(packet)
-
-        username = cls.PacketExtra.extra2channel_username(extra)
-        return username
+        return KhalaPacket.packet2sender_name(packet)
 
     @classmethod
     def username2channel_user_codename(cls, username):

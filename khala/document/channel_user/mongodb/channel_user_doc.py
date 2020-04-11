@@ -10,6 +10,7 @@ from foxylib.tools.function.warmer import Warmer
 from khala.document.channel.channel import Channel, DiscordChannel, KakaotalkChannel
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from khala.document.channel_user.channel_user import ChannelUser
+from khala.document.chatroom.chatroom import Chatroom
 from khala.document.packet.packet import KhalaPacket
 
 from foxylib.tools.function.function_tool import FunctionTool
@@ -89,16 +90,17 @@ class ChannelUserDoc:
     @classmethod
     def packet2doc(cls, packet):
         codename = ChannelUser.packet2codename(packet)
-        channel = KhalaPacket.packet2channel(packet)
+        chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))
+        channel = Chatroom.chatroom2channel(chatroom)
 
-        channel = KhalaPacket.packet2channel(packet)
-        if channel == Channel.Codename.DISCORD:
-            return DiscordChannel.packet2channel_user_doc(packet)
+        alias = Channel.packet2alias(packet)
 
-        if channel == Channel.Codename.KAKAOTALK:
-            return KakaotalkChannel.packet2channel_user_doc(packet)
+        doc = {cls.Field.CHANNEL: channel,
+               cls.Field.CODENAME: codename,
+               cls.Field.ALIAS: alias
+               }
 
-        raise NotImplementedError({"channel":channel})
+        return doc
 
 
 

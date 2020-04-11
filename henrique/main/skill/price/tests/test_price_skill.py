@@ -216,7 +216,7 @@ class TestPriceSkill(TestCase):
         ref_01 = """[육두구] 시세
 리스본 120⇗ by iris"""
 
-        # pprint({"hyp_01": hyp_01})
+        pprint({"hyp_01": hyp_01})
         self.assertEqual(hyp_01, ref_01)
 
         price_list_latest = MarketpriceDoc.ports_tradegoods2price_list_latest("Maris", ["Lisbon"], ["Nutmeg"])

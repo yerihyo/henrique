@@ -45,7 +45,7 @@ class KhalaPacket:
 
     @classmethod
     def packet2extra(cls, packet):
-        return packet[cls.Field.EXTRA]
+        return packet.get(cls.Field.EXTRA)
 
     # @classmethod
     # def packet2channel_user_id(cls, packet):

@@ -3,6 +3,7 @@ import sys
 from itertools import chain
 
 from khala.document.channel.channel import Channel
+from khala.document.chatroom.chatroom import Chatroom
 from khala.document.packet.packet import KhalaPacket
 
 from foxylib.tools.collections.iter_tool import IterTool
@@ -33,7 +34,9 @@ class Server:
 
     @classmethod
     def packet2server(cls, packet):
-        channel = KhalaPacket.packet2channel(packet)
+        chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))
+
+        channel = Chatroom.chatroom2channel(chatroom)
         if channel == Channel.Codename.KAKAOTALK:
             return Server.Codename.MARIS
 
