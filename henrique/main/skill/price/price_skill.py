@@ -440,9 +440,9 @@ class PriceSkill:
         # raise Exception({"price":price})
         channel_user = ChannelUser.codename2channel_user(MarketpriceDoc.price2channel_user(price))
 
-
+        # raise Exception({"price":price})
         created_at = MarketpriceDoc.price2created_at(price)
-        td = datetime.now(pytz.utc) - created_at
+        td = datetime.now(tz=pytz.utc) - created_at
         str_timedelta = HenriqueDatetime.timedelta_lang2str(td, lang)
 
         arrow = Trend.trend2arrow(trend)
@@ -452,7 +452,7 @@ class PriceSkill:
             return text_out_base
 
         user_alias = ChannelUser.channel_user2alias(channel_user)
-        str_user_alias = "[{}]".format(user_alias)
+        str_user_alias = "[by {}]".format(user_alias)
         text_out = " ".join([text_out_base, str_user_alias])
         return text_out
 

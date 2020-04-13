@@ -4,7 +4,7 @@ from unittest import TestCase
 
 from future.utils import lmap
 
-from khala.document.channel.channel import Channel, KakaotalkChannel
+from khala.document.channel.channel import Channel, KakaotalkUWOChannel
 from khala.document.channel_user.channel_user import ChannelUser
 from khala.document.channel_user.mongodb.channel_user_doc import ChannelUserDoc
 from henrique.main.document.price.mongodb.marketprice_doc import MarketpriceDoc
@@ -202,11 +202,16 @@ class TestPriceSkill(TestCase):
         self.assertEqual(hyp, ref)
 
     def test_04(self):
-        # channel = Channel.Codename.KAKAOTALK_UWO  # discord
+        server = "maris"
+        ports = ["Lisbon"]
+        tradegoods = ["Nutmeg"]
+
+        MarketpriceDoc.server_ports_tradegoods2delete(server, ports, tradegoods)
+        # channel = Channel.Codename.KAKAOTALK_UWO_UWO  # discord
 
         packet = {KhalaPacket.Field.TEXT: "?price 육두구 리스본 120ㅅ",
                   KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
-                  KhalaPacket.Field.CHANNEL_USER: KakaotalkChannel.username2channel_user_codename("iris"),
+                  KhalaPacket.Field.CHANNEL_USER: KakaotalkUWOChannel.username2channel_user_codename("iris"),
                   KhalaPacket.Field.SENDER_NAME: "iris",
                   }
 
@@ -214,17 +219,17 @@ class TestPriceSkill(TestCase):
 
         hyp_01 = PriceSkill.packet2response(packet)
         ref_01 = """[육두구] 시세
-리스본 120⇗ by iris"""
+리스본 120⇗ @ 방금전 [by iris]"""
 
-        pprint({"hyp_01": hyp_01})
+        #pprint({"hyp_01": hyp_01})
         self.assertEqual(hyp_01, ref_01)
 
-        price_list_latest = MarketpriceDoc.ports_tradegoods2price_list_latest("Maris", ["Lisbon"], ["Nutmeg"])
+        price_list_latest = MarketpriceDoc.ports_tradegoods2price_list_latest(server, ports, tradegoods)
         hyp_02 = lmap(MarketpriceDoc.doc2norm_unittest, price_list_latest)
         ref_02 = [{'port': 'Lisbon',
                    'rate': 120,
                    'tradegood': 'Nutmeg',
-                   'server': None,
+                   'server': 'maris',
                    'trend': 'rise',
                    'channel_user': 'kakaotalk_uwo-iris',
                    }]

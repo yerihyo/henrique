@@ -7,7 +7,7 @@ from functools import lru_cache
 from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.function.warmer import Warmer
-from khala.document.channel.channel import Channel, DiscordChannel, KakaotalkChannel
+from khala.document.channel.channel import Channel, DiscordChannel, KakaotalkUWOChannel
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from khala.document.packet.packet import KhalaPacket
 
@@ -52,8 +52,8 @@ class ChannelUser:
         if channel == Channel.Codename.DISCORD:
             return DiscordChannel.packet2channel_user_codename(packet)
 
-        if channel == Channel.Codename.KAKAOTALK:
-            return KakaotalkChannel.packet2channel_user_codename(packet)
+        if channel == Channel.Codename.KAKAOTALK_UWO:
+            return KakaotalkUWOChannel.packet2channel_user_codename(packet)
 
         raise NotImplementedError({"channel": channel})
 
@@ -76,7 +76,7 @@ class ChannelUser:
 
 
 
-# class KakaotalkChannelUserDoc:
+# class KakaotalkUWOChannelUserDoc:
 #     @classmethod
 #     def username2doc(cls, username):
 

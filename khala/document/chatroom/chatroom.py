@@ -1,6 +1,7 @@
 from functools import lru_cache
 
 from foxylib.tools.function.function_tool import FunctionTool
+from khala.document.channel.channel import KakaotalkUWOChannel, Channel
 
 
 class Chatroom:
@@ -38,4 +39,4 @@ class Chatroom:
 
 
 class KakaotalkUWOChatroom:
-    CODENAME = "kakaotalk-uwo"
+    CODENAME = "kakaotalk_uwo-uwo"

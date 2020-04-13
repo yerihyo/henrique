@@ -27,6 +27,7 @@ class PriceByTradegood:
 
     @classmethod
     def tradegood2text(cls, tradegood_codename, port_codename_list, price_dict, lang):
+
         n = len(port_codename_list)
         tradegood = Tradegood.codename2tradegood(tradegood_codename)
         str_title = cls.tradegood_lang2title(tradegood, lang)

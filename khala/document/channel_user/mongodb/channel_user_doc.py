@@ -7,7 +7,7 @@ from functools import lru_cache
 from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.function.warmer import Warmer
-from khala.document.channel.channel import Channel, DiscordChannel, KakaotalkChannel
+from khala.document.channel.channel import Channel, DiscordChannel, KakaotalkUWOChannel
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from khala.document.channel_user.channel_user import ChannelUser
 from khala.document.chatroom.chatroom import Chatroom
@@ -106,7 +106,7 @@ class ChannelUserDoc:
 
 
 
-# class KakaotalkChannelUserDoc:
+# class KakaotalkUWOChannelUserDoc:
 #     @classmethod
 #     def username2doc(cls, username):
 

@@ -85,7 +85,7 @@ class MarketpriceDoc:
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def created_at_default(cls):
-        return datetime(2020,1,1, tzinfo=pytz.utc)
+        return datetime(2020, 1, 1, tzinfo=pytz.utc)
 
     @classmethod
     def price2created_at(cls, price):
@@ -94,6 +94,15 @@ class MarketpriceDoc:
     @classmethod
     def price2channel_user(cls, price):
         return price.get(cls.Field.CHANNEL_USER)
+
+    @classmethod
+    def server_ports_tradegoods2delete(cls, server, ports, tradegoods):
+        collection = MarketpriceCollection.collection()
+        mongo_query = {cls.Field.PORT: {"$in": ports},
+                       cls.Field.TRADEGOOD: {"$in": tradegoods},
+                       cls.Field.SERVER: server,
+                       }
+        collection.delete_many(mongo_query)
 
     @classmethod
     def ports_tradegoods2price_list_latest(cls, server, port_codenames, tradegood_codenames):
@@ -138,6 +147,7 @@ class MarketpriceDoc:
             return price
 
         item_list = list(collection.aggregate(mongo_pipeline))
+        # raise Exception({"item_list":item_list})
         doc_list = lmap(item2doc, item_list)
 
         return doc_list
@@ -152,6 +162,7 @@ class MarketpriceDict:
         tradegood_codenames = smap(ig(1), port_tradegood_set)
 
         prices_latest = MarketpriceDoc.ports_tradegoods2price_list_latest(server, port_codenames, tradegood_codenames)
+        # raise Exception({"prices_latest":prices_latest})
 
         price_dict = cls.prices2price_dict(prices_latest)
         return price_dict

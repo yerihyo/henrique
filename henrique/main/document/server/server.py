@@ -37,7 +37,7 @@ class Server:
         chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))
 
         channel = Chatroom.chatroom2channel(chatroom)
-        if channel == Channel.Codename.KAKAOTALK:
+        if channel == Channel.Codename.KAKAOTALK_UWO:
             return Server.Codename.MARIS
 
         raise NotImplementedError({"channel":channel})

@@ -21,7 +21,7 @@ class HenriqueMongodb:
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def client(cls):
         uri = cls.uri()
-        return MongoClient(uri)
+        return MongoClient(uri, tz_aware=True)
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))

@@ -5,7 +5,7 @@ from unittest import TestCase
 from pymongo.results import BulkWriteResult
 
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
-from khala.document.channel.channel import KakaotalkChannel
+from khala.document.channel.channel import KakaotalkUWOChannel
 from khala.document.channel_user.channel_user import ChannelUser
 from khala.document.channel_user.mongodb.channel_user_doc import ChannelUserDoc, ChannelUserCollection
 from khala.document.chatroom.chatroom import Chatroom, KakaotalkUWOChatroom
@@ -25,7 +25,7 @@ class TestChannelUserDoc(TestCase):
 
         packet = {KhalaPacket.Field.TEXT: "?price 육두구 리스본 120ㅅ",
                   KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
-                  KhalaPacket.Field.CHANNEL_USER: KakaotalkChannel.username2channel_user_codename("iris"),
+                  KhalaPacket.Field.CHANNEL_USER: KakaotalkUWOChannel.username2channel_user_codename("iris"),
                   KhalaPacket.Field.SENDER_NAME: "iris",
                   }
         ChannelUser.packet2upsert(packet)

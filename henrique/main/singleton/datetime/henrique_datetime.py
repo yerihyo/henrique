@@ -20,6 +20,10 @@ class HenriqueDatetime:
                 ]
 
     @classmethod
+    def lang2text_recent(cls, lang):
+        return "방금전"
+
+    @classmethod
     def value_unit_lang2text(cls, v, unit, lang):
         if lang != "ko":
             raise NotImplementedError({"lang":lang})
@@ -37,12 +41,19 @@ class HenriqueDatetime:
             return "{}분전".format(v)
 
         if unit == timedelta(seconds=1):
-            return "방금전"
+            return cls.lang2text_recent(lang)
+
+        if unit is None:
+            return cls.lang2text_recent(lang)
 
     @classmethod
     def timedelta_lang2str(cls, td, lang):
         unit_list = cls.timedelta_unit_list()
         index_unit = IterTool.value_units2index_largest_fit(td, lmap(lambda x: x * 2, unit_list))
+
+        if index_unit is None:
+            return cls.lang2text_recent(lang)
+
         unit = unit_list[index_unit]
         value = td // unit
 

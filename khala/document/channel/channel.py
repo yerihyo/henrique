@@ -4,7 +4,7 @@ from khala.document.packet.packet import KhalaPacket
 
 class Channel:
     class Codename:
-        KAKAOTALK = "kakaotalk"
+        KAKAOTALK_UWO = "kakaotalk_uwo"
         DISCORD = "discord"
         SLACK = "slack"
 
@@ -14,8 +14,8 @@ class Channel:
         chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))
         channel = Chatroom.chatroom2channel(chatroom)
 
-        if channel == cls.Codename.KAKAOTALK:
-            return KakaotalkChannel.packet2username(packet)
+        if channel == cls.Codename.KAKAOTALK_UWO:
+            return KakaotalkUWOChannel.packet2username(packet)
 
         if channel == cls.Codename.DISCORD:
             return DiscordChannel.packet2username(packet)
@@ -48,7 +48,7 @@ class DiscordChannel:
         return DiscordUser.user2username(user)
 
 
-class KakaotalkChannel:
+class KakaotalkUWOChannel:
     # class PacketExtra:
     #     class Field:
     #         USERNAME = "username"
@@ -68,4 +68,4 @@ class KakaotalkChannel:
     @classmethod
     def username2channel_user_codename(cls, username):
         from khala.document.channel_user.channel_user import ChannelUser
-        return ChannelUser.channel_suffix2codename(Channel.Codename.KAKAOTALK, username)
+        return ChannelUser.channel_suffix2codename(Channel.Codename.KAKAOTALK_UWO, username)
