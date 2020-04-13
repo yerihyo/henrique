@@ -30,10 +30,10 @@ class TestChannelUserDoc(TestCase):
                   }
         ChannelUser.packet2upsert(packet)
 
-        channel_user_doc = MongoDBTool.bson2json(collection.find_one({ChannelUserDoc.Field.KEY: "kakaotalk_uwo-iris"}))
+        channel_user_doc = MongoDBTool.bson2json(collection.find_one({ChannelUserDoc.Field.CODENAME: "kakaotalk_uwo-iris"}))
         hyp = MongoDBTool.doc2id_excluded(channel_user_doc,)
         ref = {'channel': 'kakaotalk_uwo',
-               'key': 'kakaotalk_uwo-iris',
+               'codename': 'kakaotalk_uwo-iris',
                'alias': 'iris'}
 
         # pprint(hyp)
