@@ -216,7 +216,7 @@ class PriceSkillClique:
         tradegood_codename = l_singleton2obj(tradegoods)
         server = Server.packet2server(packet)
 
-        channel_user = ChannelUser.packet2channel_user(packet)
+        channel_user = ChannelUser.packet2codename(packet)
 
         doc = {MarketpriceDoc.Field.CREATED_AT: datetime.now(pytz.utc),
                MarketpriceDoc.Field.PORT: port_codename,
@@ -437,6 +437,7 @@ class PriceSkill:
 
         rate = MarketpriceDoc.price2rate(price)
         trend = MarketpriceDoc.price2trend(price)
+        # raise Exception({"price":price})
         channel_user = ChannelUser.codename2channel_user(MarketpriceDoc.price2channel_user(price))
 
 
