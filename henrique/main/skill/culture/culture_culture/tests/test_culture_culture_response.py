@@ -5,7 +5,7 @@ from unittest import TestCase
 from henrique.main.singleton.khala.henrique_khala import HenriqueKhala
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.skill.culture.culture_culture.culture_culture_response import CultureCultureResponse
-from henrique.main.skill.henrique_skill import Rowsblock
+from henrique.main.singleton.khala.henrique_khala import Rowsblock
 
 
 class TestCultureCultureResponse(TestCase):

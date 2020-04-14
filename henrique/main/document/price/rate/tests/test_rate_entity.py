@@ -17,7 +17,10 @@ class TestRateEntity(TestCase):
 
         config = {Entity.Config.Field.LOCALE: "ko-KR"}
         hyp = RateEntity.text2entity_list("120ㅅ", config=config)
-        ref = [{'span': (0, 3), 'text': '120', 'type': 'rate', 'value': 120}]
+        ref = [{'span': (0, 3),
+                'text': '120',
+                'type': RateEntity.entity_type(),
+                'value': 120}]
 
         # pprint({"hyp":hyp})
 
@@ -28,7 +31,10 @@ class TestRateEntity(TestCase):
 
         config = {Entity.Config.Field.LOCALE: "ko-KR"}
         hyp = RateEntity.text2entity_list("200", config=config)
-        ref = [{'span': (0, 3), 'text': '200', 'type': 'rate', 'value': 200}]
+        ref = [{'span': (0, 3),
+                'text': '200',
+                'type': RateEntity.entity_type(),
+                'value': 200}]
 
         # pprint({"hyp":hyp})
 
@@ -50,12 +56,11 @@ class TestRateEntity(TestCase):
 
         config = {Entity.Config.Field.LOCALE: "ko-KR"}
         hyp = RateEntity.text2entity_list("95down", config=config)
-        ref = [{'span': (0, 2), 'text': '95', 'type': 'rate', 'value': 95}]
+        ref = [{'span': (0, 2),
+                'text': '95',
+                'type': RateEntity.entity_type(),
+                'value': 95}]
 
         # pprint({"hyp":hyp})
 
         self.assertEqual(hyp, ref)
-
-
-
-

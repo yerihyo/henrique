@@ -10,7 +10,7 @@ from henrique.main.document.port.port import Port
 from henrique.main.document.price.mongodb.marketprice_doc import MarketpriceDict, MarketpriceDoc
 from henrique.main.document.tradegood.tradegood import Tradegood
 from henrique.main.singleton.jinja2.henrique_jinja2 import HenriqueJinja2
-from henrique.main.skill.henrique_skill import Rowsblock
+from henrique.main.singleton.khala.henrique_khala import Rowsblock
 from henrique.main.skill.price.price_skill import PriceSkill
 
 FILE_PATH = os.path.realpath(__file__)

@@ -12,7 +12,7 @@ from henrique.main.document.culture.culture_entity import CultureEntity
 from henrique.main.document.henrique_entity import Entity
 from henrique.main.document.port.port_entity import PortEntity
 from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
-from henrique.main.skill.henrique_skill import Rowsblock
+from henrique.main.singleton.khala.henrique_khala import Rowsblock
 from khala.document.chatroom.chatroom import Chatroom
 from khala.document.packet.packet import KhalaPacket
 
@@ -21,7 +21,7 @@ FILE_DIR = os.path.dirname(FILE_PATH)
 
 
 class PortSkill:
-    CODENAME = "port"
+    # CODENAME = "port"
 
     @classmethod
     def target_entity_classes(cls):
@@ -36,12 +36,12 @@ class PortSkill:
         from henrique.main.skill.port.port_tradegood.port_tradegood_response import PortTradegoodResponse
         from henrique.main.skill.port.port_culture.port_culture_response import PortCultureResponse
 
-        h_type2func = {PortEntity.TYPE: partial(PortPortResponse.codename_lang2text, lang=lang),
-                       TradegoodEntity.TYPE: partial(PortTradegoodResponse.codename_lang2text, lang=lang),
-                       CultureEntity.TYPE: partial(PortCultureResponse.codename_lang2text, lang=lang),
+        h_type2func = {PortEntity.entity_type(): partial(PortPortResponse.codename_lang2text, lang=lang),
+                       TradegoodEntity.entity_type(): partial(PortTradegoodResponse.codename_lang2text, lang=lang),
+                       CultureEntity.entity_type(): partial(PortCultureResponse.codename_lang2text, lang=lang),
                        }
 
-        assert_equals(set(h_type2func.keys()), smap(lambda c: c.TYPE, cls.target_entity_classes()))
+        assert_equals(set(h_type2func.keys()), smap(lambda c: c.entity_type(), cls.target_entity_classes()))
 
         codename2response = h_type2func.get(entity_type)
         if not codename2response:

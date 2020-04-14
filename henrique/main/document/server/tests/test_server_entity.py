@@ -13,8 +13,8 @@ class TestServerEntity(TestCase):
 
     def test_01(self):
         hyp = ServerEntity.text2entity_list("Maris 글섭")
-        ref = [{'span': (0, 5), 'text': 'Maris', 'type': 'server', 'value': 'Maris'},
-               {'span': (6, 8), 'text': '글섭', 'type': 'server', 'value': 'Maris'}]
+        ref = [{'span': (0, 5), 'text': 'Maris', 'type': ServerEntity.entity_type(), 'value': 'Maris'},
+               {'span': (6, 8), 'text': '글섭', 'type': ServerEntity.entity_type(), 'value': 'Maris'}]
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)

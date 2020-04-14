@@ -6,7 +6,7 @@ from henrique.main.document.culture.culture import Culture
 from henrique.main.document.port.port_entity import Port
 from henrique.main.singleton.jinja2.henrique_jinja2 import HenriqueJinja2
 from henrique.main.singleton.khala.henrique_khala import HenriqueKhala
-from henrique.main.skill.henrique_skill import Rowsblock
+from henrique.main.singleton.khala.henrique_khala import Rowsblock
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)

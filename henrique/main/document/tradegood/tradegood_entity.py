@@ -10,6 +10,8 @@ from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, 
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.locale.locale_tool import LocaleTool
+from foxylib.tools.native.clazz.class_tool import ClassTool
+from foxylib.tools.native.module.module_tool import ModuleTool
 from foxylib.tools.nlp.gazetteer.gazetteer_matcher import GazetteerMatcher
 from foxylib.tools.regex.regex_tool import RegexTool
 from foxylib.tools.span.span_tool import SpanTool
@@ -54,7 +56,7 @@ class TradegoodEntitySpecialcase:
             entity_nutmeg = {Entity.Field.SPAN: span_nutmeg,
                              Entity.Field.TEXT: StringTool.str_span2substr(text_in, span_nutmeg),
                              Entity.Field.VALUE: "Nutmeg",
-                             Entity.Field.TYPE: TradegoodEntity.TYPE,
+                             Entity.Field.TYPE: TradegoodEntity.entity_type(),
                              }
             entity_list.append(entity_nutmeg)
 
@@ -62,7 +64,7 @@ class TradegoodEntitySpecialcase:
             entity_mace = {Entity.Field.SPAN: span_mace,
                            Entity.Field.TEXT: StringTool.str_span2substr(text_in, span_mace),
                            Entity.Field.VALUE: "Mace",
-                           Entity.Field.TYPE: TradegoodEntity.TYPE,
+                           Entity.Field.TYPE: TradegoodEntity.entity_type(),
                            }
             entity_list.append(entity_mace)
 
@@ -71,7 +73,7 @@ class TradegoodEntitySpecialcase:
                 entity_cloves = {Entity.Field.SPAN: span_clove,
                                Entity.Field.TEXT: StringTool.str_span2substr(text_in, span_clove),
                                Entity.Field.VALUE: "Cloves",
-                               Entity.Field.TYPE: TradegoodEntity.TYPE,
+                               Entity.Field.TYPE: TradegoodEntity.entity_type(),
                                }
                 entity_list.append(entity_cloves)
 
@@ -84,7 +86,9 @@ class TradegoodEntitySpecialcase:
 
 
 class TradegoodEntity:
-    TYPE = "tradegood"
+    @classmethod
+    def entity_type(cls):
+        return ClassTool.class2fullpath(cls)
 
     @classmethod
     def text2norm(cls, text): return str2lower(text)
@@ -132,7 +136,7 @@ class TradegoodEntity:
         entity_list = [{Entity.Field.SPAN: span,
                         Entity.Field.TEXT: StringTool.str_span2substr(text_in, span),
                         Entity.Field.VALUE: value,
-                        Entity.Field.TYPE: cls.TYPE,
+                        Entity.Field.TYPE: cls.entity_type(),
                         }
                        for span, value in span_value_list]
 

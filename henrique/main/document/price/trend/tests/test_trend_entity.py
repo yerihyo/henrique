@@ -17,7 +17,7 @@ class TestTrendEntity(TestCase):
 
         config = {Entity.Config.Field.LOCALE: "ko-KR"}
         hyp = TrendEntity.text2entity_list("120ㅅ", config=config)
-        ref = [{'span': (3, 4), 'text': 'ㅅ', 'type': 'trend', 'value': 'rise'}]
+        ref = [{'span': (3, 4), 'text': 'ㅅ', 'type': TrendEntity.entity_type(), 'value': 'rise'}]
 
         # pprint({"hyp":hyp})
 
@@ -39,7 +39,7 @@ class TestTrendEntity(TestCase):
 
         config = {Entity.Config.Field.LOCALE: "ko-KR"}
         hyp = TrendEntity.text2entity_list("95 하", config=config)
-        ref = [{'span': (3, 4), 'text': '하', 'type': 'trend', 'value': 'down'}]
+        ref = [{'span': (3, 4), 'text': '하', 'type': TrendEntity.entity_type(), 'value': 'down'}]
 
         # pprint({"hyp":hyp})
 
@@ -50,7 +50,7 @@ class TestTrendEntity(TestCase):
 
         config = {Entity.Config.Field.LOCALE: "ko-KR"}
         hyp = TrendEntity.text2entity_list("95 down", config=config)
-        ref = [{'span': (3, 7), 'text': 'down', 'type': 'trend', 'value': 'down'}]
+        ref = [{'span': (3, 7), 'text': 'down', 'type': TrendEntity.entity_type(), 'value': 'down'}]
 
         # pprint({"hyp":hyp})
 
@@ -61,7 +61,7 @@ class TestTrendEntity(TestCase):
 
         config = {Entity.Config.Field.LOCALE: "en-US"}
         hyp = TrendEntity.text2entity_list("95 down", config=config)
-        ref = [{'span': (3, 7), 'text': 'down', 'type': 'trend', 'value': 'down'}]
+        ref = [{'span': (3, 7), 'text': 'down', 'type': TrendEntity.entity_type(), 'value': 'down'}]
 
         # pprint({"hyp":hyp})
 

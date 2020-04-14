@@ -1,4 +1,7 @@
 import re
+
+from foxylib.tools.native.clazz.class_tool import ClassTool
+from foxylib.tools.native.module.module_tool import ModuleTool
 from foxylib.tools.nlp.contextfree.contextfree_tool import ContextfreeTool
 
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_overwrite, DictTool, vwrite_no_duplicate_key
@@ -74,7 +77,9 @@ class Trend:
 
 
 class TrendEntity:
-    TYPE = "trend"
+    @classmethod
+    def entity_type(cls):
+        return ClassTool.class2fullpath(cls)
 
     @classmethod
     def text2norm(cls, text): return str2lower(text)
@@ -139,7 +144,7 @@ class TrendEntity:
             entity = {Entity.Field.VALUE: codename,
                       Entity.Field.TEXT: text,
                       Entity.Field.SPAN: span,
-                      Entity.Field.TYPE: cls.TYPE,
+                      Entity.Field.TYPE: cls.entity_type(),
                       }
             return entity
 

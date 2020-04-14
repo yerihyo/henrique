@@ -2,9 +2,11 @@ import os
 import sys
 
 from functools import partial
+from future.utils import lmap
 from nose.tools import assert_equals
 
 from foxylib.tools.collections.collections_tool import lchain, smap
+from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.locale.locale_tool import LocaleTool
 from henrique.main.document.culture.culture_entity import CultureEntity
 from henrique.main.document.henrique_entity import Entity
@@ -18,27 +20,25 @@ FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 
 
-MODULE = sys.modules[__name__]
-
-class TradegoodSkill:
-    # CODENAME = "tradegood"
+class HelpSkill:
+    CODENAME = "help"
 
     @classmethod
     def target_entity_classes(cls):
         return {PortEntity, TradegoodEntity, CultureEntity}
 
     @classmethod
-    def _entity_lang2response(cls, entity, lang):
+    def _entity_lang2response_block(cls, entity, lang):
         entity_type = Entity.entity2type(entity)
         codename = Entity.entity2value(entity)
 
-        from henrique.main.skill.tradegood.tradegood_port.tradegood_port_response import TradegoodPortResponse
-        from henrique.main.skill.tradegood.tradegood_tradegood.tradegood_tradegood_response import TradegoodTradegoodResponse
-        from henrique.main.skill.tradegood.tradegood_culture.tradegood_culture_response import TradegoodCultureResponse
+        from henrique.main.skill.port.port_port.port_port_response import PortPortResponse
+        from henrique.main.skill.port.port_tradegood.port_tradegood_response import PortTradegoodResponse
+        from henrique.main.skill.port.port_culture.port_culture_response import PortCultureResponse
 
-        h_type2func = {PortEntity.entity_type(): partial(TradegoodPortResponse.codename_lang2text, lang=lang),
-                       TradegoodEntity.entity_type(): partial(TradegoodTradegoodResponse.codename_lang2text, lang=lang),
-                       CultureEntity.entity_type(): partial(TradegoodCultureResponse.codename_lang2text, lang=lang),
+        h_type2func = {PortEntity.entity_type(): partial(PortPortResponse.codename_lang2text, lang=lang),
+                       TradegoodEntity.entity_type(): partial(PortTradegoodResponse.codename_lang2text, lang=lang),
+                       CultureEntity.entity_type(): partial(PortCultureResponse.codename_lang2text, lang=lang),
                        }
 
         assert_equals(set(h_type2func.keys()), smap(lambda c: c.entity_type(), cls.target_entity_classes()))
@@ -47,8 +47,7 @@ class TradegoodSkill:
         if not codename2response:
             raise NotImplementedError("Invalid entity_type: {}".format(entity_type))
 
-        text_out = codename2response(codename)
-        return Rowsblock.text2norm(text_out)
+        return codename2response(codename)
 
 
     @classmethod
@@ -64,9 +63,7 @@ class TradegoodSkill:
 
         entity_list = sorted(entity_list_raw, key=Entity.entity2span)
 
-        response = Rowsblock.blocks2text([cls._entity_lang2response(entity, lang) for entity in entity_list])
-        return response
+        blocks = [cls._entity_lang2response_block(entity, lang) for entity in entity_list]
 
-
-
+        return Rowsblock.blocks2text(blocks)
 

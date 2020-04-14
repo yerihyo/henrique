@@ -8,6 +8,8 @@ from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, 
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.locale.locale_tool import LocaleTool
+from foxylib.tools.native.clazz.class_tool import ClassTool
+from foxylib.tools.native.module.module_tool import ModuleTool
 from foxylib.tools.nlp.gazetteer.gazetteer_matcher import GazetteerMatcher
 from foxylib.tools.string.string_tool import str2lower, StringTool
 from henrique.main.document.henrique_entity import Entity, HenriqueEntity
@@ -18,8 +20,11 @@ from henrique.main.singleton.locale.henrique_locale import HenriqueLocale
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 
+
 class PortEntity:
-    TYPE = "port"
+    @classmethod
+    def entity_type(cls):
+        return ClassTool.class2fullpath(cls)
 
     @classmethod
     def text2norm(cls, text): return str2lower(text)
@@ -50,7 +55,7 @@ class PortEntity:
         entity_list = [{Entity.Field.SPAN: span,
                         Entity.Field.TEXT: StringTool.str_span2substr(text_in, span),
                         Entity.Field.VALUE: value,
-                        Entity.Field.TYPE: cls.TYPE,
+                        Entity.Field.TYPE: cls.entity_type(),
                         }
                        for span, value in span_value_list]
 

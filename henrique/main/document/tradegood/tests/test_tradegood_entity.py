@@ -16,9 +16,9 @@ class TestTradegoodEntity(TestCase):
         config = {Entity.Config.Field.LOCALE: "ko-KR"}
         hyp = TradegoodEntity.text2entity_list("육두구 메이스 크로브", config=config)
 
-        ref = [{'span': (0, 3), 'text': '육두구', 'type': 'tradegood', 'value': 'Nutmeg'},
-               {'span': (4, 7), 'text': '메이스', 'type': 'tradegood', 'value': 'Mace'},
-               {'span': (8, 11), 'text': '크로브', 'type': 'tradegood', 'value': 'Cloves'}]
+        ref = [{'span': (0, 3), 'text': '육두구', 'type': TradegoodEntity.entity_type(), 'value': 'Nutmeg'},
+               {'span': (4, 7), 'text': '메이스', 'type': TradegoodEntity.entity_type(), 'value': 'Mace'},
+               {'span': (8, 11), 'text': '크로브', 'type': TradegoodEntity.entity_type(), 'value': 'Cloves'}]
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)
@@ -27,8 +27,8 @@ class TestTradegoodEntity(TestCase):
         config = {Entity.Config.Field.LOCALE: "ko-KR"}
         hyp = TradegoodEntity.text2entity_list("육메", config=config)
 
-        ref = [{'span': (0, 1), 'text': '육', 'type': 'tradegood', 'value': 'Nutmeg'},
-               {'span': (1, 2), 'text': '메', 'type': 'tradegood', 'value': 'Mace'}]
+        ref = [{'span': (0, 1), 'text': '육', 'type': TradegoodEntity.entity_type(), 'value': 'Nutmeg'},
+               {'span': (1, 2), 'text': '메', 'type': TradegoodEntity.entity_type(), 'value': 'Mace'}]
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)
@@ -37,9 +37,9 @@ class TestTradegoodEntity(TestCase):
         config = {Entity.Config.Field.LOCALE: "ko-KR"}
         hyp = TradegoodEntity.text2entity_list("육메크", config=config)
 
-        ref = [{'span': (0, 1), 'text': '육', 'type': 'tradegood', 'value': 'Nutmeg'},
-               {'span': (1, 2), 'text': '메', 'type': 'tradegood', 'value': 'Mace'},
-               {'span': (2, 3), 'text': '크', 'type': 'tradegood', 'value': 'Cloves'},
+        ref = [{'span': (0, 1), 'text': '육', 'type': TradegoodEntity.entity_type(), 'value': 'Nutmeg'},
+               {'span': (1, 2), 'text': '메', 'type': TradegoodEntity.entity_type(), 'value': 'Mace'},
+               {'span': (2, 3), 'text': '크', 'type': TradegoodEntity.entity_type(), 'value': 'Cloves'},
                ]
 
         # pprint(hyp)
@@ -49,9 +49,9 @@ class TestTradegoodEntity(TestCase):
         config = {Entity.Config.Field.LOCALE: "ko-KR"}
         hyp = TradegoodEntity.text2entity_list("육메클", config=config)
 
-        ref = [{'span': (0, 1), 'text': '육', 'type': 'tradegood', 'value': 'Nutmeg'},
-               {'span': (1, 2), 'text': '메', 'type': 'tradegood', 'value': 'Mace'},
-               {'span': (2, 3), 'text': '클', 'type': 'tradegood', 'value': 'Cloves'},
+        ref = [{'span': (0, 1), 'text': '육', 'type': TradegoodEntity.entity_type(), 'value': 'Nutmeg'},
+               {'span': (1, 2), 'text': '메', 'type': TradegoodEntity.entity_type(), 'value': 'Mace'},
+               {'span': (2, 3), 'text': '클', 'type': TradegoodEntity.entity_type(), 'value': 'Cloves'},
                ]
 
         # pprint(hyp)

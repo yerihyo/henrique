@@ -32,10 +32,9 @@ from henrique.main.document.price.trend.trend_entity import Trend, TrendEntity
 from henrique.main.document.server.server import Server
 from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
 from henrique.main.singleton.datetime.henrique_datetime import HenriqueDatetime
+from henrique.main.singleton.khala.henrique_khala import Rowsblock
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
-from henrique.main.skill.henrique_skill import Rowsblock
 from khala.document.channel_user.channel_user import ChannelUser
-from khala.document.channel_user.mongodb.channel_user_doc import ChannelUserDoc
 from khala.document.chatroom.chatroom import Chatroom
 from khala.document.packet.packet import KhalaPacket
 
@@ -50,7 +49,7 @@ WARMER = Warmer(MODULE)
 class Portlike:
     @classmethod
     def entity_types(cls):
-        return {PortEntity.TYPE, CultureEntity.TYPE}
+        return {PortEntity.entity_type(), CultureEntity.entity_type()}
 
     @classmethod
     def entity_type2is_portlike(cls, entity_type):
@@ -59,10 +58,10 @@ class Portlike:
     @classmethod
     def entity_portlike2port_codenames(cls, entity_portlike):
         entity_type = Entity.entity2type(entity_portlike)
-        if entity_type == PortEntity.TYPE:
+        if entity_type == PortEntity.entity_type():
             return [Entity.entity2value(entity_portlike)]
 
-        if entity_type == CultureEntity.TYPE:
+        if entity_type == CultureEntity.entity_type():
             culture_codename = Entity.entity2value(entity_portlike)
             port_list = Port.culture2ports(culture_codename)
             return lmap(Port.port2codename, port_list)
@@ -82,11 +81,11 @@ class PriceSkillParameter:
 
         @classmethod
         def entity_type2parameter_type(cls, entity_type):
-            h = {PortEntity.TYPE: cls.PORTLIKE,
-                 CultureEntity.TYPE: cls.PORTLIKE,
-                 TradegoodEntity.TYPE: cls.TRADEGOOD,
-                 RateEntity.TYPE: cls.RATE,
-                 TrendEntity.TYPE: cls.TREND,
+            h = {PortEntity.entity_type(): cls.PORTLIKE,
+                 CultureEntity.entity_type(): cls.PORTLIKE,
+                 TradegoodEntity.entity_type(): cls.TRADEGOOD,
+                 RateEntity.entity_type(): cls.RATE,
+                 TrendEntity.entity_type(): cls.TREND,
                  }
 
             return h.get(entity_type)
@@ -203,7 +202,9 @@ class PriceSkillClique:
             trend = Entity.entity2value(entity)
             return {field: trend}
 
-        raise Exception(entities)
+        raise Exception({"param_type":param_type,
+                         "entities":entities,
+                         })
 
     @classmethod
     def clique2doc_insert(cls, packet, clique):
@@ -308,7 +309,7 @@ class PriceSkillClique:
 
             entity_portlike, entity_tradegood, entity_rate, entity_trend = map(l_singleton2obj, entities_tuple)
 
-            if Entity.entity2type(entity_portlike) != PortEntity.TYPE:  # not culture
+            if Entity.entity2type(entity_portlike) != PortEntity.entity_type():  # not culture
                 return False
 
             entity_latter = max([entity_portlike, entity_tradegood], key=Entity.entity2span)
@@ -482,7 +483,7 @@ class PriceSkill:
 
         def _groupby_paramter_type():
             entity_list_portlike = lfilter(lambda x: Entity.entity2type(x) in Portlike.entity_types(), entity_list)
-            entity_list_tradegood = lfilter(lambda x: Entity.entity2type(x) == TradegoodEntity.TYPE, entity_list)
+            entity_list_tradegood = lfilter(lambda x: Entity.entity2type(x) == TradegoodEntity.entity_type(), entity_list)
 
             if not entity_list_portlike:
                 return Param.Type.TRADEGOOD

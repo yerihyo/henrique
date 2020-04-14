@@ -58,32 +58,32 @@ class HenriqueEntity:
     class Cache:
         DEFAULT_SIZE = 100
 
-    @classmethod
-    def classes(cls):
-        from henrique.main.document.port.port_entity import PortEntity
-
-        from henrique.main.document.command.command_entity import CommandEntity
-        from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
-        from henrique.main.document.markettrend.trend_entity import MarkettrendEntity
-
-        h = {CommandEntity,
-             PortEntity,
-             TradegoodEntity,
-             MarkettrendEntity,
-             }
-        return h
-
-    @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def _h_type2class(cls):
-        h = merge_dicts([{clazz.TYPE: clazz} for clazz in cls.classes()],
-                        vwrite=vwrite_no_duplicate_key)
-        return h
-
-    @classmethod
-    def entity_type2class(cls, entity_type):
-        h = cls._h_type2class()
-        return h.get(entity_type)
+    # @classmethod
+    # def classes(cls):
+    #     from henrique.main.document.port.port_entity import PortEntity
+    #
+    #     from henrique.main.document.skill.skill_entity import SkillEntity
+    #     from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
+    #     from henrique.main.document.markettrend.trend_entity import MarkettrendEntity
+    #
+    #     h = {SkillEntity,
+    #          PortEntity,
+    #          TradegoodEntity,
+    #          MarkettrendEntity,
+    #          }
+    #     return h
+    #
+    # @classmethod
+    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    # def _h_type2class(cls):
+    #     h = merge_dicts([{clazz.TYPE: clazz} for clazz in cls.classes()],
+    #                     vwrite=vwrite_no_duplicate_key)
+    #     return h
+    #
+    # @classmethod
+    # def entity_type2class(cls, entity_type):
+    #     h = cls._h_type2class()
+    #     return h.get(entity_type)
 
     # @classmethod
     # def text_entity_class2entity_list(cls, text, entity_class):

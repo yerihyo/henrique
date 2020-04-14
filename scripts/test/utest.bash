@@ -23,6 +23,7 @@ export PYTHONPATH=$FOXYLIB_DIR
 
 # python -m unittest henrique.main.hub.postgres.tests.test_postgres_hub.PostgresHubTest.test_01
 # python -m unittest henrique.main.handlers.jinni.ask.tests.test_handler.TestHandler.test_03
-python -m unittest henrique.main.skill.port.tests.test_port_skill.TestPortSkill
+# python -m unittest henrique.main.skill.port.tests.test_port_skill.TestPortSkill
+python -m unittest foxylib.tools.native.clazz.tests.test_class_tool.TestClassTool.test_04
 
 popd
