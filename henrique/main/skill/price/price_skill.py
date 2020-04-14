@@ -441,7 +441,7 @@ class PriceSkill:
         channel_user = ChannelUser.codename2channel_user(MarketpriceDoc.price2channel_user(price))
 
         # raise Exception({"price":price})
-        created_at = MarketpriceDoc.price2created_at(price)
+        created_at = MarketpriceDoc.price2created_at(price) or MarketpriceDoc.created_at_backoff()
         td = datetime.now(tz=pytz.utc) - created_at
         str_timedelta = HenriqueDatetime.timedelta_lang2str(td, lang)
 
@@ -559,8 +559,9 @@ class PriceSkill:
         pattern = re.compile(RegexTool.rstr2rstr_words(rstr_rate_trend), re.I)
         return pattern
 
+
     @classmethod
-    def blocks2norm_for_unittest(cls, blocks):
+    def blocks2norm_list_for_unittest(cls, blocks):
         def row2header(row):
             match_list = list(cls.pattern_rate_trend().finditer(row))
             match = l_singleton2obj(match_list)
@@ -572,10 +573,16 @@ class PriceSkill:
             rows = block.splitlines()
             title = rows[0]
 
-            row_headers = set(map(row2header, rows[1:]))
-            return title, row_headers
+            row_header_list = lmap(row2header, rows[1:])
+            return title, row_header_list
 
         return lmap(block2norm_for_unittest, blocks)
 
+    @classmethod
+    def blocks2norm_set_for_unittest(cls, blocks):
+        norm_list = cls.blocks2norm_list_for_unittest(blocks)
+
+        return [(title, set(row_header_list))
+                for title, row_header_list in norm_list]
 
 WARMER.warmup()

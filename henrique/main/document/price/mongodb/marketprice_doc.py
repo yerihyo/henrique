@@ -22,6 +22,9 @@ class MarketpriceCollection:
 
 
 class MarketpriceDoc:
+    class Constant:
+        SHELF_LIFE = timedelta(hours=4)
+
     class Field:
         CREATED_AT = "created_at"
         PORT = "port"
@@ -58,13 +61,17 @@ class MarketpriceDoc:
     def key_default(cls, price):
         from henrique.main.document.price.trend.trend_entity import Trend
 
+        is_outdated = cls.price2is_outdated(price)
+        # v_outdated = 1 if is_outdated else 0
+
         if price is None:
             return AbsoluteOrder.MAX
 
+        cls.price2created_at(price)
         rate = cls.price2rate(price)
         v_trend = Trend.trend2int(cls.price2trend(price))
 
-        return -rate, -v_trend
+        return int(is_outdated), -rate, -v_trend
 
     @classmethod
     def price2port(cls, price):
@@ -84,12 +91,21 @@ class MarketpriceDoc:
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def created_at_default(cls):
+    def created_at_backoff(cls):
         return datetime(2020, 1, 1, tzinfo=pytz.utc)
 
     @classmethod
     def price2created_at(cls, price):
-        return price.get(cls.Field.CREATED_AT) or cls.created_at_default()
+        return price.get(cls.Field.CREATED_AT) # or cls.created_at_backoff()
+
+    @classmethod
+    def price2is_outdated(cls, price):
+        created_at = cls.price2created_at(price)
+        if not created_at:
+            return True
+
+        dt_now = datetime.now(pytz.utc)
+        return dt_now > created_at + cls.Constant.SHELF_LIFE
 
     @classmethod
     def price2channel_user(cls, price):
