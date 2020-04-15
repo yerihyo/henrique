@@ -11,6 +11,7 @@ from foxylib.tools.locale.locale_tool import LocaleTool
 from henrique.main.document.culture.culture_entity import CultureEntity
 from henrique.main.document.henrique_entity import Entity
 from henrique.main.document.port.port_entity import PortEntity
+from henrique.main.document.skill.skill_entity import SkillEntity
 from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
 from henrique.main.singleton.khala.henrique_khala import Rowsblock
 from khala.document.chatroom.chatroom import Chatroom
@@ -21,11 +22,9 @@ FILE_DIR = os.path.dirname(FILE_PATH)
 
 
 class HelpSkill:
-    CODENAME = "help"
-
     @classmethod
     def target_entity_classes(cls):
-        return {PortEntity, TradegoodEntity, CultureEntity}
+        return {SkillEntity, TradegoodEntity, CultureEntity}
 
     @classmethod
     def _entity_lang2response_block(cls, entity, lang):

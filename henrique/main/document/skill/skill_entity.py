@@ -1,24 +1,18 @@
 import os
 import sys
-from operator import itemgetter as ig
 
-import re
+from functools import lru_cache
+
 from foxylib.tools.cache.cache_tool import CacheTool
-from functools import lru_cache, partial
-from future.utils import lmap
-
-from foxylib.tools.collections.collections_tool import l_singleton2obj
 from foxylib.tools.collections.iter_tool import iter2singleton
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.json.json_tool import JsonTool
 from foxylib.tools.locale.locale_tool import LocaleTool
 from foxylib.tools.native.clazz.class_tool import ClassTool
-from foxylib.tools.nlp.contextfree.contextfree_tool import ContextfreeTool
 from foxylib.tools.nlp.gazetteer.gazetteer_matcher import GazetteerMatcher
 from foxylib.tools.string.string_tool import StringTool, str2lower
 from henrique.main.document.henrique_entity import HenriqueEntity, Entity
-from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.singleton.locale.henrique_locale import HenriqueLocale
 
 FILE_PATH = os.path.realpath(__file__)
@@ -63,6 +57,10 @@ class SkillEntity:
         return ClassTool.class2fullpath(cls)
 
     @classmethod
+    def entity2skill_code(cls, entity):
+        return Entity.entity2value(entity)
+
+    @classmethod
     def text2norm(cls, text): return str2lower(text)
 
     @classmethod
@@ -100,11 +98,6 @@ class SkillEntity:
         matcher = GazetteerMatcher(h_codename2texts, config)
         return matcher
 
-    @classmethod
-    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def pattern_prefix(cls):
-        return re.compile(r"^\s*\?", re.I)
 
     @classmethod
     @CacheTool.cache2hashable(cache=lru_cache(maxsize=HenriqueEntity.Cache.DEFAULT_SIZE),
@@ -112,47 +105,20 @@ class SkillEntity:
     def text2entity_list(cls, text_in, config=None):
         lang = LocaleTool.locale2lang(Entity.Config.config2locale(config))
 
-        pattern_prefix = cls.pattern_prefix()
-        match_list_prefix = list(pattern_prefix.finditer(text_in))
+        span_value_list = cls.lang2matcher(lang).text2span_value_list(text_in)
 
-        span_value_list_skill = cls.lang2matcher(lang).text2span_value_list(text_in)
-
-        spans_list = [lmap(lambda m:m.span(), match_list_prefix),
-                      lmap(ig(0), span_value_list_skill)
-                      ]
-        gap2is_valid = partial(StringTool.str_span2match_blank_or_nullstr, text_in)
-        indextuple_list = ContextfreeTool.spans_list2reducible_indextuple_list(spans_list, gap2is_valid)
-
-        def indextuple2entity(indextuple):
-            index_prefix, index_skill = indextuple
-
-            match_prefix = match_list_prefix[index_prefix]
-            span_prefix = match_prefix.span()
-
-            span_skill, value_skill = span_value_list_skill[index_skill]
-
-            # span = (span_prefix[0], span_skill[1])
-
-            entity = {Entity.Field.SPAN: span_skill,
-                      Entity.Field.TEXT: StringTool.str_span2substr(text_in, span_skill),
-                      Entity.Field.VALUE: value_skill,
-                      Entity.Field.TYPE: cls.entity_type(),
-                      }
-            return entity
-
-        entity_list = lmap(indextuple2entity, indextuple_list)
+        entity_list = [{Entity.Field.SPAN: span,
+                        Entity.Field.TEXT: StringTool.str_span2substr(text_in, span),
+                        Entity.Field.VALUE: value,
+                        Entity.Field.TYPE: cls.entity_type(),
+                        }
+                       for span, value in span_value_list]
         return entity_list
 
-    @classmethod
-    def text2skill_code(cls, text):
-        entity_list = cls.text2entity_list(text)
-        entity = l_singleton2obj(entity_list)
 
-        if entity is None:
-            return None
 
-        skill_code = Entity.entity2value(entity)
-        return skill_code
+
+
 
 
 WARMER.warmup()

@@ -4,7 +4,8 @@ from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, 
 from functools import lru_cache
 
 from foxylib.tools.function.function_tool import FunctionTool
-
+from khala.document.chatroom.chatroom import Chatroom
+from khala.document.packet.packet import KhalaPacket
 
 
 class Entity:
@@ -29,6 +30,16 @@ class Entity:
                 return None
 
             return j.get(cls.Field.LOCALE)
+
+        @classmethod
+        def packet2config(cls, packet):
+            chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))
+            locale = Chatroom.chatroom2locale(chatroom)
+
+            config = {cls.Field.LOCALE:locale,
+                      cls.Field.STEP:Entity.Step.PRECISION,
+                      }
+            return config
 
     @classmethod
     def entity2type(cls, entity):
