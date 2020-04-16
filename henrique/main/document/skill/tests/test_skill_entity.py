@@ -33,3 +33,18 @@ class TestSkillEntity(TestCase):
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)
+
+    def test_03(self):
+        config = {Entity.Config.Field.LOCALE: "ko-KR"}
+        hyp = SkillEntity.text2entity_list("? 도움말 항구", config=config)
+        ref = [{'span': (2, 5),
+                'text': '도움말',
+                'type': 'henrique.main.document.skill.skill_entity.SkillEntity',
+                'value': 'help'},
+               {'span': (6, 8),
+                'text': '항구',
+                'type': 'henrique.main.document.skill.skill_entity.SkillEntity',
+                'value': 'port'}]
+
+        # pprint(hyp)
+        self.assertEqual(hyp, ref)

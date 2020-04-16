@@ -61,7 +61,7 @@ class HenriqueCommand:
             return None
 
         entity = l_singleton2obj(indextuple_list)[1]
-        return SkillEntity.entity2skill_code(entity)
+        return SkillEntity.entity2skill_codename(entity)
 
 
 class Rowsblock:

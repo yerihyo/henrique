@@ -1,18 +1,11 @@
 import os
-import sys
 
-from functools import partial
 from future.utils import lmap
-from nose.tools import assert_equals
 
-from foxylib.tools.collections.collections_tool import lchain, smap
-from foxylib.tools.function.warmer import Warmer
+from foxylib.tools.collections.collections_tool import luniq
 from foxylib.tools.locale.locale_tool import LocaleTool
-from henrique.main.document.culture.culture_entity import CultureEntity
 from henrique.main.document.henrique_entity import Entity
-from henrique.main.document.port.port_entity import PortEntity
-from henrique.main.document.skill.skill_entity import SkillEntity
-from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
+from henrique.main.document.skill.skill_entity import SkillEntity, HenriqueSkill
 from henrique.main.singleton.khala.henrique_khala import Rowsblock
 from khala.document.chatroom.chatroom import Chatroom
 from khala.document.packet.packet import KhalaPacket
@@ -23,31 +16,17 @@ FILE_DIR = os.path.dirname(FILE_PATH)
 
 class HelpSkill:
     @classmethod
-    def target_entity_classes(cls):
-        return {SkillEntity, TradegoodEntity, CultureEntity}
+    def lang2description(cls, lang):
+        from henrique.main.skill.help.help_skill_description import HelpSkillDescription
+        return HelpSkillDescription.lang2text(lang)
 
     @classmethod
-    def _entity_lang2response_block(cls, entity, lang):
-        entity_type = Entity.entity2type(entity)
-        codename = Entity.entity2value(entity)
+    def target_entity_classes(cls):
+        return {SkillEntity, }
 
-        from henrique.main.skill.port.port_port.port_port_response import PortPortResponse
-        from henrique.main.skill.port.port_tradegood.port_tradegood_response import PortTradegoodResponse
-        from henrique.main.skill.port.port_culture.port_culture_response import PortCultureResponse
-
-        h_type2func = {PortEntity.entity_type(): partial(PortPortResponse.codename_lang2text, lang=lang),
-                       TradegoodEntity.entity_type(): partial(PortTradegoodResponse.codename_lang2text, lang=lang),
-                       CultureEntity.entity_type(): partial(PortCultureResponse.codename_lang2text, lang=lang),
-                       }
-
-        assert_equals(set(h_type2func.keys()), smap(lambda c: c.entity_type(), cls.target_entity_classes()))
-
-        codename2response = h_type2func.get(entity_type)
-        if not codename2response:
-            raise NotImplementedError("Invalid entity_type: {}".format(entity_type))
-
-        return codename2response(codename)
-
+    @classmethod
+    def spreadsheet_id(cls):
+        return "1dU_Wbx4Y0ov5QjXGS4gjNAsXewFlq1R-__ewvVZ_TTE"
 
     @classmethod
     def packet2response(cls, packet):
@@ -55,14 +34,13 @@ class HelpSkill:
         locale = Chatroom.chatroom2locale(chatroom)
         lang = LocaleTool.locale2lang(locale)
 
-        entity_classes = cls.target_entity_classes()
         text_in = KhalaPacket.packet2text(packet)
         config = {Entity.Config.Field.LOCALE: locale}
-        entity_list_raw = lchain(*[c.text2entity_list(text_in, config=config) for c in entity_classes])
+        entity_list_skill = SkillEntity.text2entity_list(text_in, config=config)
 
-        entity_list = sorted(entity_list_raw, key=Entity.entity2span)
+        codename_list = luniq(map(SkillEntity.entity2skill_codename, entity_list_skill))
+        clazz_list = lmap(HenriqueSkill.codename2class, codename_list)
 
-        blocks = [cls._entity_lang2response_block(entity, lang) for entity in entity_list]
-
+        blocks = [clazz.lang2help_response_block(lang) for clazz in clazz_list]
         return Rowsblock.blocks2text(blocks)
 

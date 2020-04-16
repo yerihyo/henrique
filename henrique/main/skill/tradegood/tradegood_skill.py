@@ -1,15 +1,18 @@
 import os
 import sys
 
-from functools import partial
+from functools import partial, lru_cache
 from nose.tools import assert_equals
 
-from foxylib.tools.collections.collections_tool import lchain, smap
+from foxylib.tools.collections.collections_tool import lchain, smap, merge_dicts, vwrite_no_duplicate_key
+from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.googleapi.sheets.googlesheets_tool import GooglesheetsTool
 from foxylib.tools.locale.locale_tool import LocaleTool
 from henrique.main.document.culture.culture_entity import CultureEntity
 from henrique.main.document.henrique_entity import Entity
 from henrique.main.document.port.port_entity import PortEntity
 from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
+from henrique.main.singleton.google.googledoc.henrique_googleapi import HenriqueGoogleapi
 from henrique.main.singleton.khala.henrique_khala import Rowsblock
 from khala.document.chatroom.chatroom import Chatroom
 from khala.document.packet.packet import KhalaPacket
@@ -20,8 +23,12 @@ FILE_DIR = os.path.dirname(FILE_PATH)
 
 MODULE = sys.modules[__name__]
 
+
 class TradegoodSkill:
-    # CODENAME = "tradegood"
+    @classmethod
+    def lang2description(cls, lang):
+        from henrique.main.skill.tradegood.tradegood_skill_description import TradegoodSkillDescription
+        return TradegoodSkillDescription.lang2text(lang)
 
     @classmethod
     def target_entity_classes(cls):

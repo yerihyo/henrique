@@ -404,6 +404,11 @@ class PriceSkill:
     CODENAME = "price"
 
     @classmethod
+    def lang2description(cls, lang):
+        from henrique.main.skill.price.price_skill_description import PriceSkillDescription
+        return PriceSkillDescription.lang2text(lang)
+
+    @classmethod
     def dict_lang2text_idk(cls):
         return {"ko": "아몰랑",
                 "en": "idk",

@@ -29,6 +29,7 @@ class HenriqueSkill:
         TRADEGOOD = "tradegood"
         CULTURE = "culture"
         PRICE = "price"
+        HELP = "help"
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
@@ -37,11 +38,13 @@ class HenriqueSkill:
         from henrique.main.skill.tradegood.tradegood_skill import TradegoodSkill
         from henrique.main.skill.culture.culture_skill import CultureSkill
         from henrique.main.skill.price.price_skill import PriceSkill
+        from henrique.main.skill.help.help_skill import HelpSkill
 
         h = {cls.Codename.PORT: PortSkill,
              cls.Codename.TRADEGOOD: TradegoodSkill,
              cls.Codename.CULTURE: CultureSkill,
              cls.Codename.PRICE: PriceSkill,
+             cls.Codename.HELP: HelpSkill,
              }
         return h
 
@@ -57,7 +60,7 @@ class SkillEntity:
         return ClassTool.class2fullpath(cls)
 
     @classmethod
-    def entity2skill_code(cls, entity):
+    def entity2skill_codename(cls, entity):
         return Entity.entity2value(entity)
 
     @classmethod
@@ -114,11 +117,6 @@ class SkillEntity:
                         }
                        for span, value in span_value_list]
         return entity_list
-
-
-
-
-
 
 
 WARMER.warmup()
