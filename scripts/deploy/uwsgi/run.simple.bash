@@ -12,12 +12,8 @@ func_count2reduce(){
     for ((i=0;i<$n;i++)); do v=$($cmd $v) ; done; echo "$v"
 }
 
-
-main(){
-    $FOXYLIB_DIR/foxylib/tools/direnv/tmplt2load.bash "$REPO_DIR/scripts/lpass/mapping.tmplt.list"
-}
-
 export REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
+
 VENV_DIR=$REPO_DIR/venv
 . $VENV_DIR/bin/activate
 pip3 install -r $FILE_DIR/../requirements.server.txt
@@ -27,8 +23,6 @@ PROJECT_NAME=henrique
 
 #USERNAME=$(stat -c '%U' $FILE_PATH)
 #GROUPNAME=$(stat -c '%G' $FILE_PATH)
-
-errcho(){ >&2 echo $@; }
 
 main(){
     $VENV_DIR/bin/uwsgi \

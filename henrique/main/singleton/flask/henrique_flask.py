@@ -86,7 +86,7 @@ class HenriqueFlask:
         app.config.update(HenriqueFlaskConfig.config())
         logger.debug({"app.secret_key": app.secret_key})
 
-        # from sullivan.singleton.auth0.sullivan_auth0 import HenriqueAuth0
+        # from henrique.singleton.auth0.henrique_auth0 import HenriqueAuth0
         # HenriqueAuth0.app2auth0(app)
 
         cls._load_urls2app(app)
