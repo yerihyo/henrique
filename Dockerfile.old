@@ -1,5 +1,5 @@
-FROM ubuntu:18.04
-MAINTAINER Foxytrixy "foxytrixy.bot@gmail.com"
+FROM python:3.7
+MAINTAINER foxytrixy foxytrixy.bot@gmail.com
 
 ARG ENV
 
@@ -10,20 +10,17 @@ ENV FLASK_ENV development
 
 RUN apt-get -y update
 RUN apt-get -y dist-upgrade
-RUN apt-get -y install python3.5 python3-dev python3-pip build-essential libssl-dev libffi-dev nginx supervisor
+RUN apt-get -y install build-essential libssl-dev libffi-dev nginx supervisor
 
-COPY ./henrique/requirements.txt /app/henrique/requirements.txt
+COPY . /henrique
+WORKDIR /henrique
 
-RUN pip3 install -U pip3==20.02
-RUN pip3 install -U setuptools==46.1.3
-RUN pip3 install -U wheel==0.34.2
-RUN pip3 install -r henrique/requirements.txt
-
-
-COPY . /app
-WORKDIR /app
+RUN pip install --upgrade pip
+RUN pip install -r henrique/requirements.txt
+RUN pip install -r scripts/deploy/requirements.server.txt
 
 RUN /henrique/scripts/deploy/uwsgi/run.bash
+
 RUN /henrique/scripts/deploy/nginx/run.bash
 
 RUN cp -f /henrique/scripts/deploy/nginx/henrique /etc/nginx/sites-available/

@@ -3,7 +3,6 @@
 
 ARG0=${BASH_SOURCE[0]}
 FILE_PATH=$(readlink -f $ARG0)
-# FILE_PATH=$HOME/projects/lbox/henrique/scripts/deploy/uwsgi/run.bash
 FILE_NAME=$(basename $FILE_PATH)
 FILE_DIR=$(dirname $FILE_PATH)
 DEPLOY_DIR=$(dirname $FILE_DIR)

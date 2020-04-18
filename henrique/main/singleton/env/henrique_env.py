@@ -18,6 +18,7 @@ FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 REPO_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*4, FILE_DIR)
 
+
 class HenriqueEnv:
     class Key:
         SKIP_WARMUP = "SKIP_WARMUP"

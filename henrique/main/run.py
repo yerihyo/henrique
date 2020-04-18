@@ -2,15 +2,17 @@ import logging
 
 import connexion
 
+from henrique.main.singleton.flask.henrique_flask import HenriqueFlask
 
-def create_app():
-    application = connexion.FlaskApp(__name__,)
-    application.add_api('swagger.yaml')
 
-    return application.app
+# def create_app():
+#     application = connexion.FlaskApp(__name__,)
+#     application.add_api('swagger.yaml')
+#
+#     return application.app
 
 logging.basicConfig(level=logging.DEBUG)
-app = create_app()
+app = HenriqueFlask.app()
 
 
 def main():
