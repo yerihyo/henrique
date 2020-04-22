@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
-# REFERENCE: https://www.digitalocean.com/community/tutorials/how-to-serve-flask-applications-with-uswgi-and-nginx-on-ubuntu-18-04
+
+#############
+# REFERENCES
+#
+# https://www.digitalocean.com/community/tutorials/how-to-serve-flask-applications-with-uswgi-and-nginx-on-ubuntu-18-04
+# https://towardsdatascience.com/how-to-do-rapid-prototyping-with-flask-uwsgi-nginx-and-docker-on-openshift-f0ef144033cb
+#
+# bad gateway 502 - https://stackoverflow.com/a/39117324
+# uwsgi is not running.. or something similar... like socket filepath mismatch
+
 
 ARG0=${BASH_SOURCE[0]}
 FILE_PATH=$(readlink -f $ARG0)
@@ -26,10 +35,6 @@ else
     errcho "[$FILE_NAME] ERROR - \$ENV missing"
     exit 1
 fi
-
-# error lsit
-# bad gateway 502 - https://stackoverflow.com/a/39117324
-# uwsgi is not running.. or something similar... like socket filepath mismatch
 
 main(){
     FILEPATH_SSL_CERTI="$REPO_DIR/env/ssl/ssl_certificate.pem"

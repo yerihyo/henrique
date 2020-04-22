@@ -39,6 +39,7 @@ http {
     }
 
     {% if not is_https %}
+
     server {
         listen 80;
         listen [::]:80;
@@ -48,7 +49,9 @@ http {
             uwsgi_pass henrique_upstream;
             }
     }
+
     {% else %}
+
     server {
         listen 80;
         listen [::]:80;
