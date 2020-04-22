@@ -16,7 +16,8 @@ func_count2reduce(){
 REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
 
 PROJECT_NAME=henrique
-scheme=http
+#scheme=http
+is_https=""
 USER=${USER?'missing $USER'}
 
 if [[ "$ENV" == "local" || ! "$ENV" ]]; then
@@ -35,13 +36,14 @@ main(){
     FILEPATH_SSL_PRIVATE_KEY="$REPO_DIR/env/ssl/ssl_private_key.pem"
 
     # https://github.com/mattrobenolt/jinja2-cli
-    jinja2 $FILE_DIR/$PROJECT_NAME.nginx.$scheme.conf.tmplt \
+    jinja2 $FILE_DIR/$PROJECT_NAME.nginx.conf.tmplt \
         -D DOMAIN_NAME="$DOMAIN_NAME" \
         -D FILEPATH_SOCK="$REPO_DIR/scripts/deploy/uwsgi/$PROJECT_NAME.uwsgi.sock" \
         -D FILE_DIR="$FILE_DIR" \
         -D NGINX_DIR="/usr/local/etc/nginx" \
         -D USER="$USER" \
-        > $FILE_DIR/$PROJECT_NAME.nginx.$scheme.conf
+        -D is_https="$is_https" \
+        > $FILE_DIR/$PROJECT_NAME.nginx.conf
 
 #    if [[ ! -e /usr/local/etc/nginx/nginx.conf.ori ]]; then
 #        mv /usr/local/etc/nginx/nginx.conf /usr/local/etc/nginx/nginx.conf.ori
@@ -51,7 +53,7 @@ main(){
         #-D FILEPATH_SSL_PRIVATE_KEY="$FILEPATH_SSL_PRIVATE_KEY" \
 
     sudo nginx -s stop || errcho "no nginx running a priori"
-    sudo nginx -c $FILE_DIR/$PROJECT_NAME.nginx.$scheme.conf
+    sudo nginx -c $FILE_DIR/$PROJECT_NAME.nginx.conf
 }
 
 

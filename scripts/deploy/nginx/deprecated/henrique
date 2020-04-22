@@ -1,0 +1,24 @@
+server {
+    listen 80;
+    listen [::]:80;
+    server_name localhost www.localhost;
+    return 302 https://$server_name$request_uri;
+}
+
+server {
+
+    # SSL configuration
+
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    ssl        on;
+    ssl_certificate         /Users/moon/projects/foxytrixy/henrique/env/ssl/ssl_certificate.pem;
+    ssl_certificate_key     /Users/moon/projects/foxytrixy/henrique/env/ssl/ssl_private_key.pem;
+
+    server_name localhost www.localhost;
+   
+    location / {
+        include uwsgi_params;
+        uwsgi_pass unix:/Users/moon/projects/foxytrixy/henrique/scripts/deploy/uwsgi/henrique.sock;
+    }
+}
