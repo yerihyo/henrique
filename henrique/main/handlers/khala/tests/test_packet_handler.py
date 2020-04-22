@@ -6,7 +6,7 @@ import pytest
 from henrique.main.handlers.khala.packet_handler import PacketHandler
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.skill.port.port_skill import PortSkill
-from khalalib.packet.packet import KhalaPacket, KhalaPacket
+from khala.document.packet.packet import KhalaPacket, KhalaPacket
 
 
 class TestHandler(TestCase):

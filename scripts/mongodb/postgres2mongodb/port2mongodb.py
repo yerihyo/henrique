@@ -9,9 +9,10 @@ from foxylib.tools.collections.collections_tool import luniq, DictTool, lchain
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.database.postgres.postgres_tool import PostgresTool
 from foxylib.tools.json.json_tool import JsonTool
+from henrique.main.document.port.postgres.port_table import PortTable
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.singleton.postgres.henrique_postgres import HenriquePostgres
-from henrique.main.entity.port.port_entity import PortTable, PortCollection, PortDoc
+from henrique.main.document.port.port_entity import PortCollection, PortDoc
 
 
 class Port2MongoDB:

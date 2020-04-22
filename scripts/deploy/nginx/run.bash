@@ -5,7 +5,6 @@ ARG0=${BASH_SOURCE[0]}
 FILE_PATH=$(readlink -f $ARG0)
 FILE_NAME=$(basename $FILE_PATH)
 FILE_DIR=$(dirname $FILE_PATH)
-# FILE_DIR=/home/yerihyo/yeri/projects/lbox/henrique/scripts/uwsgi
 DEPLOY_DIR=$(dirname $FILE_DIR)
 SCRIPTS_DIR=$(dirname $DEPLOY_DIR)
 REPO_DIR=$(dirname $SCRIPTS_DIR)
@@ -13,12 +12,10 @@ REPO_DIR=$(dirname $SCRIPTS_DIR)
 MAIN_DIR=$REPO_DIR/henrique/app/main
 PROJECT_NAME=henrique
 
-if [ "dev" == "$ENV" ]; then
-    DOMAIN_NAME="dev.lbox.kr"
-elif [ "production" = "$ENV" ]; then
-    DOMAIN_NAME="lbox.kr"
-else
+if [[ "$ENV" == "local" ]]; then
     DOMAIN_NAME="localhost"
+else
+    exit 1
 fi
 
 errcho(){ >&2 echo $@; }

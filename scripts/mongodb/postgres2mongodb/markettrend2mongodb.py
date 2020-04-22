@@ -1,20 +1,20 @@
 import logging
-from datetime import datetime
 
+from datetime import datetime
 from future.utils import lmap
 from psycopg2.sql import SQL, Identifier
 from pymongo import WriteConcern
 
 from foxylib.tools.collections.chunk_tool import ChunkTool
-from foxylib.tools.collections.collections_tool import luniq, lchain, vwrite_no_duplicate_key, merge_dicts
+from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.database.postgres.postgres_tool import PostgresTool
-from foxylib.tools.json.json_tool import JsonTool, jdown
+from foxylib.tools.json.json_tool import jdown
 from foxylib.tools.string.string_tool import str2lower
-from henrique.main.entity.markettrend.trend_entity import PortTradegoodStateTable, MarkettrendCollection, \
+from henrique.main.document.markettrend.trend_entity import PortTradegoodStateTable, MarkettrendCollection, \
     MarkettrendDocument
-from henrique.main.entity.port.port_entity import PortCollection, PortTable, PortDoc
-from henrique.main.entity.tradegood.tradegood_entity import TradegoodTable, TradegoodDoc
+from henrique.main.document.port.port_entity import PortDoc
+from henrique.main.document.tradegood.tradegood_entity import TradegoodDoc
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.singleton.postgres.henrique_postgres import HenriquePostgres
 
@@ -57,7 +57,7 @@ class Markettrend2MongoDB:
 
                     j_doc = {MarkettrendDocument.F.SERVER: jdown(j_postgres, ["server","name"]),
                              MarkettrendDocument.F.CREATED_AT: datetime.fromisoformat(j_postgres["created_at"]),
-                             MarkettrendDocument.F.PORT_ID: MongoDBTool.j_doc2id(j_port_list[i]),
+                             MarkettrendDocument.F.PORT_ID: MongoDBTool.doc2id(j_port_list[i]),
                              MarkettrendDocument.F.TRADEGOOD_ID: tradegood_id_list[i],
                              MarkettrendDocument.F.RATE: rate_list[i],
                              MarkettrendDocument.F.TREND: trend_list[i],

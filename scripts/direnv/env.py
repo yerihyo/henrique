@@ -2,9 +2,6 @@ import logging
 import os
 from functools import reduce
 
-from linc_utils.tools.file.file_tool import FileTool
-from linc_utils.tools.native.env_tool import EnvTool
-
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 REPO_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*4, FILE_DIR)

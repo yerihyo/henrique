@@ -1,0 +1,1 @@
+{{rate}} {{trend_arrow}} [{{username}} 님] ({{str_timedelta}})
