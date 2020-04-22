@@ -23,13 +23,15 @@ USERNAME=$(stat -c '%U' $FILE_PATH)
 errcho(){ >&2 echo $@; }
 
 main(){
-    FILEPATH_SOCK="$FILE_DIR/$PROJECT_NAME.sock"
+    FILEPATH_SOCK="$FILE_DIR/$PROJECT_NAME.uwsgi.sock"
 
-    jinja2 $FILE_DIR/$PROJECT_NAME.tmplt.ini \
+    jinja2 $FILE_DIR/$PROJECT_NAME.uwsgi.ini.tmplt \
         -D FILEPATH_SOCK="$FILEPATH_SOCK" \
         -D REPO_DIR="$REPO_DIR" \
-        > "$FILE_DIR/$PROJECT_NAME.ini"
+        -D PROJECT_NAME="$PROJECT_NAME" \
+        > "$FILE_DIR/$PROJECT_NAME.uwsgi.ini"
 
+    uwsgi "$FILE_DIR/$PROJECT_NAME.uwsgi.ini"
 #     cat $SCRIPTS_DIR/docker/env.$ENV.list >> "$FILE_DIR/$PROJECT_NAME.ini"
 }
 

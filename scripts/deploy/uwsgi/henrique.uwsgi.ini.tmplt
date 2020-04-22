@@ -1,12 +1,26 @@
 [uwsgi]
+
+# WSGI module and callable
+# module = [wsgi_module_name]:[application_callable_name]
 module = henrique.main.run:app
 
+# master = [master process (true of false)]
 master = true
+
+# processes = [number of processes]
 processes = 1
 threads = 1
 
-# socket = {{REPO_DIR}}/henrique/scripts/deploy/uwsgi/henrique.sock
+
+# socket = [addr:port]
 socket = {{FILEPATH_SOCK}}
+# http = 127.0.0.1:8081
+
+
+# Base application directory
+# chdir = /full/path
+chdir  = {{REPO_DIR}}
+
 chmod-socket = 660
 vacuum = true
 

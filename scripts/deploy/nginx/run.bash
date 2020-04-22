@@ -5,35 +5,54 @@ ARG0=${BASH_SOURCE[0]}
 FILE_PATH=$(readlink -f $ARG0)
 FILE_NAME=$(basename $FILE_PATH)
 FILE_DIR=$(dirname $FILE_PATH)
-DEPLOY_DIR=$(dirname $FILE_DIR)
-SCRIPTS_DIR=$(dirname $DEPLOY_DIR)
-REPO_DIR=$(dirname $SCRIPTS_DIR)
 
-MAIN_DIR=$REPO_DIR/henrique/app/main
+
+errcho(){ >&2 echo $@; }
+func_count2reduce(){
+    local v="${1?missing}"; local cmd="${2?missing}"; local n=${3?missing};
+    for ((i=0;i<$n;i++)); do v=$($cmd $v) ; done; echo "$v"
+}
+
+REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
+
 PROJECT_NAME=henrique
+scheme=http
+USER=${USER?'missing $USER'}
 
-if [[ "$ENV" == "local" ]]; then
+if [[ "$ENV" == "local" || ! "$ENV" ]]; then
     DOMAIN_NAME="localhost"
 else
+    errcho "[$FILE_NAME] ERROR - \$ENV missing"
     exit 1
 fi
 
-errcho(){ >&2 echo $@; }
+# error lsit
+# bad gateway 502 - https://stackoverflow.com/a/39117324
+# uwsgi is not running.. or something similar... like socket filepath mismatch
 
 main(){
-    FILEPATH_SOCK="$REPO_DIR/scripts/deploy/uwsgi/$PROJECT_NAME.sock"
+    FILEPATH_SOCK=
     FILEPATH_SSL_CERTI="$REPO_DIR/env/ssl/ssl_certificate.pem"
     FILEPATH_SSL_PRIVATE_KEY="$REPO_DIR/env/ssl/ssl_private_key.pem"
-    #FILEPATH_SOCK="/tmp/$PROJECT_NAME.sock"
-    #FILEPATH_SOCK="/var/sockets/$PROJECT_NAME.sock"
 
-
-    jinja2 $FILE_DIR/$PROJECT_NAME.tmplt \
+    # https://github.com/mattrobenolt/jinja2-cli
+    jinja2 $FILE_DIR/$PROJECT_NAME.nginx.$scheme.conf.tmplt \
         -D DOMAIN_NAME="$DOMAIN_NAME" \
-        -D FILEPATH_SOCK="$FILEPATH_SOCK" \
-        -D FILEPATH_SSL_CERTI="$FILEPATH_SSL_CERTI" \
-        -D FILEPATH_SSL_PRIVATE_KEY="$FILEPATH_SSL_PRIVATE_KEY" \
-        > $FILE_DIR/$PROJECT_NAME
+        -D FILEPATH_SOCK="$REPO_DIR/scripts/deploy/uwsgi/$PROJECT_NAME.uwsgi.sock" \
+        -D FILE_DIR="$FILE_DIR" \
+        -D NGINX_DIR="/usr/local/etc/nginx" \
+        -D USER="$USER" \
+        > $FILE_DIR/$PROJECT_NAME.nginx.$scheme.conf
+
+#    if [[ ! -e /usr/local/etc/nginx/nginx.conf.ori ]]; then
+#        mv /usr/local/etc/nginx/nginx.conf /usr/local/etc/nginx/nginx.conf.ori
+#    fi
+#    rsync -avz $FILE_DIR/$PROJECT_NAME.nginx.$scheme.conf /usr/local/etc/nginx/nginx.conf
+        #-D FILEPATH_SSL_CERTI="$FILEPATH_SSL_CERTI" \
+        #-D FILEPATH_SSL_PRIVATE_KEY="$FILEPATH_SSL_PRIVATE_KEY" \
+
+    sudo nginx -s stop || errcho "no nginx running a priori"
+    sudo nginx -c $FILE_DIR/$PROJECT_NAME.nginx.$scheme.conf
 }
 
 

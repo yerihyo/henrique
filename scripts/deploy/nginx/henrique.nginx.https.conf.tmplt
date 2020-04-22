@@ -1,3 +1,8 @@
+upstream henrique {
+    server unix:{{FILEPATH_SOCK}}; # for a file socket
+    #server 127.0.0.1:8001; # for a web port socket (use this to test with http instead of socket)
+}
+
 server {
     listen 80;
     listen [::]:80;
@@ -19,6 +24,6 @@ server {
    
     location / {
         include uwsgi_params;
-        uwsgi_pass unix:{{FILEPATH_SOCK}};
+        uwsgi_pass henrique;
     }
 }
