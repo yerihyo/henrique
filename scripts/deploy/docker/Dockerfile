@@ -1,5 +1,5 @@
-FROM python:3.7
-MAINTAINER foxytrixy foxytrixy.bot@gmail.com
+FROM ubuntu:18.04
+MAINTAINER Foxytrixy "foxytrixy.bot@gmail.com"
 
 ARG ENV
 
@@ -13,7 +13,11 @@ RUN apt-get -y dist-upgrade
 RUN apt-get -y install build-essential libssl-dev libffi-dev nginx supervisor python3.6-dev
 #RUN apt-get -y install libpoppler-cpp-dev pkg-config
 
-RUN pip install -U pip python3-setuptools
+#COPY ./henrique/requirements.txt /henrique/henrique/requirements.txt
+
+RUN pip install -U pip==20.02
+RUN pip install -U setuptools==46.1.3
+RUN pip install -U wheel==0.34.2
 RUN pip install -r henrique/requirements.txt
 RUN pip install -r scripts/deploy/requirements.server.txt
 
@@ -41,4 +45,4 @@ EXPOSE 443
 WORKDIR ${HOME}
 ENTRYPOINT ["/henrique/scripts/deploy/docker/docker-entrypoint.sh"]
 CMD ["supervisord", "-n", "-c", "/henrique/scripts/deploy/docker/supervisor/supervisord.conf"]
-#CMD ["supervisord"]
+#CMD nginx; supervisord -n
