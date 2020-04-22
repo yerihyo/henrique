@@ -14,7 +14,7 @@ clear_containers(){
     # Stop running containers
     sudo docker stop $(sudo docker ps -a -q)
     if ! [ $? -eq 0 ]; then
-        errcho "Running Docker containers stopped"
+        errcho "Docker containers stopped"
     fi
 
     # Remove existing containers

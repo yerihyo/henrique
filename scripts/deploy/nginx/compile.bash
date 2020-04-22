@@ -37,10 +37,18 @@ else
 fi
 
 main(){
-    ENV=$ENV $FILE_DIR/compile.bash
+    FILEPATH_SSL_CERTI="$REPO_DIR/env/ssl/ssl_certificate.pem"
+    FILEPATH_SSL_PRIVATE_KEY="$REPO_DIR/env/ssl/ssl_private_key.pem"
 
-    sudo nginx -s stop || errcho "no nginx running a priori"
-    sudo nginx -c $FILE_DIR/$PROJECT_NAME.nginx.conf
+    # https://github.com/mattrobenolt/jinja2-cli
+    jinja2 $FILE_DIR/$PROJECT_NAME.nginx.conf.tmplt \
+        -D DOMAIN_NAME="$DOMAIN_NAME" \
+        -D FILEPATH_SOCK="$REPO_DIR/scripts/deploy/uwsgi/$PROJECT_NAME.uwsgi.sock" \
+        -D FILE_DIR="$FILE_DIR" \
+        -D NGINX_DIR="/usr/local/etc/nginx" \
+        -D USER="$USER" \
+        -D is_https="$is_https" \
+        > $FILE_DIR/$PROJECT_NAME.nginx.conf
 }
 
 
