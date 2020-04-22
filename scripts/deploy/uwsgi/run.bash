@@ -20,13 +20,11 @@ PROJECT_NAME=henrique
 USERNAME=$(stat -c '%U' $FILE_PATH)
 #GROUPNAME=$(stat -c '%G' $FILE_PATH)
 
-errcho(){ >&2 echo $@; }
-
 main(){
-    FILEPATH_SOCK="$FILE_DIR/$PROJECT_NAME.uwsgi.sock"
+    mkdir -p $REPO_DIR/log
 
     jinja2 $FILE_DIR/$PROJECT_NAME.uwsgi.ini.tmplt \
-        -D FILEPATH_SOCK="$FILEPATH_SOCK" \
+        -D FILEPATH_SOCK="$FILE_DIR/$PROJECT_NAME.uwsgi.sock" \
         -D REPO_DIR="$REPO_DIR" \
         -D PROJECT_NAME="$PROJECT_NAME" \
         > "$FILE_DIR/$PROJECT_NAME.uwsgi.ini"

@@ -34,14 +34,20 @@ http {
 
     #gzip  on;
 
+    upstream henrique_upstream {
+        server unix:{{FILEPATH_SOCK}}; # for a file socket
+        #server 127.0.0.1:8001; # for a web port socket (use this to test with http instead of socket)
+    }
+
     server {
         listen 8000;
         listen [::]:8000;
         server_name {{DOMAIN_NAME}} www.{{DOMAIN_NAME}};
         location / {
             include {{NGINX_DIR}}/uwsgi_params;
-            uwsgi_pass unix:{{FILEPATH_SOCK}};
-            #uwsgi_pass 127.0.0.1:8001;
+            uwsgi_pass henrique_upstream;
+            # uwsgi_pass unix:{{FILEPATH_SOCK}};
+            # uwsgi_pass 127.0.0.1:8001;
             }
     }
 }
