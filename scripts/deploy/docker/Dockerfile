@@ -11,7 +11,7 @@ ARG ENV
 RUN apt-get -y update
 RUN apt-get -y dist-upgrade
 RUN apt-get -y install build-essential libssl-dev libffi-dev nginx supervisor
-RUN apt-get -y python3.6-dev python3-pip
+RUN apt-get -y install python3.6 python3-pip
 #RUN apt-get -y install libpoppler-cpp-dev pkg-config
 
 #COPY ./henrique/requirements.txt /henrique/henrique/requirements.txt
