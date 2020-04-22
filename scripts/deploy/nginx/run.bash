@@ -31,7 +31,6 @@ fi
 # uwsgi is not running.. or something similar... like socket filepath mismatch
 
 main(){
-    FILEPATH_SOCK=
     FILEPATH_SSL_CERTI="$REPO_DIR/env/ssl/ssl_certificate.pem"
     FILEPATH_SSL_PRIVATE_KEY="$REPO_DIR/env/ssl/ssl_private_key.pem"
 
