@@ -1,4 +1,5 @@
 import os
+import sys
 
 import yaml
 from pathlib import Path
@@ -70,18 +71,21 @@ class HenriqueEnv:
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def _json_yaml(cls, env):
+    def _json_yaml(cls,):
         filepath = os.path.join(REPO_DIR, "henrique", "env", "yaml", "env.henrique.part.yaml")
         if not os.path.exists(filepath):
             return None
 
-        data = {"ENV": env, "HOME_DIR": str(Path.home()), "REPO_DIR": REPO_DIR, }
+        data = {"HOME_DIR": str(Path.home()),
+                "REPO_DIR": REPO_DIR,
+                "ENV_DIR": os.path.join(REPO_DIR, "henrique", "env"),
+                }
         utf8 = HenriqueJinja2.textfile2text(filepath, data)
         json_yaml = yaml.load(utf8, Loader=BaseLoader)
         return json_yaml
 
     @classmethod
-    def _env2envs(cls, env):
+    def _env2target_envs(cls, env):
         __DEFAULT__ = "__DEFAULT__"
         env_norm = cls.env2norm(env)
 
@@ -97,9 +101,17 @@ class HenriqueEnv:
     def env_key2value(cls, env, k):
         # return os.environ.get(k)
 
-        json_yaml = cls._json_yaml(env)
-        envs = [env, "__DEFAULT__"]
+        json_yaml = cls._json_yaml()
+        envs = cls._env2target_envs(env)
         return EnvTool.json_envs_key2value(json_yaml, envs, k)
+
+    @classmethod
+    def env2dict(cls, env):
+        return {key: cls.env_key2value(env, key) for key in cls.keys()}
+
+    @classmethod
+    def keys(cls):
+        return list(cls._json_yaml().keys())
 
     @classmethod
     def key2value(cls, key):
@@ -111,3 +123,12 @@ class HenriqueEnv:
         nb = BooleanTool.parse2nullboolean(v)
         return nb
 
+
+def main():
+    env = sys.argv[1]
+    h = HenriqueEnv.env2dict(env)
+    for k,v in h.items():
+        print("{}='{}'".format(k,v))
+
+if __name__ == "__main__":
+    main()

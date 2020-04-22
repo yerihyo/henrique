@@ -15,11 +15,13 @@ env="${1:-}"
 if [[ ! "$env" ]]; then usage; exit 1; fi
 
 case "$env" in
-  prod|production) server_name=delphi-lightsail-prod;;
-  dev|development) server_name=delphi-lightsail-dev
+  prod|production) server_name=henrique-lightsail-prod;;
+  dev|development) server_name=henrique-lightsail-dev
 esac
 
 main(){
+    pushd $REPO_DIR
+
     ip=$($SCRIPTS_DIR/server/server_name2ip.bash "$server_name")
     errcho "server_name=$server_name ip=$ip"
 
@@ -28,10 +30,10 @@ main(){
 
     # Remotely Execute Docker Container
     ssh ubuntu@$ip 'bash -s' < $FILE_DIR/deploy.bash $env
+
+    popd
 }
 
 errcho "[$FILE_NAME] START ($server_name)"
-pushd $REPO_DIR
 main
-popd
 errcho "[$FILE_NAME] END ($server_name)"

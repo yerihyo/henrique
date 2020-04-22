@@ -1,0 +1,80 @@
+# user  nobody;
+user moon staff;
+worker_processes  1;
+daemon off;
+
+#error_log  logs/error.log;
+#error_log  logs/error.log  notice;
+#error_log  logs/error.log  info;
+
+# pid        /usr/local/var/run/nginx.pid;
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include       {{NGINX_DIR}}/mime.types;
+    default_type  application/octet-stream;
+
+    #log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+    #                  '$status $body_bytes_sent "$http_referer" '
+    #                  '"$http_user_agent" "$http_x_forwarded_for"';
+
+    #access_log  logs/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    #keepalive_timeout  0;
+    keepalive_timeout  65;
+
+    #gzip  on;
+
+    upstream henrique_upstream {
+        server unix:{{FILEPATH_SOCK}}; # for a file socket
+        #server 127.0.0.1:8001; # for a web port socket (use this to test with http instead of socket)
+    }
+
+    {% if not is_https %}
+
+    server {
+        listen 80;
+        listen [::]:80;
+        server_name {{DOMAIN_NAME}} www.{{DOMAIN_NAME}};
+        location / {
+            include {{NGINX_DIR}}/uwsgi_params;
+            uwsgi_pass henrique_upstream;
+            }
+    }
+
+    {% else %}
+
+    server {
+        listen 80;
+        listen [::]:80;
+        server_name {{DOMAIN_NAME}} www.{{DOMAIN_NAME}};
+        return 302 https://$server_name$request_uri;
+    }
+
+    server {
+
+        # SSL configuration
+
+        listen 443 ssl http2;
+        listen [::]:443 ssl http2;
+        ssl        on;
+        ssl_certificate         {{FILEPATH_SSL_CERTI}};
+        ssl_certificate_key     {{FILEPATH_SSL_PRIVATE_KEY}};
+
+        server_name {{DOMAIN_NAME}} www.{{DOMAIN_NAME}};
+
+        location / {
+            include uwsgi_params;
+            uwsgi_pass henrique;
+        }
+    }
+    {% endif %}
+}

@@ -15,6 +15,8 @@ env="${1:-}"
 if [[ ! "$env" ]]; then usage; exit 1; fi 
 
 main(){
+    pushd $REPO_DIR
+
     # Create env.$env.list
     cat $REPO_DIR/.envrc \
         | sed 's/^export //g;s/"//g;' \
@@ -30,10 +32,9 @@ main(){
 
     # Push Docker Image to Docker hub
     sudo docker push foxytrixy/henrique:$env
+    popd
 }
 
-errcho "[$FILE_NAME] DOCKER BUILD and PUSH START"
-pushd $REPO_DIR
+errcho "[$FILE_NAME] START"
 main
-popd
-errcho "[$FILE_NAME] DOCKER BUILD and PUSH END"
+errcho "[$FILE_NAME] END"

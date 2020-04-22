@@ -12,11 +12,22 @@ func_count2reduce(){
     for ((i=0;i<$n;i++)); do v=$($cmd $v) ; done; echo "$v"
 }
 
+REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
+
+MAIN_DIR=$REPO_DIR/henrique/app/main
 PROJECT_NAME=henrique
 
+USERNAME=$(stat -c '%U' $FILE_PATH)
+#GROUPNAME=$(stat -c '%G' $FILE_PATH)
+
 main(){
-    $FILE_DIR/compile.bash
-    uwsgi "$FILE_DIR/$PROJECT_NAME.uwsgi.ini"
+    mkdir -p $REPO_DIR/log
+
+    jinja2 $FILE_DIR/$PROJECT_NAME.uwsgi.ini.tmplt \
+        -D FILEPATH_SOCK="$FILE_DIR/$PROJECT_NAME.uwsgi.sock" \
+        -D REPO_DIR="$REPO_DIR" \
+        -D PROJECT_NAME="$PROJECT_NAME" \
+        > "$FILE_DIR/$PROJECT_NAME.uwsgi.ini"
 }
 
 errcho "[$FILE_NAME] START"

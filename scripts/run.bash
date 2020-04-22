@@ -27,9 +27,6 @@ main(){
 }
 # $REPO_DIR/henrique/scripts/run.bash >& $REPO_DIR/log/henrique.log &
 
-#python -m delphi.app.main.run
-# sudo gunicorn -b 0.0.0.0:80 "delphi.app.main.run:create_app"
-# check http://localhost:5000/ui/#!/
 
 pushd $REPO_DIR
 

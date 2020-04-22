@@ -1,4 +1,4 @@
-/henrique.service
-/henrique.ini
-/henrique.sock
+/henrique.uwsgi.service
+/henrique.uwsgi.ini
+/henrique.uwsgi.sock
 

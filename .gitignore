@@ -2,3 +2,4 @@
 /venv/
 *.pyc
 /.envrc
+/log/
