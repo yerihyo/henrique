@@ -41,8 +41,7 @@ RUN pip3 install -r /app/scripts/deploy/requirements.server.txt
 #COPY ./scripts/deploy/nginx /app/scripts/deploy/nginx
 #RUN /app/scripts/deploy/nginx/compile.bash
 
-EXPOSE 80
-EXPOSE 443
+EXPOSE 80 443
 
 #RUN mkdir -p /var/log /run/pid && \
 #    chmod -R 777 /var/log /run /run /run/pid && \
@@ -58,6 +57,10 @@ EXPOSE 443
 RUN mkdir -p /run/pid
 RUN mkdir -p /var/log/supervisor
 RUN touch /var/log/supervisor/supervisord.log
+
+RUN ln -sf /dev/stdout /var/log/nginx/access.log \
+	&& ln -sf /dev/stderr /var/log/nginx/error.log
+
 #RUN touch /run/pid/supervisord.pid
 #RUN touch /run/supervisor.sock
 
