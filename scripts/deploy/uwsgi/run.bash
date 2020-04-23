@@ -19,7 +19,7 @@ main(){
     $FILE_DIR/compile.bash
 
     mkdir -p $REPO_DIR/log/uwsgi
-    uwsgi "$FILE_DIR/$PROJECT_NAME.uwsgi.local.ini"
+    uwsgi "$FILE_DIR/$PROJECT_NAME.uwsgi.local.ini" # --uid www-data --gid www-data
 }
 
 errcho "[$FILE_NAME] START"

@@ -53,6 +53,8 @@ EXPOSE 80 443
 #RUN mkdir -p /app/run/pid
 #RUN mkdir -p /app/log/supervisor
 #RUN touch /app/log/supervisor/supervisord.log
+RUN set -x ; id -g www-data &>/dev/null || addgroup --gid 82 www-data && exit 0 ; exit 1
+RUN set -x ; id -u www-data &>/dev/null || adduser --uid 82 --group www-data www-data && exit 0 ; exit 1
 
 RUN mkdir -p /run/pid
 RUN mkdir -p /var/log/supervisor
@@ -71,8 +73,9 @@ RUN ln -sf /dev/stdout /var/log/nginx/access.log \
 #RUN cp -f /app/scripts/deploy/supervisor/super_uwsgi.conf /etc/supervisor/conf.d/
 
 # enter
-#WORKDIR ${HOME}
+
 COPY . /app
+WORKDIR /app
 ENTRYPOINT ["/app/scripts/deploy/docker/docker-entrypoint.bash"]
 CMD ["supervisord", "-n", "-c", "/app/scripts/deploy/docker/supervisor/supervisord.conf"]
 #CMD nginx; supervisord -n

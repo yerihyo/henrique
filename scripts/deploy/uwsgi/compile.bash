@@ -27,12 +27,12 @@ main(){
 
     jinja2 $FILE_DIR/$PROJECT_NAME.uwsgi.ini.tmplt \
         -D REPO_DIR=$REPO_DIR \
-        -D PROJECT_NAME="$PROJECT_NAME" \
+        -D SOCKET_HTTP="http = 127.0.0.1:8081" \
         > "$FILE_DIR/$PROJECT_NAME.uwsgi.local.ini"
 
    jinja2 $FILE_DIR/$PROJECT_NAME.uwsgi.ini.tmplt \
         -D REPO_DIR="/app" \
-        -D PROJECT_NAME="$PROJECT_NAME" \
+        -D SOCKET_HTTP="socket = /app/scripts/deploy/uwsgi/$PROJECT_NAME.uwsgi.sock" \
         > "$FILE_DIR/$PROJECT_NAME.uwsgi.docker.ini"
 
 #        -D REPO_DIR="$REPO_DIR" \
