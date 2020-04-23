@@ -20,22 +20,14 @@ REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
 main(){
     pushd $REPO_DIR
 
-    # Create env.$ENV.list
-    python -m henrique.main.singleton.env.henrique_env $ENV > "$FILE_DIR/env.$ENV.list"
+    $REPO_DIR/scripts/deploy/uwsgi/compile.bash
+    $REPO_DIR/scripts/deploy/nginx/compile.bash
+
     sudo docker build \
         -t henrique:$ENV \
         --build-arg ENV=$ENV \
         -f $FILE_DIR/Dockerfile \
         $REPO_DIR
-
-    sudo docker run \
-        --env-file $FILE_DIR/env.$ENV.list \
-        -it \
-        --privileged \
-        -v $REPO_DIR/log:/henrique/log -d \
-        -p 80:80 \
-        -p 443:443 \
-        henrique:$ENV
 
     popd
 }

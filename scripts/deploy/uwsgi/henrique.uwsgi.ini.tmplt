@@ -13,20 +13,20 @@ threads = 1
 
 
 # socket = [addr:port]
-socket = {{FILEPATH_SOCK}}
-# http = 127.0.0.1:8081
+socket = {{REPO_DIR}}/scripts/deploy/uwsgi/{{PROJECT_NAME}}.uwsgi.sock
+#http = 127.0.0.1:8081
 
 
 # Base application directory
 # chdir = /full/path
-chdir  = {{REPO_DIR}}
+# chdir  = {{REPO_DIR}}
 
 chmod-socket = 660
 vacuum = true
 
 die-on-term = true
 
-logger = file:logfile={{REPO_DIR}}/log/uwsgi.log,maxsize=2000000
+logger = file:logfile={{REPO_DIR}}/log/uwsgi/uwsgi.log,maxsize=2000000
 log-slow = 5000
 log-4xx = true
 log-5xx = true

@@ -23,11 +23,20 @@ USERNAME=$(stat -c '%U' $FILE_PATH)
 main(){
     mkdir -p $REPO_DIR/log
 
+#    errcho "FILE_DIR: $FILE_DIR"
+
     jinja2 $FILE_DIR/$PROJECT_NAME.uwsgi.ini.tmplt \
-        -D FILEPATH_SOCK="$FILE_DIR/$PROJECT_NAME.uwsgi.sock" \
-        -D REPO_DIR="$REPO_DIR" \
+        -D REPO_DIR=$REPO_DIR \
         -D PROJECT_NAME="$PROJECT_NAME" \
-        > "$FILE_DIR/$PROJECT_NAME.uwsgi.ini"
+        > "$FILE_DIR/$PROJECT_NAME.uwsgi.local.ini"
+
+   jinja2 $FILE_DIR/$PROJECT_NAME.uwsgi.ini.tmplt \
+        -D REPO_DIR="/app" \
+        -D PROJECT_NAME="$PROJECT_NAME" \
+        > "$FILE_DIR/$PROJECT_NAME.uwsgi.docker.ini"
+
+#        -D REPO_DIR="$REPO_DIR" \
+
 }
 
 errcho "[$FILE_NAME] START"

@@ -27,7 +27,7 @@ REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
 PROJECT_NAME=henrique
 #scheme=http
 is_https=""
-USER=${USER?'missing $USER'}
+# USER=${USER?'missing $USER'}
 
 if [[ "$ENV" == "local" || ! "$ENV" ]]; then
     DOMAIN_NAME="localhost"
@@ -43,12 +43,22 @@ main(){
     # https://github.com/mattrobenolt/jinja2-cli
     jinja2 $FILE_DIR/$PROJECT_NAME.nginx.conf.tmplt \
         -D DOMAIN_NAME="$DOMAIN_NAME" \
-        -D FILEPATH_SOCK="$REPO_DIR/scripts/deploy/uwsgi/$PROJECT_NAME.uwsgi.sock" \
-        -D FILE_DIR="$FILE_DIR" \
+        -D REPO_DIR="$REPO_DIR" \
         -D NGINX_DIR="/usr/local/etc/nginx" \
-        -D USER="$USER" \
+        -D USER_GROUP="moon staff" \
         -D is_https="$is_https" \
-        > $FILE_DIR/$PROJECT_NAME.nginx.conf
+        > $FILE_DIR/$PROJECT_NAME.nginx.local.conf
+
+    jinja2 $FILE_DIR/$PROJECT_NAME.nginx.conf.tmplt \
+        -D DOMAIN_NAME="$DOMAIN_NAME" \
+        -D REPO_DIR="/app" \
+        -D NGINX_DIR="/etc/nginx" \
+        -D USER_GROUP="nobody nogroup" \
+        -D is_https="$is_https" \
+        > $FILE_DIR/$PROJECT_NAME.nginx.docker.conf
+
+#        -D USER="$USER" \
+
 }
 
 

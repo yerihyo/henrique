@@ -12,11 +12,14 @@ func_count2reduce(){
     for ((i=0;i<$n;i++)); do v=$($cmd $v) ; done; echo "$v"
 }
 
+REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
 PROJECT_NAME=henrique
 
 main(){
     $FILE_DIR/compile.bash
-    uwsgi "$FILE_DIR/$PROJECT_NAME.uwsgi.ini"
+
+    mkdir -p $REPO_DIR/log/uwsgi
+    uwsgi "$FILE_DIR/$PROJECT_NAME.uwsgi.local.ini"
 }
 
 errcho "[$FILE_NAME] START"
