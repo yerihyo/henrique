@@ -53,13 +53,20 @@ EXPOSE 80 443
 #RUN mkdir -p /app/run/pid
 #RUN mkdir -p /app/log/supervisor
 #RUN touch /app/log/supervisor/supervisord.log
+
+RUN mkdir -p /var/log/supervisor /var/log/nginx /run/pid && \
+    chmod -R 777 /var/log /run && \
+    chgrp -R 0 /var/log /run  && \
+    chmod -R g+rwX /var/log /run
+
+#RUN mkdir -p /run/pid /run/uwsgi
+#RUN mkdir -p /var/log/supervisor
+#RUN touch /var/log/supervisor/supervisord.log
+
 RUN set -x ; id -g www-data &>/dev/null || addgroup --gid 82 www-data && exit 0 ; exit 1
 RUN set -x ; id -u www-data &>/dev/null || adduser --uid 82 --group www-data www-data && exit 0 ; exit 1
 
-RUN mkdir -p /run/pid
-RUN mkdir -p /var/log/supervisor
-RUN touch /var/log/supervisor/supervisord.log
-
+# supervisord does it not?
 RUN ln -sf /dev/stdout /var/log/nginx/access.log \
 	&& ln -sf /dev/stderr /var/log/nginx/error.log
 

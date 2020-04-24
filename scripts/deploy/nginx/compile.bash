@@ -53,7 +53,7 @@ main(){
         -D DOMAIN_NAME="$DOMAIN_NAME" \
         -D REPO_DIR="/app" \
         -D NGINX_DIR="/etc/nginx" \
-        -D USER_GROUP="nobody nogroup" \
+        -D USER_GROUP="www-data www-data" \
         -D is_https="$is_https" \
         > $FILE_DIR/$PROJECT_NAME.nginx.docker.conf
 

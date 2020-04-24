@@ -34,7 +34,8 @@ http {
     #gzip  on;
 
     upstream henrique_upstream {
-        server unix:{{REPO_DIR}}/scripts/deploy/uwsgi/henrique.uwsgi.sock; # for a file socket
+        server unix:/run/uwsgi.sock; # for a file socket
+        # server unix:{{REPO_DIR}}/scripts/deploy/uwsgi/henrique.uwsgi.sock; # for a file socket
         #server 127.0.0.1:8001; # for a web port socket (use this to test with http instead of socket)
     }
 
