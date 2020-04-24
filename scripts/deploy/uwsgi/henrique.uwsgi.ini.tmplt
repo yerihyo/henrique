@@ -14,7 +14,7 @@ threads = 1
 
 # socket = [addr:port]
 {% if mode == "local" %}
-http = 127.0.0.1:8081
+http = 127.0.0.1:14920
 {% elif mode == "docker" %}
 socket = /run/uwsgi.sock
 {% endif %}
