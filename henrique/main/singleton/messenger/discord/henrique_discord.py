@@ -38,7 +38,7 @@ class KhalaDiscordClient:
                      })
 
     @classmethod
-    def text2is_related(cls, text):
+    def text2is_query(cls, text):
         return bool(HenriqueCommand.pattern_prefix().match(text))
 
     @classmethod
@@ -52,7 +52,7 @@ class KhalaDiscordClient:
         if DiscordTool.user_message2is_author(client.user, message):
             return
 
-        if not cls.text2is_related(text_in):
+        if not cls.text2is_query(text_in):
             return
 
         # packet = {KhalaPacket.Field.TEXT: message.content,
