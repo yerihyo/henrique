@@ -23,26 +23,17 @@ main(){
     $REPO_DIR/scripts/deploy/uwsgi/compile.bash
     $REPO_DIR/scripts/deploy/nginx/compile.bash
 
-    sudo docker build \
+    docker build \
         -t henrique:$ENV \
         --build-arg ENV=$ENV \
         -f $FILE_DIR/Dockerfile \
         $REPO_DIR
 
+#    docker push foxytrixy/henrique:$ENV
+
     popd
 }
 
-
-remove_all_containers(){
-    # Remove all containers
-    sudo docker stop $(sudo docker ps -a -q)
-    sudo docker rm $(sudo docker ps -a -q)
-}
-
-remove_all_images(){
-    # Remove all images
-    sudo docker rmi $(sudo docker images -q)
-}
 
 errcho "[$FILE_NAME] START"
 main

@@ -13,12 +13,14 @@ threads = 1
 
 
 # socket = [addr:port]
-{% if mode == "local" %}http = 127.0.0.1:8081{% endif %}
-{% if mode == "docker" %}socket = /run/uwsgi.sock{% endif %}
+{% if mode == "local" %}
+http = 127.0.0.1:8081
+{% elif mode == "docker" %}
+socket = /run/uwsgi.sock
+{% endif %}
 
 # Base application directory
 # chdir = /full/path
-# chdir  = {{REPO_DIR}}
 
 chmod-socket = 660
 vacuum = true

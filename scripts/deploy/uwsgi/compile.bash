@@ -26,12 +26,10 @@ main(){
 #    errcho "FILE_DIR: $FILE_DIR"
 
     jinja2 $FILE_DIR/$PROJECT_NAME.uwsgi.ini.tmplt \
-        -D REPO_DIR=$REPO_DIR \
         -D mode="local" \
         > "$FILE_DIR/$PROJECT_NAME.uwsgi.local.ini"
 
    jinja2 $FILE_DIR/$PROJECT_NAME.uwsgi.ini.tmplt \
-        -D REPO_DIR="/app" \
         -D mode="docker" \
         > "$FILE_DIR/$PROJECT_NAME.uwsgi.docker.ini"
 

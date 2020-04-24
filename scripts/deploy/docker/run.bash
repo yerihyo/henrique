@@ -21,7 +21,7 @@ main(){
     pushd $REPO_DIR
 
     python -m henrique.main.singleton.env.henrique_env $ENV > "$FILE_DIR/env.$ENV.list"
-    sudo docker run \
+    docker run \
         --env-file $FILE_DIR/env.$ENV.list \
         -it \
         -v $REPO_DIR/log:/app/log \
@@ -35,16 +35,16 @@ main(){
 }
 
 
-remove_all_containers(){
-    # Remove all containers
-    sudo docker stop $(sudo docker ps -a -q)
-    sudo docker rm $(sudo docker ps -a -q)
-}
-
-remove_all_images(){
-    # Remove all images
-    sudo docker rmi $(sudo docker images -q)
-}
+#remove_all_containers(){
+#    # Remove all containers
+#    sudo docker stop $(sudo docker ps -a -q)
+#    sudo docker rm $(sudo docker ps -a -q)
+#}
+#
+#remove_all_images(){
+#    # Remove all images
+#    sudo docker rmi $(sudo docker images -q)
+#}
 
 errcho "[$FILE_NAME] START"
 #$FILE_DIR/build.bash

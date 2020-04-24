@@ -43,17 +43,16 @@ main(){
     # https://github.com/mattrobenolt/jinja2-cli
     jinja2 $FILE_DIR/$PROJECT_NAME.nginx.conf.tmplt \
         -D DOMAIN_NAME="$DOMAIN_NAME" \
-        -D REPO_DIR="$REPO_DIR" \
         -D NGINX_DIR="/usr/local/etc/nginx" \
-        -D USER_GROUP="moon staff" \
+        -D mode="local" \
         -D is_https="$is_https" \
+        -D REPO_DIR="$REPO_DIR" \
         > $FILE_DIR/$PROJECT_NAME.nginx.local.conf
 
     jinja2 $FILE_DIR/$PROJECT_NAME.nginx.conf.tmplt \
         -D DOMAIN_NAME="$DOMAIN_NAME" \
-        -D REPO_DIR="/app" \
         -D NGINX_DIR="/etc/nginx" \
-        -D USER_GROUP="www-data www-data" \
+        -D mode="docker" \
         -D is_https="$is_https" \
         > $FILE_DIR/$PROJECT_NAME.nginx.docker.conf
 
