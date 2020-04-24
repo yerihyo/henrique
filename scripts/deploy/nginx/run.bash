@@ -39,8 +39,9 @@ fi
 main(){
     ENV=$ENV $FILE_DIR/compile.bash
 
+    mkdir -p $REPO_DIR/log/nginx
     sudo nginx -s stop || errcho "no nginx running a priori"
-    sudo nginx -c $FILE_DIR/$PROJECT_NAME.nginx.conf
+    sudo nginx -g "daemon off;" -c $FILE_DIR/$PROJECT_NAME.nginx.local.conf
 }
 
 

@@ -31,7 +31,7 @@ class Port:
         from henrique.main.document.port.googlesheets.port_googlesheets import PortGooglesheets
         h_googlesheets = PortGooglesheets.dict_codename2port_partial()
 
-        codename_list = luniq(chain(h_mongo.keys(), h_googlesheets.keys()))
+        codename_list = luniq(chain(h_googlesheets.keys(), h_mongo.keys(),))
 
         def codename2port(codename):
             port = merge_dicts([h_mongo.get(codename) or {},

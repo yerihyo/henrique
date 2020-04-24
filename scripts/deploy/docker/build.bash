@@ -1,10 +1,13 @@
 #!/bin/bash -eu
-# REFERENCE: https://www.digitalocean.com/community/tutorials/how-to-serve-flask-applications-with-uswgi-and-nginx-on-ubuntu-18-04
 
 ARG0=${BASH_SOURCE[0]}
 FILE_PATH=$(readlink -f $ARG0)
 FILE_NAME=$(basename $FILE_PATH)
 FILE_DIR=$(dirname $FILE_PATH)
+
+ENV=${ENV?'missing $ENV'}
+if [[ ! "$ENV" ]]; then errcho "missing env variable $ENV"; exit 1; fi
+
 
 errcho(){ >&2 echo $@; }
 func_count2reduce(){
@@ -13,16 +16,25 @@ func_count2reduce(){
 }
 
 REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
-PROJECT_NAME=henrique
 
 main(){
-    $FILE_DIR/compile.bash
+    pushd $REPO_DIR
 
-    mkdir -p $REPO_DIR/log/uwsgi
-    uwsgi "$FILE_DIR/$PROJECT_NAME.uwsgi.local.ini" # --uid www-data --gid www-data
+    $REPO_DIR/scripts/deploy/uwsgi/compile.bash
+    $REPO_DIR/scripts/deploy/nginx/compile.bash
+
+    docker build \
+        -t henrique:$ENV \
+        --build-arg ENV=$ENV \
+        -f $FILE_DIR/Dockerfile \
+        $REPO_DIR
+
+#    docker push foxytrixy/henrique:$ENV
+
+    popd
 }
+
 
 errcho "[$FILE_NAME] START"
 main
 errcho "[$FILE_NAME] END"
-

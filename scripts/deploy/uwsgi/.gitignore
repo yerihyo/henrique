@@ -1,4 +1,6 @@
 /henrique.uwsgi.service
 /henrique.uwsgi.ini
+/henrique.uwsgi.docker.ini
+/henrique.uwsgi.local.ini
 /henrique.uwsgi.sock
 

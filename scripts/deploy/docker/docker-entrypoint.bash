@@ -1,4 +1,6 @@
-#!/usr/bin/env bash -e
+#!/usr/bin/env bash
+
+set -e
 
 # if the running user is an Arbitrary User ID
 if ! whoami &> /dev/null; then
@@ -8,9 +10,10 @@ if ! whoami &> /dev/null; then
     echo "${USER_NAME:-default}:x:$(id -u):0:${USER_NAME:-default} user:${HOME}:/sbin/nologin" >> /etc/passwd
   fi
 fi
-if [[ "$1" = 'supervisord' ]]; then
-    exec /usr/bin/supervisord
+
+if [[ "$1" == 'supervisord' ]]; then
+    shift
+    exec /usr/bin/supervisord "$@"
+else
+    exec "$@"
 fi
-
-
-exec "$@"

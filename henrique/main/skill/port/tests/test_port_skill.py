@@ -8,8 +8,7 @@ from khala.document.packet.packet import KhalaPacket
 
 class TestPortSkill(TestCase):
     def test_01(self):
-
-        packet = {KhalaPacket.Field.TEXT:"?port 리스본",
+        packet = {KhalaPacket.Field.TEXT: "?port 리스본",
                   KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
                   }
 
@@ -21,12 +20,13 @@ class TestPortSkill(TestCase):
 
     def test_02(self):
 
-        packet = {KhalaPacket.Field.TEXT:"?port 이베리아",
+        packet = {KhalaPacket.Field.TEXT: "?port 이베리아",
                   KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
                   }
 
         hyp = PortSkill.packet2response(packet)
-        ref = '[이베리아] 항구 - 라스팔마스, 카사블랑카, 비아나두카스텔루, 파루, 마데이라, 팔마, 히혼, 리스본, 세비야, 빌바오, 사그레스, 바르셀로나, 세우타, 포르투, 말라가, 몽펠리에, 발렌시아'
+        ref = ("[이베리아] 항구 - 세비야, 세우타, 카사블랑카, 라스팔마스, 마데이라, 파루, 리스본, 포르투, 비아나두카스텔루, 히혼, "
+               "빌바오, 말라가, 발렌시아, 팔마, 바르셀로나, 몽펠리에, 사그레스")
 
         # pprint({"hyp":hyp})
         self.assertEqual(hyp, ref)
