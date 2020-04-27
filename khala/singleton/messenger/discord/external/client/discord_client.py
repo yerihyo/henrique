@@ -8,9 +8,10 @@ from functools import lru_cache, reduce
 
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.socialmedia.discord.discord_tool import DiscordTool
-from henrique.main.singleton.env.henrique_env import HenriqueEnv
-from henrique.main.singleton.khala.henrique_khala import HenriqueCommand
-from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
+from khala.document.channel_user.channel_user import ChannelUser
+from khala.document.chatroom.chatroom import Chatroom
+from khala.singleton.logger.khala_logger import KhalaLogger
+from khala.singleton.messenger.discord.internal.channel_user_discord import ChannelUserDiscord
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
@@ -18,7 +19,7 @@ FILE_NAME = os.path.basename(FILE_PATH)
 REPO_DIR = reduce(lambda x, f: f(x), [os.path.dirname] * 5, FILE_DIR)
 
 
-class KhalaDiscordClient:
+class DiscordClient:
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def client(cls):
@@ -29,7 +30,7 @@ class KhalaDiscordClient:
 
     @classmethod
     async def on_ready(cls):
-        logger = HenriqueLogger.func_level2logger(cls.on_ready, logging.DEBUG)
+        logger = KhalaLogger.func_level2logger(cls.on_ready, logging.DEBUG)
 
         client = cls.client()
         logger.info({"client.user.name": client.user.name,
@@ -39,11 +40,17 @@ class KhalaDiscordClient:
 
     @classmethod
     def text2is_query(cls, text):
+        from henrique.main.singleton.khala.henrique_khala import HenriqueCommand
         return bool(HenriqueCommand.pattern_prefix().match(text))
+
 
     @classmethod
     async def on_message(cls, message):
-        logger = HenriqueLogger.func_level2logger(cls.on_message, logging.DEBUG)
+        from henrique.main.singleton.khala.henrique_khala import HenriqueKhala
+        from khala.singleton.messenger.discord.internal.packet_discord import PacketDiscord
+        from khala.singleton.messenger.discord.internal.chatroom_discord import ChatroomDiscord
+
+        logger = KhalaLogger.func_level2logger(cls.on_message, logging.DEBUG)
         client = cls.client()
         text_in = message.content
 
@@ -55,23 +62,28 @@ class KhalaDiscordClient:
         if not cls.text2is_query(text_in):
             return
 
-        # packet = {KhalaPacket.Field.TEXT: message.content,
-        #           KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
-        #           KhalaPacket.Field.CHANNEL_USER: KakaotalkUWOChannel.username2channel_user_codename("iris"),
-        #           KhalaPacket.Field.SENDER_NAME: "iris",
-        #           }
-        # text_out = HenriqueKhala.packet2response(packet)
+        Chatroom.chatrooms2upsert([ChatroomDiscord.message2chatroom(message)])
+        ChannelUser.channel_users2upsert([ChannelUserDiscord.message2channel_user(message)])
 
-        text_out = text_in
+        packet = PacketDiscord.message2packet(message)
+        logger.debug({"packet": packet, })
+
+        text_out = HenriqueKhala.packet2response(packet)
+
         await message.channel.send(text_out)
 
 
 def main():
+    from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
+    from henrique.main.singleton.env.henrique_env import HenriqueEnv
+
+    KhalaLogger.attach_stderr2loggers(logging.DEBUG)
     HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
 
-    client = KhalaDiscordClient.client()
+    client = DiscordClient.client()
     discord_token = HenriqueEnv.key2value("DISCORD_TOKEN")
     client.run(discord_token)
+
 
 if __name__ == "__main__":
     main()

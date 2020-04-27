@@ -170,7 +170,7 @@ class TestPriceSkill(TestCase):
 
     def test_01(self):
         packet = {KhalaPacket.Field.TEXT: "?price 리스본 육두구",
-                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
                   }
 
         hyp = NORM_LIST(PriceSkill.packet2rowsblocks(packet))
@@ -181,7 +181,7 @@ class TestPriceSkill(TestCase):
 
     def test_02(self):
         packet = {KhalaPacket.Field.TEXT: "?price 리스본 세비야 육두구 메이스",
-                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
                   }
 
         hyp = NORM_SET(PriceSkill.packet2rowsblocks(packet))
@@ -194,7 +194,7 @@ class TestPriceSkill(TestCase):
 
     def test_03(self):
         packet = {KhalaPacket.Field.TEXT: "?price 육메 이베",
-                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
                   }
 
         hyp = NORM_SET(PriceSkill.packet2rowsblocks(packet))
@@ -218,7 +218,7 @@ class TestPriceSkill(TestCase):
         # channel = Channel.Codename.KAKAOTALK_UWO_UWO  # discord
 
         packet = {KhalaPacket.Field.TEXT: "?price 육두구 리스본 120ㅅ",
-                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
                   KhalaPacket.Field.CHANNEL_USER: KakaotalkUWOChannel.username2channel_user_codename("iris"),
                   KhalaPacket.Field.SENDER_NAME: "iris",
                   }
@@ -281,7 +281,7 @@ class TestPriceSkill(TestCase):
 
 
         packet = {KhalaPacket.Field.TEXT: "?price 리스본,세비야 육두구",
-                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
                   }
 
         hyp = NORM_LIST(PriceSkill.packet2rowsblocks(packet))

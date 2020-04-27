@@ -1,13 +1,17 @@
 import sys
 
 from cachetools import LRUCache, cached
+from cachetools.keys import hashkey
+from future.utils import lmap
+
+from foxylib.tools.cache.cachetools.cachetools_tool import CachetoolsManager, CachetoolsTool
 from foxylib.tools.collections.collections_tool import DictTool
-from functools import lru_cache
+from functools import lru_cache, partial
 
 from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.function.warmer import Warmer
-from khala.document.channel.channel import Channel, DiscordChannel, KakaotalkUWOChannel
+from khala.document.channel.channel import Channel
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from khala.document.channel_user.channel_user import ChannelUser
 from khala.document.chatroom.chatroom import Chatroom
@@ -30,77 +34,53 @@ class ChannelUserCollection:
 
 
 class ChannelUserDocCache:
-    @classmethod
-    def doc2cache(cls, doc):
-        cls.codename2doc.doc2cache(doc)
-
-    class codename2doc:
+    class Constant:
         MAXSIZE = 200
 
-        @classmethod
-        @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-        def cache(cls):
-            return LRUCache(maxsize=cls.MAXSIZE)
-
-        @classmethod
-        def doc2cache(cls, doc):
-            cache = cls.cache()
-            codename = ChannelUserDoc.doc2codename(doc)
-            cache[codename] = doc
-
-        @classmethod
-        @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
-        def collection2cache(cls):
-            collection = ChannelUserCollection.collection()
-            doc_iter = map(MongoDBTool.bson2json, collection.find({}))
-            for doc in IterTool.head(cls.MAXSIZE, doc_iter):
-                cls.doc2cache(doc)
+    @classmethod
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
+    def warmer(cls,):
+        collection = ChannelUserCollection.collection()
+        docs = map(MongoDBTool.bson2json, collection.find())
+        ChannelUserDoc._docs2cache(docs)
 
 
 class ChannelUserDoc:
     Cache = ChannelUserDocCache
 
-    class Field:
-        CHANNEL = "channel"
-        CODENAME = "codename"
-        ALIAS = "alias"
-        # USER_ID = "user_id" # in the future
-
     @classmethod
-    def doc2codename(cls, doc):
-        return doc[cls.Field.CODENAME]
-
-    @classmethod
-    @cached(ChannelUserDocCache.codename2doc.cache())
-    def codename2doc(cls, codename):
+    @CachetoolsManager.attach2func(cached=partial(CachetoolsTool.Decorator.cached_each, index_each=1),
+                                   key=CachetoolsTool.key4classmethod(hashkey),
+                                   cache=LRUCache(maxsize=ChannelUserDocCache.Constant.MAXSIZE),
+                                   )
+    def codenames2docs(cls, codenames):
         collection = ChannelUserCollection.collection()
-        doc = MongoDBTool.bson2json(collection.find_one({cls.Field.CODENAME: codename}))
-        return doc
+
+        query = {ChannelUser.Field.CODENAME: {"$in": codenames}}
+        doc_list = lmap(MongoDBTool.bson2json, collection.find(query))
+        return doc_list
 
     @classmethod
-    def packet2upsert(cls, packet):
+    def _docs2cache(cls, docs):
+        for doc in docs:
+            codename = ChannelUser.doc2codename(doc)
+            cls.codenames2docs.cachetools_manager.add2cache(doc, args=[codename])
 
-        doc = cls.packet2doc(packet)
-        doc_filter = DictTool.keys2filtered(doc, [cls.Field.CODENAME])
+    @classmethod
+    def docs2upsert(cls, docs):
+        def doc2pair(doc):
+            doc_filter = DictTool.keys2filtered(doc, [ChannelUser.Field.CODENAME])
+            return doc_filter, doc
+
+        pair_list = lmap(doc2pair, docs)
 
         collection = ChannelUserCollection.collection()
-        mongo_result = MongoDBTool.j_pair_list2upsert(collection, [(doc_filter, doc)])
+        mongo_result = MongoDBTool.j_pair_list2upsert(collection, pair_list)
+
+        cls._docs2cache(docs)
+
         return mongo_result
 
-    @classmethod
-    def packet2doc(cls, packet):
-        codename = ChannelUser.packet2codename(packet)
-        chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))
-        channel = Chatroom.chatroom2channel(chatroom)
-
-        alias = Channel.packet2alias(packet)
-
-        doc = {cls.Field.CHANNEL: channel,
-               cls.Field.CODENAME: codename,
-               cls.Field.ALIAS: alias
-               }
-
-        return doc
 
 
 

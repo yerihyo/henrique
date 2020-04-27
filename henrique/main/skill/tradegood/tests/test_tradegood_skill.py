@@ -11,7 +11,7 @@ class TestTradegoodSkill(TestCase):
     def test_01(self):
 
         packet = {KhalaPacket.Field.TEXT:"?tradegood 육두구",
-                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
                   }
 
         hyp = TradegoodSkill.packet2response(packet)
@@ -23,7 +23,7 @@ class TestTradegoodSkill(TestCase):
     def test_02(self):
 
         packet = {KhalaPacket.Field.TEXT:"?tradegood 이베리아",
-                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
                   }
 
         hyp = TradegoodSkill.packet2response(packet)

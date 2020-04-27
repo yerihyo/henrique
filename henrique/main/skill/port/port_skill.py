@@ -52,7 +52,6 @@ class PortSkill:
 
         return codename2response(codename)
 
-
     @classmethod
     def packet2response(cls, packet):
         chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))

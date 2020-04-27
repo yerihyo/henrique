@@ -10,7 +10,7 @@ class TestCultureSkill(TestCase):
     def test_01(self):
 
         packet = {KhalaPacket.Field.TEXT:"?ㅁㅎ 이베리아",
-                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
                   }
 
         hyp = CultureSkill.packet2response(packet)
@@ -22,7 +22,7 @@ class TestCultureSkill(TestCase):
     def test_02(self):
 
         packet = {KhalaPacket.Field.TEXT:"?culture Lisbon",
-                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
                   }
 
         hyp = CultureSkill.packet2response(packet)
@@ -33,7 +33,7 @@ class TestCultureSkill(TestCase):
 
     def test_03(self):
         packet = {KhalaPacket.Field.TEXT: "?culture 복분자",
-                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
                   }
 
         hyp = CultureSkill.packet2response(packet)

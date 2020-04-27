@@ -1,16 +1,14 @@
-import re
 import sys
 
-from nose.tools import assert_in
-
-from foxylib.tools.nlp.contextfree.contextfree_tool import ContextfreeTool
+import re
 from functools import lru_cache, partial
-
 from future.utils import lfilter, lmap
+from nose.tools import assert_in
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
+from foxylib.tools.nlp.contextfree.contextfree_tool import ContextfreeTool
 from foxylib.tools.string.string_tool import str2strip, StringTool
 from henrique.main.document.henrique_entity import Entity
 from henrique.main.document.skill.skill_entity import SkillEntity
@@ -25,6 +23,9 @@ class HenriqueKhala:
     @classmethod
     def packet2response(cls, packet):
         from henrique.main.document.skill.skill_entity import HenriqueSkill
+
+        # ChatroomDoc.chatroom2upsert(Chatroom.packet2chatroom(packet))
+
 
         skill_code = HenriqueCommand.packet2skill_code(packet)
         skill_class = HenriqueSkill.codename2class(skill_code)

@@ -9,7 +9,7 @@ from khala.document.packet.packet import KhalaPacket
 class TestPortSkill(TestCase):
     def test_01(self):
         packet = {KhalaPacket.Field.TEXT: "?port 리스본",
-                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
                   }
 
         hyp = PortSkill.packet2response(packet)
@@ -21,7 +21,7 @@ class TestPortSkill(TestCase):
     def test_02(self):
 
         packet = {KhalaPacket.Field.TEXT: "?port 이베리아",
-                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
                   }
 
         hyp = PortSkill.packet2response(packet)

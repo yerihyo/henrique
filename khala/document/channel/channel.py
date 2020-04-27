@@ -9,43 +9,28 @@ class Channel:
         SLACK = "slack"
 
     @classmethod
-    def packet2alias(cls, packet):
+    def packet2codename(cls, packet):
         from khala.document.chatroom.chatroom import Chatroom
-        chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))
-        channel = Chatroom.chatroom2channel(chatroom)
-
-        if channel == cls.Codename.KAKAOTALK_UWO:
-            return KakaotalkUWOChannel.packet2username(packet)
-
-        if channel == cls.Codename.DISCORD:
-            return DiscordChannel.packet2username(packet)
-
-        raise Exception({"channel":channel})
-
-
-class DiscordChannel:
-    class PacketExtra:
-        class Field:
-            USER = "user"
-
-        @classmethod
-        def extra2discord_user(cls, extra):
-            return extra.get(cls.Field.USER)
+        chatroom_codename = KhalaPacket.packet2chatroom(packet)
+        codename = Chatroom.codename2channel(chatroom_codename)
+        return codename
 
     @classmethod
-    def packet2channel_user_codename(cls, packet):
-        extra = KhalaPacket.packet2extra(packet)
-        user = cls.PacketExtra.extra2discord_user(extra)
-        user_id = DiscordUser.user2id(user)
+    def packet2alias(cls, packet):
+        from khala.singleton.messenger.discord.internal.packet_discord import PacketDiscord
 
-        from khala.document.channel_user.channel_user import ChannelUser
-        return ChannelUser.channel_suffix2codename(Channel.Codename.DISCORD, user_id)
+        # codename = cls.packet2codename(packet)
+        return KhalaPacket.packet2sender_name(packet)
 
-    @classmethod
-    def packet2username(cls, packet):
-        extra = KhalaPacket.packet2extra(packet)
-        user = cls.PacketExtra.extra2discord_user(extra)
-        return DiscordUser.user2username(user)
+        # if codename == cls.Codename.KAKAOTALK_UWO:
+        #     return KakaotalkUWOChannel.packet2username(packet)
+        #
+        # if codename == cls.Codename.DISCORD:
+        #     return PacketDiscord.packet2username(packet)
+        #
+        # raise Exception({"channel":codename})
+
+
 
 
 class KakaotalkUWOChannel:
@@ -59,11 +44,12 @@ class KakaotalkUWOChannel:
 
     @classmethod
     def packet2channel_user_codename(cls, packet):
-        return cls.username2channel_user_codename(cls.packet2username(packet))
+        sender_name = KhalaPacket.packet2sender_name(packet)
+        return cls.username2channel_user_codename(sender_name)
 
-    @classmethod
-    def packet2username(cls, packet):
-        return KhalaPacket.packet2sender_name(packet)
+    # @classmethod
+    # def packet2username(cls, packet):
+    #     return KhalaPacket.packet2sender_name(packet)
 
     @classmethod
     def username2channel_user_codename(cls, username):
