@@ -36,8 +36,8 @@ class Entity:
             chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))
             locale = Chatroom.chatroom2locale(chatroom)
 
-            config = {cls.Field.LOCALE:locale,
-                      cls.Field.STEP:Entity.Step.PRECISION,
+            config = {cls.Field.LOCALE: locale,
+                      cls.Field.STEP: Entity.Step.PRECISION,
                       }
             return config
 

@@ -44,10 +44,14 @@ class HenriqueCommand:
         text_in = KhalaPacket.packet2text(packet)
         config = Entity.Config.packet2config(packet)
 
-        entity_list = SkillEntity.text2entity_list(text_in, config=config)
-
         pattern_prefix = cls.pattern_prefix()
         match_list_prefix = list(pattern_prefix.finditer(text_in))
+        if not match_list_prefix:
+            return None
+
+        entity_list = SkillEntity.text2entity_list(text_in, config=config)
+        if not entity_list:
+            return None
 
         spans_list = [lmap(lambda m: m.span(), match_list_prefix),
                       lmap(Entity.entity2span, entity_list)
@@ -60,7 +64,8 @@ class HenriqueCommand:
         if not indextuple_list:
             return None
 
-        entity = l_singleton2obj(indextuple_list)[1]
+        index_entity = l_singleton2obj(indextuple_list)[1]
+        entity = entity_list[index_entity]
         return SkillEntity.entity2skill_codename(entity)
 
 
