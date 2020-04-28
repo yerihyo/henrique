@@ -438,13 +438,18 @@ class PriceSkill:
 
     @classmethod
     def price_lang2text(cls, price, lang):
+        logger = HenriqueLogger.func_level2logger(cls.price_lang2text, logging.DEBUG)
+
         if price is None:
             return cls.lang2text_idk(lang)
 
         rate = MarketpriceDoc.price2rate(price)
         trend = MarketpriceDoc.price2trend(price)
         # raise Exception({"price":price})
-        channel_user = l_singleton2obj(ChannelUser.codenames2channel_users(MarketpriceDoc.price2channel_user(price)))
+
+        channel_user_codename = MarketpriceDoc.price2channel_user(price)
+        channel_user = l_singleton2obj(ChannelUser.codenames2channel_users([channel_user_codename]))
+        logger.debug({"price":price, "channel_user":channel_user})
 
         # raise Exception({"price":price})
         created_at = MarketpriceDoc.price2created_at(price) or MarketpriceDoc.created_at_backoff()

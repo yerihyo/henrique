@@ -12,6 +12,8 @@ from khala.document.channel.channel import KakaotalkUWOChannel
 from khala.document.channel_user.channel_user import ChannelUser
 from khala.document.chatroom.chatroom import KakaotalkUWOChatroom, Chatroom
 from khala.document.packet.packet import KhalaPacket, KhalaPacket
+from khala.singleton.messenger.kakaotalk.internal.channel_user_kakaotalk import ChannelUserKakaotalk
+from khala.singleton.messenger.kakaotalk.internal.chatroom_kakaotalk import ChatroomKakaotalk
 
 
 class TestHenriqueKhala(TestCase):
@@ -20,9 +22,11 @@ class TestHenriqueKhala(TestCase):
         HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
 
     def test_01(self):
+        Chatroom.chatrooms2upsert([ChatroomKakaotalk.chatroom()])
+
         packet = {KhalaPacket.Field.TEXT: "?항구 리스본",
                   KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
-                  KhalaPacket.Field.CHANNEL_USER: KakaotalkUWOChannel.username2channel_user_codename("iris"),
+                  KhalaPacket.Field.CHANNEL_USER: ChannelUserKakaotalk.sender_name2codename("iris"),
                   KhalaPacket.Field.SENDER_NAME: "iris",
                   }
         hyp = HenriqueKhala.packet2response(packet)

@@ -41,11 +41,11 @@ class KakaotalkUWOChannel:
     #     @classmethod
     #     def extra2channel_username(cls, extra):
     #         return extra.get(cls.Field.USERNAME)
-
-    @classmethod
-    def packet2channel_user_codename(cls, packet):
-        sender_name = KhalaPacket.packet2sender_name(packet)
-        return cls.username2channel_user_codename(sender_name)
+    #
+    # @classmethod
+    # def packet2channel_user_codename(cls, packet):
+    #     sender_name = KhalaPacket.packet2sender_name(packet)
+    #     return cls.username2channel_user_codename(sender_name)
 
     # @classmethod
     # def packet2username(cls, packet):

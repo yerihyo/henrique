@@ -1,11 +1,13 @@
+import logging
 import sys
 
 from cachetools import LRUCache, cached
 from cachetools.keys import hashkey
 from future.utils import lmap
+from pymongo.results import BulkWriteResult
 
 from foxylib.tools.cache.cachetools.cachetools_tool import CachetoolsManager, CachetoolsTool
-from foxylib.tools.collections.collections_tool import DictTool
+from foxylib.tools.collections.collections_tool import DictTool, vwrite_no_duplicate_key, merge_dicts
 from functools import lru_cache, partial
 
 from foxylib.tools.collections.iter_tool import IterTool
@@ -19,7 +21,7 @@ from khala.document.packet.packet import KhalaPacket
 
 from foxylib.tools.function.function_tool import FunctionTool
 from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb
-
+from khala.singleton.logger.khala_logger import KhalaLogger
 
 MODULE = sys.modules[__name__]
 WARMER = Warmer(MODULE)
@@ -57,25 +59,40 @@ class ChannelUserDoc:
         collection = ChannelUserCollection.collection()
 
         query = {ChannelUser.Field.CODENAME: {"$in": codenames}}
-        doc_list = lmap(MongoDBTool.bson2json, collection.find(query))
+        cursor = collection.find(query)
+        h_codename2doc = merge_dicts([{ChannelUser.channel_user2codename(doc): doc}
+                                      for doc in map(MongoDBTool.bson2json, cursor)],
+                                     vwrite=vwrite_no_duplicate_key)
+
+        doc_list = lmap(h_codename2doc.get, codenames)
         return doc_list
 
     @classmethod
     def _docs2cache(cls, docs):
         for doc in docs:
-            codename = ChannelUser.doc2codename(doc)
+            codename = ChannelUser.channel_user2codename(doc)
             cls.codenames2docs.cachetools_manager.add2cache(doc, args=[codename])
 
     @classmethod
     def docs2upsert(cls, docs):
+        logger = KhalaLogger.func_level2logger(cls.docs2upsert, logging.DEBUG)
+
         def doc2pair(doc):
             doc_filter = DictTool.keys2filtered(doc, [ChannelUser.Field.CODENAME])
             return doc_filter, doc
 
         pair_list = lmap(doc2pair, docs)
 
+
         collection = ChannelUserCollection.collection()
         mongo_result = MongoDBTool.j_pair_list2upsert(collection, pair_list)
+
+        logger.debug({"mongo_result.bulk_api_result":mongo_result.bulk_api_result,})
+
+        # raise Exception({"docs": docs,
+        #                  "pair_list": pair_list ,
+        #                  "mongo_result.bulk_api_result":mongo_result.bulk_api_result,
+        #                  })
 
         cls._docs2cache(docs)
 

@@ -2,12 +2,15 @@ from pprint import pprint
 from unittest import TestCase
 
 from henrique.main.skill.port.port_skill import PortSkill
-from khala.document.chatroom.chatroom import KakaotalkUWOChatroom
+from khala.document.chatroom.chatroom import KakaotalkUWOChatroom, Chatroom
 from khala.document.packet.packet import KhalaPacket
+from khala.singleton.messenger.kakaotalk.internal.chatroom_kakaotalk import ChatroomKakaotalk
 
 
 class TestPortSkill(TestCase):
     def test_01(self):
+        Chatroom.chatrooms2upsert([ChatroomKakaotalk.chatroom()])
+
         packet = {KhalaPacket.Field.TEXT: "?port 리스본",
                   KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
                   }
@@ -19,6 +22,7 @@ class TestPortSkill(TestCase):
         self.assertEqual(hyp, ref)
 
     def test_02(self):
+        Chatroom.chatrooms2upsert([ChatroomKakaotalk.chatroom()])
 
         packet = {KhalaPacket.Field.TEXT: "?port 이베리아",
                   KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),

@@ -1,11 +1,15 @@
 import logging
 import os
 import sys
+from itertools import chain
 
+from foxylib.tools.collections.collections_tool import lchain, luniq
 from foxylib.tools.file.file_tool import FileTool
 from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.log.logger_tool import LoggerTool, FoxylibLogFormatter
 from functools import reduce, lru_cache
+
+from khala.singleton.logger.khala_logger import KhalaLogger
 
 FILE_PATH = os.path.realpath(__file__)
 REPO_DIR = reduce(lambda x, f: f(x), [os.path.dirname] * 3, FILE_PATH)
@@ -20,7 +24,10 @@ class HenriqueLogger:
 
     @classmethod
     def _rootname_list(cls):
-        return FoxylibLogger.rootname_list() + [cls.ROOTNAME]
+        return luniq(chain(FoxylibLogger.rootname_list(),
+                           KhalaLogger.rootname_list(),
+                           [cls.ROOTNAME],
+                           ))
 
     @classmethod
     def attach_handler2loggers(cls, handler):

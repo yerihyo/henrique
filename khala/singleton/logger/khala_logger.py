@@ -19,12 +19,12 @@ class KhalaLogger:
     def dirpath(cls): return LOG_DIR
 
     @classmethod
-    def _rootname_list(cls):
+    def rootname_list(cls):
         return FoxylibLogger.rootname_list() + [cls.ROOTNAME]
 
     @classmethod
     def attach_handler2loggers(cls, handler):
-        for rootname in cls._rootname_list():
+        for rootname in cls.rootname_list():
             logger = logging.getLogger(rootname)
             LoggerTool.add_or_skip_handlers(logger, [handler])
 

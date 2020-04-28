@@ -4,10 +4,11 @@ from cachetools import cached, LRUCache
 from cachetools.keys import hashkey
 from functools import lru_cache, partial
 from future.utils import lmap
+from nose.tools import assert_equal
 
 from foxylib.tools.cache.cache_tool import CacheTool
 from foxylib.tools.cache.cachetools.cachetools_tool import CachetoolsTool, CachetoolsManager
-from foxylib.tools.collections.collections_tool import DictTool, l_singleton2obj
+from foxylib.tools.collections.collections_tool import DictTool, l_singleton2obj, vwrite_no_duplicate_key, merge_dicts
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.function.function_tool import FunctionTool
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
@@ -69,11 +70,16 @@ class Chatroom:
         else:
             cursor = collection.find()
 
-        doc_list = lmap(MongoDBTool.bson2json, cursor)
+        h_codename2doc = merge_dicts([{Chatroom.chatroom2codename(doc): doc}
+                                      for doc in map(MongoDBTool.bson2json, cursor)],
+                                     vwrite=vwrite_no_duplicate_key)
+
+        doc_list = lmap(h_codename2doc.get, codenames)
 
         logger.debug({"codenames":codenames,
                       "doc_list":doc_list,
                       })
+        assert_equal(len(codenames), len(doc_list))
         return doc_list
 
     @classmethod
