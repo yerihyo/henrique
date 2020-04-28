@@ -19,8 +19,8 @@ class ChannelUser:
         # USER_ID = "user_id" # in the future
 
     @classmethod
-    def channel_user2codename(cls, doc):
-        return doc[cls.Field.CODENAME]
+    def channel_user2codename(cls, channel_user):
+        return channel_user[cls.Field.CODENAME]
 
     @classmethod
     def channel_user2alias(cls, channel_user):

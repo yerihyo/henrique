@@ -63,6 +63,9 @@ class HenriqueFlask:
         from henrique.front.path.view import IndexView
         FlaskTool.add_url2app(app, IndexView.url(), IndexView.get, methods=["GET",])
 
+        # from henrique.front.path.channel.kakaotalk.chatroom.uwo.view import KakaotalkUWOView
+        # FlaskTool.add_url2app(app, KakaotalkUWOView.url(), KakaotalkUWOView.get, methods=["GET", ])
+
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def app(cls):

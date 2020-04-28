@@ -69,6 +69,11 @@ class HenriqueCommand:
         entity = entity_list[index_entity]
         return SkillEntity.entity2skill_codename(entity)
 
+    @classmethod
+    def text2is_query(cls, text):
+        return bool(cls.pattern_prefix().match(text))
+
+
 
 class Rowsblock:
     @classmethod

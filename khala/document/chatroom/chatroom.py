@@ -11,7 +11,7 @@ from foxylib.tools.cache.cachetools.cachetools_tool import CachetoolsTool, Cache
 from foxylib.tools.collections.collections_tool import DictTool, l_singleton2obj, vwrite_no_duplicate_key, merge_dicts
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.function.function_tool import FunctionTool
-from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
+from henrique.main.singleton.logger.henrique_logger import KhalaLogger
 from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb
 from khala.document.channel.channel import KakaotalkUWOChannel, Channel
 from khala.singleton.logger.khala_logger import KhalaLogger
@@ -51,7 +51,7 @@ class Chatroom:
 
     @classmethod
     def codename2chatroom(cls, codename):
-        logger = HenriqueLogger.func_level2logger(cls.codename2chatroom, logging.DEBUG)
+        logger = KhalaLogger.func_level2logger(cls.codename2chatroom, logging.DEBUG)
         logger.debug({"codename": codename})
 
         return l_singleton2obj(cls.codenames2chatrooms([codename]))

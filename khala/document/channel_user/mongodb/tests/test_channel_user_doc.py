@@ -2,7 +2,7 @@ import logging
 from unittest import TestCase
 
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
-from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
+from henrique.main.singleton.logger.henrique_logger import KhalaLogger
 from henrique.main.skill.price.price_skill import PriceSkill
 from khala.document.channel.channel import KakaotalkUWOChannel
 from khala.document.channel_user.channel_user import ChannelUser
@@ -18,7 +18,7 @@ from khala.singleton.messenger.kakaotalk.internal.chatroom_kakaotalk import Chat
 class TestChannelUserDoc(TestCase):
     @classmethod
     def setUpClass(cls):
-        HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
+        KhalaLogger.attach_stderr2loggers(logging.DEBUG)
 
     def test_01(self):
         Chatroom.chatrooms2upsert([ChatroomKakaotalk.chatroom()])

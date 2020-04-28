@@ -39,16 +39,11 @@ class DiscordClient:
                      })
 
     @classmethod
-    def text2is_query(cls, text):
-        from henrique.main.singleton.khala.henrique_khala import HenriqueCommand
-        return bool(HenriqueCommand.pattern_prefix().match(text))
-
-
-    @classmethod
     async def on_message(cls, message):
         from henrique.main.singleton.khala.henrique_khala import HenriqueKhala
         from khala.singleton.messenger.discord.internal.packet_discord import PacketDiscord
         from khala.singleton.messenger.discord.internal.chatroom_discord import ChatroomDiscord
+        from henrique.main.singleton.khala.henrique_khala import HenriqueCommand
 
         logger = KhalaLogger.func_level2logger(cls.on_message, logging.DEBUG)
         client = cls.client()
@@ -59,7 +54,7 @@ class DiscordClient:
         if DiscordTool.user_message2is_author(client.user, message):
             return
 
-        if not cls.text2is_query(text_in):
+        if not HenriqueCommand.text2is_query(text_in):
             return
 
         Chatroom.chatrooms2upsert([ChatroomDiscord.message2chatroom(message)])
@@ -74,11 +69,11 @@ class DiscordClient:
 
 
 def main():
-    from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
+    from henrique.main.singleton.logger.henrique_logger import KhalaLogger
     from henrique.main.singleton.env.henrique_env import HenriqueEnv
 
     KhalaLogger.attach_stderr2loggers(logging.DEBUG)
-    HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
+    KhalaLogger.attach_stderr2loggers(logging.DEBUG)
 
     client = DiscordClient.client()
     discord_token = HenriqueEnv.key2value("DISCORD_TOKEN")
