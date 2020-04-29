@@ -75,6 +75,9 @@ def main():
     KhalaLogger.attach_stderr2loggers(logging.DEBUG)
     KhalaLogger.attach_stderr2loggers(logging.DEBUG)
 
+    # maybe update?
+    # https://stackoverflow.com/a/50981577
+
     client = DiscordClient.client()
     discord_token = HenriqueEnv.key2value("DISCORD_TOKEN")
     client.run(discord_token)
