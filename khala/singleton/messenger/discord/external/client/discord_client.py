@@ -7,7 +7,7 @@ import discord
 from functools import lru_cache, reduce
 
 from foxylib.tools.function.function_tool import FunctionTool
-from foxylib.tools.socialmedia.discord.discord_tool import DiscordTool
+from foxylib.tools.socialmedia.discord.discord_tool import DiscordTool, DiscordLogger
 from khala.document.channel_user.channel_user import ChannelUser
 from khala.document.chatroom.chatroom import Chatroom
 from khala.singleton.logger.khala_logger import KhalaLogger
@@ -71,9 +71,12 @@ class DiscordClient:
 def main():
     from henrique.main.singleton.logger.henrique_logger import KhalaLogger
     from henrique.main.singleton.env.henrique_env import HenriqueEnv
+    from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 
-    KhalaLogger.attach_stderr2loggers(logging.DEBUG)
-    KhalaLogger.attach_stderr2loggers(logging.DEBUG)
+    # KhalaLogger.attach_stderr2loggers(logging.DEBUG)
+    DiscordLogger.attach_stderr2loggers(logging.DEBUG)
+    HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
+
 
     # maybe update?
     # https://stackoverflow.com/a/50981577
