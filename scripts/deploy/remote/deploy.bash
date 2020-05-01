@@ -33,7 +33,7 @@ main(){
 
     python -m henrique.main.singleton.env.henrique_env $ENV > "$env_filepath"
     ENV=$ENV $REPO_DIR/scripts/deploy/docker/build.bash
-    ENV=$ENV $REPO_DIR/scripts/deploy/docker/push.bash
+    #ENV=$ENV $REPO_DIR/scripts/deploy/docker/push.bash
 
     # Transfer env list into server
     echo "mkdir -p /home/$USERNAME/env" | $SSH 'bash -s'
