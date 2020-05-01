@@ -1,1 +1,1 @@
-[{{tg_name}}] 취급항 - {{port_names|join(", ")}}
+[{{tradegood_name}}] 취급항 - {{port_names|join(", ")}}

@@ -29,6 +29,11 @@ main(){
         -f $FILE_DIR/Dockerfile \
         $REPO_DIR
 
+    ##########
+    # secret
+    # https://docs.docker.com/engine/swarm/secrets/
+
+
 #    docker push foxytrixy/henrique:$ENV
 
     popd

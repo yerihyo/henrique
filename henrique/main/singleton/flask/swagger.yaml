@@ -54,6 +54,27 @@ paths:
           description: Bad Request
         404:
           description: Not Found
+
+  /khala/kakaotalk/query:
+    get:
+      tags: [khala]
+      operationId: henrique.main.handlers.khala.kakaotalk.handler.KakaotalkUWOHandler.get
+      summary: Translate
+      parameters:
+      - name: text
+        in: query
+        type: string
+        required: true
+      - name: sender_name
+        in: query
+        type: string
+        required: true
+      responses:
+        200:
+          description: Return deploy info
+        404:
+          description: Not Found
+
 #  /khala/actions:
 #  /khala/contract/create:
 

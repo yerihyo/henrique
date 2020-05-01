@@ -17,8 +17,10 @@ from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.skill.price.price_skill import PriceSkill, PriceSkillClique
 from khala.document.channel.channel import KakaotalkUWOChannel
 from khala.document.channel_user.channel_user import ChannelUser
-from khala.document.chatroom.chatroom import KakaotalkUWOChatroom
+from khala.document.chatroom.chatroom import KakaotalkUWOChatroom, Chatroom
 from khala.document.packet.packet import KhalaPacket
+from khala.singleton.messenger.kakaotalk.internal.channel_user_kakaotalk import ChannelUserKakaotalk
+from khala.singleton.messenger.kakaotalk.internal.chatroom_kakaotalk import ChatroomKakaotalk
 
 NORM_LIST = PriceSkill.blocks2norm_list_for_unittest
 NORM_SET = PriceSkill.blocks2norm_set_for_unittest
@@ -169,19 +171,35 @@ class TestPriceSkill(TestCase):
         HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
 
     def test_01(self):
-        packet = {KhalaPacket.Field.TEXT: "?price 리스본 육두구",
-                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
+        Chatroom.chatrooms2upsert([ChatroomKakaotalk.chatroom()])
+
+        sender_name = "iris"
+        channel_user_codename = ChannelUserKakaotalk.sender_name2codename(sender_name)
+        ChannelUser.channel_users2upsert([ChannelUserKakaotalk.sender_name2channel_user(sender_name)])
+
+        packet = {KhalaPacket.Field.CHANNEL_USER: channel_user_codename,
+                  KhalaPacket.Field.SENDER_NAME: sender_name,
+                  KhalaPacket.Field.TEXT: "?price 리스본 육두구",
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
                   }
 
         hyp = NORM_LIST(PriceSkill.packet2rowsblocks(packet))
         ref = [('[리스본] 시세', ['육두구'])]
 
-        pprint(hyp)
+        # pprint(hyp)
         self.assertEqual(hyp, ref)
 
     def test_02(self):
-        packet = {KhalaPacket.Field.TEXT: "?price 리스본 세비야 육두구 메이스",
-                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
+        Chatroom.chatrooms2upsert([ChatroomKakaotalk.chatroom()])
+
+        sender_name = "iris"
+        channel_user_codename = ChannelUserKakaotalk.sender_name2codename(sender_name)
+        ChannelUser.channel_users2upsert([ChannelUserKakaotalk.sender_name2channel_user(sender_name)])
+
+        packet = {KhalaPacket.Field.CHANNEL_USER: channel_user_codename,
+                  KhalaPacket.Field.SENDER_NAME: sender_name,
+                  KhalaPacket.Field.TEXT: "?price 리스본 세비야 육두구 메이스",
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
                   }
 
         hyp = NORM_SET(PriceSkill.packet2rowsblocks(packet))
@@ -193,8 +211,16 @@ class TestPriceSkill(TestCase):
         self.assertEqual(hyp, ref)
 
     def test_03(self):
-        packet = {KhalaPacket.Field.TEXT: "?price 육메 이베",
-                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
+        Chatroom.chatrooms2upsert([ChatroomKakaotalk.chatroom()])
+
+        sender_name = "iris"
+        channel_user_codename = ChannelUserKakaotalk.sender_name2codename(sender_name)
+        ChannelUser.channel_users2upsert([ChannelUserKakaotalk.sender_name2channel_user(sender_name)])
+
+        packet = {KhalaPacket.Field.CHANNEL_USER: channel_user_codename,
+                  KhalaPacket.Field.SENDER_NAME: sender_name,
+                  KhalaPacket.Field.TEXT: "?price 육메 이베",
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
                   }
 
         hyp = NORM_SET(PriceSkill.packet2rowsblocks(packet))
@@ -210,6 +236,12 @@ class TestPriceSkill(TestCase):
         self.assertEqual(hyp, ref)
 
     def test_04(self):
+        Chatroom.chatrooms2upsert([ChatroomKakaotalk.chatroom()])
+
+        sender_name = "iris"
+        channel_user_codename = ChannelUserKakaotalk.sender_name2codename(sender_name)
+        ChannelUser.channel_users2upsert([ChannelUserKakaotalk.sender_name2channel_user(sender_name)])
+
         server = "maris"
         ports = ["Lisbon"]
         tradegoods = ["Nutmeg"]
@@ -218,12 +250,10 @@ class TestPriceSkill(TestCase):
         # channel = Channel.Codename.KAKAOTALK_UWO_UWO  # discord
 
         packet = {KhalaPacket.Field.TEXT: "?price 육두구 리스본 120ㅅ",
-                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
-                  KhalaPacket.Field.CHANNEL_USER: KakaotalkUWOChannel.username2channel_user_codename("iris"),
-                  KhalaPacket.Field.SENDER_NAME: "iris",
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
+                  KhalaPacket.Field.CHANNEL_USER: channel_user_codename,
+                  KhalaPacket.Field.SENDER_NAME: sender_name,
                   }
-
-        ChannelUser.packet2upsert(packet)
 
         hyp_01 = PriceSkill.packet2response(packet)
         ref_01 = """[육두구] 시세
@@ -246,12 +276,18 @@ class TestPriceSkill(TestCase):
         self.assertEqual(hyp_02, ref_02)
 
     def test_05(self):
+        Chatroom.chatrooms2upsert([ChatroomKakaotalk.chatroom()])
+
+        sender_name = "iris"
+        channel_user_codename = ChannelUserKakaotalk.sender_name2codename(sender_name)
+        ChannelUser.channel_users2upsert([ChannelUserKakaotalk.sender_name2channel_user(sender_name)])
+
         dt_now = datetime.now(pytz.utc)
 
         port = "Lisbon"
         tradegood = "Nutmeg"
         server = Server.Codename.MARIS
-        channel_user = 'kakaotalk_uwo-iris'
+        # channel_user = 'kakaotalk_uwo-iris'
 
         def insert_docs():
             collection = MarketpriceCollection.collection()
@@ -262,7 +298,7 @@ class TestPriceSkill(TestCase):
                        MarketpriceDoc.Field.TREND: Trend.Value.RISE,
 
                        MarketpriceDoc.Field.SERVER: server,
-                       MarketpriceDoc.Field.CHANNEL_USER: channel_user,
+                       MarketpriceDoc.Field.CHANNEL_USER: channel_user_codename,
                        }
 
             doc_new = {MarketpriceDoc.Field.CREATED_AT: dt_now,
@@ -272,7 +308,7 @@ class TestPriceSkill(TestCase):
                        MarketpriceDoc.Field.TREND: Trend.Value.RISE,
 
                        MarketpriceDoc.Field.SERVER: server,
-                       MarketpriceDoc.Field.CHANNEL_USER: channel_user,
+                       MarketpriceDoc.Field.CHANNEL_USER: channel_user_codename,
                        }
             collection.insert_many([doc_old, doc_new])
 
@@ -281,7 +317,9 @@ class TestPriceSkill(TestCase):
 
 
         packet = {KhalaPacket.Field.TEXT: "?price 리스본,세비야 육두구",
-                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.CODENAME,
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
+                  KhalaPacket.Field.CHANNEL_USER: channel_user_codename,
+                  KhalaPacket.Field.SENDER_NAME: sender_name,
                   }
 
         hyp = NORM_LIST(PriceSkill.packet2rowsblocks(packet))
