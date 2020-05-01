@@ -16,18 +16,20 @@ func_count2reduce(){
 }
 
 REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
+env_filepath="$REPO_DIR/henrique/env/docker/env.$ENV.list"
 
 main(){
     pushd $REPO_DIR
 
-    python -m henrique.main.singleton.env.henrique_env $ENV > "$FILE_DIR/env.$ENV.list"
+    mkdir -p $REPO_DIR/henrique/env/docker/
+    python -m henrique.main.singleton.env.henrique_env $ENV > $env_filepath
     docker run \
-        --env-file $FILE_DIR/env.$ENV.list \
+        --env-file $env_filepath \
         -it \
         -v $REPO_DIR/log:/app/log \
         -p 80:80 \
         -p 443:443 \
-        henrique:$ENV
+        foxytrixy/henrique  # :$ENV
 
 #        -d \
 

@@ -4,7 +4,9 @@ import logging
 import os
 
 import discord
+from discord.ext.commands import Bot
 from functools import lru_cache, reduce
+from nose.tools import assert_true
 
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.socialmedia.discord.discord_tool import DiscordTool, DiscordLogger
@@ -69,20 +71,28 @@ class DiscordClient:
 
 
 def main():
-    from henrique.main.singleton.logger.henrique_logger import KhalaLogger
-    from henrique.main.singleton.env.henrique_env import HenriqueEnv
+
     from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 
     # KhalaLogger.attach_stderr2loggers(logging.DEBUG)
     DiscordLogger.attach_stderr2loggers(logging.DEBUG)
     HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
 
+    start_discord()
+
+def start_discord():
+    from henrique.main.singleton.env.henrique_env import HenriqueEnv
+    from henrique.main.singleton.logger.henrique_logger import KhalaLogger
+    logger = KhalaLogger.func_level2logger(start_discord, logging.DEBUG)
+    logger.debug({"HenriqueEnv.env()": HenriqueEnv.env()})
 
     # maybe update?
     # https://stackoverflow.com/a/50981577
-
     client = DiscordClient.client()
     discord_token = HenriqueEnv.key2value("DISCORD_TOKEN")
+    logger.debug({"discord_token": discord_token})
+
+    assert_true(discord_token)
     client.run(discord_token)
 
 

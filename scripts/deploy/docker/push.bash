@@ -19,23 +19,7 @@ REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
 
 main(){
     pushd $REPO_DIR
-
-    $REPO_DIR/scripts/deploy/uwsgi/compile.bash
-    $REPO_DIR/scripts/deploy/nginx/compile.bash
-
-    docker build \
-        -t foxytrixy/henrique:$ENV \
-        --build-arg ENV=$ENV \
-        -f $FILE_DIR/Dockerfile \
-        $REPO_DIR
-
-    ##########
-    # secret
-    # https://docs.docker.com/engine/swarm/secrets/
-
-
-#    docker push foxytrixy/henrique  # :$ENV
-
+    docker push foxytrixy/henrique:$ENV
     popd
 }
 
