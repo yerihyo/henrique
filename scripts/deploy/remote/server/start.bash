@@ -2,7 +2,7 @@
 
 
 errcho(){ >&2 echo $@; }
-FILE_NAME="run.bash"
+FILE_NAME="start.bash"
 ENV="${1:-}"
 if [[ ! "$ENV" ]]; then errcho "\$ENV missing"; exit 1; fi
 
@@ -32,30 +32,6 @@ install(){
     errcho "[$FILE_NAME] install() - END (ENV:$ENV)"
 }
 
-clear_containers(){
-    errcho "[$FILE_NAME] clear_containers() - Start (ENV:$ENV)"
-
-    set +e
-
-    # Stop running containers
-    local containers=$(sudo docker ps -a -q)
-    if [[ "$containers" ]]; then
-        sudo docker stop ${containers}
-        if ! [ $? -eq 0 ]; then
-            errcho "Docker containers stopped"
-        fi
-
-        # Remove existing containers
-        sudo docker rm ${containers}
-        if ! [ $? -eq 0 ]; then
-            errcho "Docker containers removed"
-        fi
-    fi
-
-    set -e
-    errcho "[$FILE_NAME] clear_containers() - END (ENV:$ENV)"
-}
-
 main(){
     errcho "[$FILE_NAME] main() - START (ENV:$ENV)"
 
@@ -64,9 +40,8 @@ main(){
     sudo docker pull $docker_image
     errcho "Docker images pulled from Docker hub"
 
-    # Clear existing docker container
-    errcho "[$FILE_NAME] main() - clear_containers (ENV:$ENV)"
-    clear_containers
+    # Stop & Clean existing docker container
+    #$FILE_DIR/stop.bash
 
     # Run Docker container with image
     errcho "[$FILE_NAME] main() - docker run (ENV:$ENV, docker_image:$docker_image)"
@@ -88,7 +63,9 @@ main(){
     errcho "[$FILE_NAME] main() - END (ENV:$ENV)"
 }
 
-
+tail_log(){
+    sudo docker logs -f $(sudo docker ps -a -q)
+}
 
 errcho "[$FILE_NAME] Start (ENV:$ENV)"
 install

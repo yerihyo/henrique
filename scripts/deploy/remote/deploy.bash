@@ -6,11 +6,14 @@ FILE_NAME=$(basename $FILE_PATH)
 FILE_DIR=$(dirname $FILE_PATH)
 
 errcho(){ >&2 echo $@; }
-usage(){ errcho "usage: $ARG0 <env>"; }
+usage(){ errcho "usage: $ARG0 <filepath_script>"; }
 func_count2reduce(){
     local v="${1?missing}"; local cmd="${2?missing}"; local n=${3?missing};
     for ((i=0;i<$n;i++)); do v=$($cmd $v) ; done; echo "$v"
 }
+
+filepath_script="${1:-}"
+if [[ ! "$filepath_script" ]]; then usage; exit 1; fi
 
 REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
 
@@ -55,16 +58,14 @@ main(){
     rsync_env
 
     # Remotely Execute Docker Container
-    $SSH 'bash -s' < $FILE_DIR/run.bash $ENV
+    $SSH 'bash -s' < $filepath_script $ENV
 
     popd
     errcho "[$FILE_NAME] main() - END"
 }
 
-tail_log(){
-    sudo docker logs -f $(sudo docker ps -a -q)
-}
 
-errcho "[$FILE_NAME] START (ENV:$ENV, IP:$IP)"
+
+errcho "[$FILE_NAME] START (ENV:$ENV, IP:$IP, filepath_script:$filepath_script)"
 main
-errcho "[$FILE_NAME] END (ENV:$ENV, IP:$IP)"
+errcho "[$FILE_NAME] END (ENV:$ENV, IP:$IP, filepath_script:$filepath_script)"
