@@ -18,4 +18,4 @@ before_install:
   -in travis/henrique/env/google/api/henrique-272420-c09c9b3e31ff.json.enc -out henrique/env/google/api/henrique-272420-c09c9b3e31ff.json
   -d
 
-# travis encrypt-file henrique/env/google/api/henrique-272420-c09c9b3e31ff.json  henrique/env-travis/google/api/henrique-272420-c09c9b3e31ff.json.enc --com --add
+# travis encrypt-file henrique/env/google/api/henrique-272420-c09c9b3e31ff.json  travis/henrique/env/google/api/henrique-272420-c09c9b3e31ff.json.enc --com --add
