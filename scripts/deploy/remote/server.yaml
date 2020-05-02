@@ -1,0 +1,6 @@
+henrique:
+  local:
+    ip: localhost
+  prod:
+    ip: 18.236.100.74
+    username: ubuntu
