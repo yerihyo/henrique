@@ -57,7 +57,7 @@ main(){
             -D DOMAIN_NAME="$DOMAIN_NAME" \
             -D NGINX_DIR="/etc/nginx" \
             -D mode="docker" \
-            -D is_https="1" \
+            -D is_https="" \
             > $FILE_DIR/$PROJECT_NAME.nginx.$ENV.conf
 
         rm -f $FILE_DIR/$PROJECT_NAME.nginx.docker.conf

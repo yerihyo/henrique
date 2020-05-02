@@ -20,30 +20,49 @@ USERNAME="ubuntu"
 IP=$(python -m scripts.deploy.remote.henrique_server $ENV)
 if [[ ! "$IP" ]]; then errcho "no 'IP'"; exit 1; fi
 
+AUTHORITY="$USERNAME@$IP"
+
 env_filepath="$REPO_DIR/henrique/env/docker/env.$ENV.list"
 mkdir -p $REPO_DIR/henrique/env/docker
 
 pem_filepath=$REPO_DIR/henrique/env/aws/lightsail/key_pair/$ENV.henrique.pem
 SSH="ssh -i $pem_filepath $USERNAME@$IP"
 SCP="scp -i $pem_filepath"
+#RSYNC="rsync --delete -azv -e 'ssh -i $pem_filepath'"
+RSYNCOPT=(--delete -azv -e "ssh -i $pem_filepath")
+
+rsync_env(){
+    # Transfer env list into server
+    errcho "[$FILE_NAME] rsync_env() - START"
+
+    python -m henrique.main.singleton.env.henrique_env $ENV > "$env_filepath"
+
+    echo "mkdir -p /home/$USERNAME/env" | $SSH 'bash -s'
+    rsync "${RSYNCOPT[@]}" -r $REPO_DIR/henrique/env/ $AUTHORITY:/home/$USERNAME/env/
+    rsync "${RSYNCOPT[@]}" $env_filepath $AUTHORITY:/home/$USERNAME/env/env.$ENV.list
+#    $SCP $env_filepath $AUTHORITY:/home/$USERNAME/env/
+
+    errcho "[$FILE_NAME] rsync_env() - END"
+}
 
 main(){
     errcho "[$FILE_NAME] main() - START"
     pushd $REPO_DIR
 
-    python -m henrique.main.singleton.env.henrique_env $ENV > "$env_filepath"
     ENV=$ENV $REPO_DIR/scripts/deploy/docker/build.bash
     #ENV=$ENV $REPO_DIR/scripts/deploy/docker/push.bash
 
-    # Transfer env list into server
-    echo "mkdir -p /home/$USERNAME/env" | $SSH 'bash -s'
-    $SCP $env_filepath $USERNAME@$IP:/home/$USERNAME/env/
+    rsync_env
 
     # Remotely Execute Docker Container
     $SSH 'bash -s' < $FILE_DIR/run.bash $ENV
 
     popd
     errcho "[$FILE_NAME] main() - END"
+}
+
+tail_log(){
+    sudo docker logs -f $(sudo docker ps -a -q)
 }
 
 errcho "[$FILE_NAME] START (ENV:$ENV, IP:$IP)"

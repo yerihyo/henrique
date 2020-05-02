@@ -16,6 +16,7 @@ func_count2reduce(){
 }
 
 REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
+docker_image=foxytrixy/henrique:$ENV
 
 main(){
     pushd $REPO_DIR
@@ -23,8 +24,9 @@ main(){
     $REPO_DIR/scripts/deploy/uwsgi/compile.bash
     $REPO_DIR/scripts/deploy/nginx/compile.bash
 
+    # https://stackoverflow.com/questions/41498336/docker-copy-not-updating-files-when-rebuilding-container
     docker build "$@" \
-        -t foxytrixy/henrique:$ENV \
+        -t $docker_image \
         --build-arg ENV=$ENV \
         -f $FILE_DIR/Dockerfile \
         $REPO_DIR
@@ -34,12 +36,12 @@ main(){
     # https://docs.docker.com/engine/swarm/secrets/
 
 
-    docker push foxytrixy/henrique:$ENV
+    docker push $docker_image
 
     popd
 }
 
 
 errcho "[$FILE_NAME] START"
-main "$@"
+main "$@" # --no-cache --force-rm
 errcho "[$FILE_NAME] END"
