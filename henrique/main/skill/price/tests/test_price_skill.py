@@ -257,7 +257,7 @@ class TestPriceSkill(TestCase):
 
         hyp_01 = PriceSkill.packet2response(packet)
         ref_01 = """[육두구] 시세
-리스본 120⇗ @ 방금전 [by iris]"""
+리스본 120↗ @ 방금전 [by iris]"""
 
         #pprint({"hyp_01": hyp_01})
         self.assertEqual(hyp_01, ref_01)
