@@ -3,6 +3,8 @@ import os
 from functools import reduce
 from google.oauth2.service_account import Credentials
 
+from henrique.main.singleton.env.henrique_env import HenriqueEnv
+
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 REPO_DIR = reduce(lambda x, f: f(x), [os.path.dirname] * 5, FILE_DIR)
@@ -20,7 +22,8 @@ class HenriqueGoogleapi:
     @classmethod
     def filepath_privatekey(cls):
         # http://console.cloud.google.com/iam-admin/serviceaccounts/details/112472142364049649520
-        return os.path.join(REPO_DIR, "henrique","env", "google", "api", "henrique-272420-c09c9b3e31ff.json")
+        # return os.path.join(REPO_DIR, "henrique","env", "google", "api", "henrique-272420-c09c9b3e31ff.json")
+        return HenriqueEnv.key2value("GOOGLEAPI_PRIVATEKEY_FILEPATH")
 
     @classmethod
     def credentials(cls):

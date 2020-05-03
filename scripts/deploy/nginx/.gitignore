@@ -1,3 +1,2 @@
 /henrique
-/henrique.nginx.docker.conf
-/henrique.nginx.local.conf
+/henrique.nginx.*.conf

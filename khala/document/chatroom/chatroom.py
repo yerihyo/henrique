@@ -52,7 +52,7 @@ class Chatroom:
     @classmethod
     def codename2chatroom(cls, codename):
         logger = KhalaLogger.func_level2logger(cls.codename2chatroom, logging.DEBUG)
-        logger.debug({"codename": codename})
+        # logger.debug({"codename": codename})
 
         return l_singleton2obj(cls.codenames2chatrooms([codename]))
 

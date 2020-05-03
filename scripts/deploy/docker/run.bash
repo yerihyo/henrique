@@ -29,7 +29,7 @@ main(){
         -v $REPO_DIR/log:/app/log \
         -p 80:80 \
         -p 443:443 \
-        foxytrixy/henrique  # :$ENV
+        foxytrixy/henrique:$ENV
 
 #        -d \
 

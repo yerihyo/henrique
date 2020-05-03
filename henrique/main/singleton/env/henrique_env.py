@@ -128,7 +128,7 @@ def main():
     env = sys.argv[1]
     h = HenriqueEnv.env2dict(env)
     for k,v in h.items():
-        print("{}='{}'".format(k,v))
+        print("{}={}".format(k,v))
 
 if __name__ == "__main__":
     main()
