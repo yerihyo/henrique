@@ -10,7 +10,7 @@ WARMER = Warmer(MODULE)
 
 class ChannelUser:
     class Constant:
-        DELIM = "-"
+        DELIM = "."
 
     class Field:
         CHANNEL = "channel"

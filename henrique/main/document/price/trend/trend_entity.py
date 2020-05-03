@@ -61,11 +61,11 @@ class Trend:
 
     @classmethod
     def dict_trend2arrow(cls,):
-        h = {cls.Value.SKYRISE: '⇑',
-             cls.Value.RISE: '⇗',
-             cls.Value.AVERAGE: '⇒',
-             cls.Value.DOWN: '⇘',
-             cls.Value.PLUMMET: '⇓',
+        h = {cls.Value.SKYRISE: '↑',
+             cls.Value.RISE: '↗',
+             cls.Value.AVERAGE: '→',
+             cls.Value.DOWN: '↘',
+             cls.Value.PLUMMET: '↓',
              }
         return h
 

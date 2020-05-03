@@ -2,6 +2,7 @@ import os
 import sys
 from itertools import chain
 
+from henrique.main.singleton.config.henrique_config import HenriqueConfig
 from khala.document.channel.channel import Channel
 from khala.document.chatroom.chatroom import Chatroom
 from khala.document.packet.packet import KhalaPacket
@@ -33,16 +34,13 @@ class Server:
         ALIASES = "aliases"
 
     @classmethod
-    def packet2server(cls, packet):
-        chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))
+    def packet2codename(cls, packet):
+        chatroom_codename = KhalaPacket.packet2chatroom(packet)
+        server_codename = HenriqueConfig.chatroom2server(chatroom_codename)
+        if not server_codename:
+            raise RuntimeError("Chatroom without config: {}".format(chatroom_codename))
 
-        channel = Chatroom.chatroom2channel(chatroom)
-        if channel == Channel.Codename.KAKAOTALK_UWO:
-            return Server.Codename.MARIS
-
-        raise NotImplementedError({"channel":channel})
-
-
+        return server_codename
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))

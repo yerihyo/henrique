@@ -41,7 +41,7 @@ class TestChannelUserDoc(TestCase):
         channel_user_doc = MongoDBTool.bson2json(collection.find_one({ChannelUser.Field.CODENAME: channel_user_codename}))
         hyp = MongoDBTool.doc2id_excluded(channel_user_doc,)
         ref = {'channel': 'kakaotalk_uwo',
-               'codename': 'kakaotalk_uwo-iris',
+               'codename': 'kakaotalk_uwo.iris',
                'alias': 'iris'}
 
         # pprint(hyp)

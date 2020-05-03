@@ -34,7 +34,7 @@ class Chatroom:
     Cache = ChatroomCache
 
     class Constant:
-        DELIM = "-"
+        DELIM = "."
 
     class Field:
         CHANNEL = "channel"

@@ -269,7 +269,7 @@ class TestPriceSkill(TestCase):
                    'tradegood': 'Nutmeg',
                    'server': 'maris',
                    'trend': 'rise',
-                   'channel_user': 'kakaotalk_uwo-iris',
+                   'channel_user': 'kakaotalk_uwo.iris',
                    }]
 
         # pprint({"hyp_02": hyp_02})
@@ -287,7 +287,7 @@ class TestPriceSkill(TestCase):
         port = "Lisbon"
         tradegood = "Nutmeg"
         server = Server.Codename.MARIS
-        # channel_user = 'kakaotalk_uwo-iris'
+        # channel_user = 'kakaotalk_uwo.iris'
 
         def insert_docs():
             collection = MarketpriceCollection.collection()

@@ -121,14 +121,14 @@ class MarketpriceDoc:
         collection.delete_many(mongo_query)
 
     @classmethod
-    def ports_tradegoods2price_list_latest(cls, server, port_codenames, tradegood_codenames):
+    def ports_tradegoods2price_list_latest(cls, server_codename, port_codenames, tradegood_codenames):
         port_codename_list = list(port_codenames)
         tradegood_codename_list = list(tradegood_codenames)
         # https://stackoverflow.com/a/29368862
         collection = MarketpriceCollection.collection()
         mongo_query = {cls.Field.PORT: {"$in": port_codename_list},
                        cls.Field.TRADEGOOD: {"$in": tradegood_codename_list},
-                       cls.Field.SERVER: server,
+                       cls.Field.SERVER: server_codename,
                        }
 
         mongo_group_id = {
@@ -171,13 +171,13 @@ class MarketpriceDoc:
 
 class MarketpriceDict:
     @classmethod
-    def port_tradegood_iter2price_dict(cls, server, port_tradegood_iter):
+    def port_tradegood_iter2price_dict(cls, server_codename, port_tradegood_iter):
         port_tradegood_set = set(port_tradegood_iter)
 
         port_codenames = smap(ig(0), port_tradegood_set)
         tradegood_codenames = smap(ig(1), port_tradegood_set)
 
-        prices_latest = MarketpriceDoc.ports_tradegoods2price_list_latest(server, port_codenames, tradegood_codenames)
+        prices_latest = MarketpriceDoc.ports_tradegoods2price_list_latest(server_codename, port_codenames, tradegood_codenames)
         # raise Exception({"prices_latest":prices_latest})
 
         price_dict = cls.prices2price_dict(prices_latest)
