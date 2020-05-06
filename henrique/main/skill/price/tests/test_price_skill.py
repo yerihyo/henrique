@@ -315,7 +315,6 @@ class TestPriceSkill(TestCase):
         MarketpriceDoc.server_ports_tradegoods2delete(server, [port], [tradegood])
         insert_docs()
 
-
         packet = {KhalaPacket.Field.TEXT: "?price 리스본,세비야 육두구",
                   KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
                   KhalaPacket.Field.CHANNEL_USER: channel_user_codename,
