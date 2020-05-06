@@ -215,7 +215,7 @@ class PriceSkillClique:
 
         port_codename = l_singleton2obj(ports)
         tradegood_codename = l_singleton2obj(tradegoods)
-        server = Server.packet2server(packet)
+        server = Server.packet2codename(packet)
 
         channel_user = KhalaPacket.packet2channel_user(packet)
 
@@ -473,7 +473,7 @@ class PriceSkill:
         Param = PriceSkillParameter
 
         text = KhalaPacket.packet2text(packet)
-        server = Server.packet2server(packet)
+        server_codename = Server.packet2codename(packet)
 
         chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))
         config = {Entity.Config.Field.LOCALE: Chatroom.chatroom2locale(chatroom)}
@@ -518,7 +518,7 @@ class PriceSkill:
         groupby_parameter_type = _groupby_paramter_type()
 
         port_tradegood_list = lchain(*map(Clique.clique2port_tradegood_iter, clique_list))
-        price_dict = MarketpriceDict.port_tradegood_iter2price_dict(server, port_tradegood_list)
+        price_dict = MarketpriceDict.port_tradegood_iter2price_dict(server_codename, port_tradegood_list)
 
         # raise Exception({"port_tradegood_list": port_tradegood_list,
         #                  "price_dict": price_dict,

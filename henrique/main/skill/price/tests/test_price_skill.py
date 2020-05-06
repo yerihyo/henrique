@@ -257,7 +257,7 @@ class TestPriceSkill(TestCase):
 
         hyp_01 = PriceSkill.packet2response(packet)
         ref_01 = """[육두구] 시세
-리스본 120⇗ @ 방금전 [by iris]"""
+리스본 120↗ @ 방금전 [by iris]"""
 
         #pprint({"hyp_01": hyp_01})
         self.assertEqual(hyp_01, ref_01)
@@ -269,7 +269,7 @@ class TestPriceSkill(TestCase):
                    'tradegood': 'Nutmeg',
                    'server': 'maris',
                    'trend': 'rise',
-                   'channel_user': 'kakaotalk_uwo-iris',
+                   'channel_user': 'kakaotalk_uwo.iris',
                    }]
 
         # pprint({"hyp_02": hyp_02})
@@ -287,7 +287,7 @@ class TestPriceSkill(TestCase):
         port = "Lisbon"
         tradegood = "Nutmeg"
         server = Server.Codename.MARIS
-        # channel_user = 'kakaotalk_uwo-iris'
+        # channel_user = 'kakaotalk_uwo.iris'
 
         def insert_docs():
             collection = MarketpriceCollection.collection()
@@ -314,7 +314,6 @@ class TestPriceSkill(TestCase):
 
         MarketpriceDoc.server_ports_tradegoods2delete(server, [port], [tradegood])
         insert_docs()
-
 
         packet = {KhalaPacket.Field.TEXT: "?price 리스본,세비야 육두구",
                   KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
