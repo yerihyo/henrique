@@ -1,5 +1,5 @@
 # user  nobody;
-user {{user_group}};
+user {{uid}} {{gid}};
 worker_processes  1;
 # daemon off;
 
@@ -38,7 +38,7 @@ http {
         #server 127.0.0.1:8001; # for a web port socket (use this to test with http instead of socket)
     }
 
-    {% if not FILEPATH_SSL_CERTI %}
+    {% if not FILEPATH_SSL_CERTI or not FILEPATH_SSL_PRIVATE_KEY %}
 
     server {
         listen 80;

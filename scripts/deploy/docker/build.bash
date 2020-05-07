@@ -21,9 +21,8 @@ docker_image=foxytrixy/henrique:$ENV
 main(){
     pushd $REPO_DIR
 
-    $REPO_DIR/scripts/deploy/nginx/compile.bash
+    # $REPO_DIR/scripts/deploy/compile-all.bash  # assuming this is already done
 
-    # https://stackoverflow.com/questions/41498336/docker-copy-not-updating-files-when-rebuilding-container
     docker build "$@" \
         -t $docker_image \
         --build-arg ENV=$ENV \

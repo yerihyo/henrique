@@ -88,12 +88,14 @@ class HenriqueNginx:
         mode = cls.env2mode(env)
         nginx_dir = cls.Mode.mode2nginx_dir(mode)
         socket = cls.Mode.mode2socket(mode)
-        user_group = cls.Mode.mode2user_group(mode)
+        uid = cls.Mode.mode2user(mode)
+        gid = cls.Mode.mode2group(mode)
 
         data = {"DOMAIN_NAME": domain_name,
                 "NGINX_DIR": nginx_dir,
                 "socket": socket,
-                "user_group": user_group,
+                "uid": uid,
+                "gid": gid,
                 "FILEPATH_SSL_CERTI": None,
                 "FILEPATH_SSL_PRIVATE_KEY": None,
                 }

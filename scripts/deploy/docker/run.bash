@@ -42,8 +42,8 @@ main(){
 
     mkdir -p $REPO_DIR/henrique/env/docker/
     python -m henrique.main.singleton.env.henrique_env $ENV > $env_filepath
-    # run_supervisord
-    run_pytest
+    run_supervisord
+#    run_pytest
 
     popd
 }
