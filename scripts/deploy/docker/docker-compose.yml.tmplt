@@ -1,0 +1,16 @@
+version: '3'
+services:
+  henrique:
+    build:
+      context: .
+      dockerfile: Dockerfile  # relative location from docker-compose.*.yml
+      args:
+      - ENV={{ENV}}
+    image: foxytrixy/henrique:{{ENV}}
+    ports:
+    - "80:80"
+#    volumes:
+#    - .:/app
+    env_file:
+    - {{env_filepath}}
+#    command: python -m pytest --disable-warnings

@@ -1,0 +1,16 @@
+version: '3'
+services:
+  henrique:
+    build:
+      context: .
+      dockerfile: Dockerfile  # relative location from docker-compose.*.yml
+      args:
+      - ENV=local
+    image: foxytrixy/henrique:local
+    ports:
+    - "80:80"
+#    volumes:
+#    - .:/app
+    env_file:
+    - /Users/moon/projects/foxytrixy/henrique/henrique/env/docker/env.local.list
+#    command: python -m pytest --disable-warnings

@@ -25,6 +25,7 @@ func_count2reduce(){
 REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
 
 PROJECT_NAME=henrique
+ENV=${ENV?'missing $ENV'}
 #scheme=http
 # USER=${USER?'missing $USER'}
 
