@@ -31,6 +31,10 @@ class HenriqueEnv:
         STAGING = "staging"
         PROD = "prod"
 
+        @classmethod
+        def list(cls):
+            return [cls.LOCAL, cls.DEV, cls.PROD]
+
 
     @classmethod
     def env(cls):

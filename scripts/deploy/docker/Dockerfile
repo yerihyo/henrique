@@ -84,5 +84,5 @@ RUN ln -sf /dev/stdout /var/log/nginx/access.log \
 COPY . /app
 WORKDIR /app
 ENTRYPOINT ["/app/scripts/deploy/docker/docker-entrypoint.bash"]
-CMD ["supervisord", "-n", "-c", "/app/scripts/deploy/docker/supervisor/supervisord.conf"]
+#CMD ["supervisord", "-n", "-c", "/app/scripts/deploy/docker/supervisor/supervisord.conf"]
 #CMD nginx; supervisord -n

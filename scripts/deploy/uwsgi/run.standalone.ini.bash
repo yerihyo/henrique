@@ -12,26 +12,13 @@ func_count2reduce(){
     for ((i=0;i<$n;i++)); do v=$($cmd $v) ; done; echo "$v"
 }
 
-REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
-
-MAIN_DIR=$REPO_DIR/henrique/app/main
-PROJECT_NAME=henrique
-
-USERNAME=$(stat -c '%U' $FILE_PATH)
-#GROUPNAME=$(stat -c '%G' $FILE_PATH)
-
-if [[ "$ENV" == "local" || ! "$ENV" ]]; then
-    mode="local"
-else
-    mode="docker"
-fi
+REPO_DIR=$(func_count2reduce $FILE_DIR dirname 5)
 
 main(){
-    mkdir -p $REPO_DIR/log
+    $FILE_DIR/compile.bash
 
-    jinja2 $FILE_DIR/$PROJECT_NAME.uwsgi.ini.tmplt \
-        -D mode="$mode" \
-        > "$FILE_DIR/$PROJECT_NAME.uwsgi.$mode.ini"
+    mkdir -p $REPO_DIR/log/uwsgi
+    uwsgi "$REPO_DIR/henrique/main/singleton/deploy/uwsgi/ini/henrique.uwsgi.nginx.ini" # --uid www-data --gid www-data
 }
 
 errcho "[$FILE_NAME] START"
