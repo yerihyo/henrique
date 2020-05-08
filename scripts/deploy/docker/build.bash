@@ -5,7 +5,7 @@ FILE_PATH=$(readlink -f $ARG0)
 FILE_NAME=$(basename $FILE_PATH)
 FILE_DIR=$(dirname $FILE_PATH)
 
-#ENV=${ENV?'missing $ENV'}
+TAG=${TAG?'missing $TAG'}
 #if [[ ! "$ENV" ]]; then errcho "missing env variable $ENV"; exit 1; fi
 
 
@@ -24,7 +24,7 @@ main(){
 
 #    $REPO_DIR/scripts/deploy/compile-all.bash  # assuming this is already done
     docker build "$@" \
-        -t $docker_image \
+        -t ${docker_image}:${TAG} \
         -f $FILE_DIR/Dockerfile \
         $REPO_DIR
 
@@ -35,7 +35,7 @@ main(){
     # https://docs.docker.com/engine/swarm/secrets/
 
     docker login
-    docker push $docker_image
+    docker push ${docker_image}:${TAG}
 
     popd
 }

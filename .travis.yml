@@ -4,7 +4,6 @@ python:
 services:
 - docker
 before_install:
-- scripts/deploy/docker/build.bash
 - mkdir -p henrique/env/docker
 - openssl aes-256-cbc -K $encrypted_0a44e14a4629_key -iv $encrypted_0a44e14a4629_iv
   -in travis/henrique/env/docker/env.prod.list.enc -out henrique/env/docker/env.prod.list

@@ -52,7 +52,7 @@ main(){
     errcho "[$FILE_NAME] main() - START"
     pushd $REPO_DIR
 
-    ENV=$ENV $REPO_DIR/scripts/deploy/docker/build.bash
+    TAG=${ENV} $REPO_DIR/scripts/deploy/docker/build.bash
     #ENV=$ENV $REPO_DIR/scripts/deploy/docker/push.bash
 
     rsync_env

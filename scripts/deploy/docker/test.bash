@@ -16,10 +16,14 @@ func_count2reduce(){
 }
 
 REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
-env_filepath="$REPO_DIR/henrique/env/docker/env.$ENV.list"
+env_filepath="$REPO_DIR/henrique/env/docker/env.${ENV}.list"
 
 main(){
     pushd $REPO_DIR
+
+    local uuid=$(python -c "import uuid; print(uuid.uuid4().hex);")
+    local tag="unittest-${ENV}-${uuid}"
+    TAG="$tag" $FILE_DIR/build.bash "$@"
 
     docker run \
         --env ENV=$ENV \
@@ -27,7 +31,7 @@ main(){
         -it \
         --volume $REPO_DIR/henrique/env:/app/env:ro \
         --volume $REPO_DIR/log:/app/log \
-        foxytrixy/henrique \
+        foxytrixy/henrique:${tag} \
         pytest
 
     popd
@@ -47,5 +51,5 @@ main(){
 
 errcho "[$FILE_NAME] START"
 #$FILE_DIR/build.bash
-main
+main "$@"
 errcho "[$FILE_NAME] END"
