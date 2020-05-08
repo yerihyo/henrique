@@ -6,12 +6,13 @@ python:
 services:
   - docker
 
-before_install:
+
+install:
+- pip install -U -r henrique/requirements.txt
+
+after_install:
 - scripts/deploy/compile-all.bash
 - scripts/deploy/docker/build.bash
-
-#install:
-#- pip install -U -r henrique/requirements.txt
 
 script:
 - openssl aes-256-cbc -K $encrypted_5bf23a7191ec_key -iv $encrypted_5bf23a7191ec_iv

@@ -13,8 +13,8 @@ func_count2reduce(){
 }
 
 REPO_DIR=$(func_count2reduce $FILE_DIR dirname 2)
-FOXYLIB_DIR=${FOXYLIB_DIR?'missing $FOXYLIB_DIR'}
-export PYTHONPATH=$FOXYLIB_DIR
+#FOXYLIB_DIR=${FOXYLIB_DIR?'missing $FOXYLIB_DIR'}
+#export PYTHONPATH=$FOXYLIB_DIR
 
 main(){
     pushd $REPO_DIR
