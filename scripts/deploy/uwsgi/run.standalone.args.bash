@@ -12,11 +12,11 @@ func_count2reduce(){
     for ((i=0;i<$n;i++)); do v=$($cmd $v) ; done; echo "$v"
 }
 
-export REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
+export REPO_DIR=$(func_count2reduce $FILE_DIR dirname 5)
 
 VENV_DIR=$REPO_DIR/venv
 . $VENV_DIR/bin/activate
-pip3 install -r $FILE_DIR/../requirements.server.txt
+pip3 install -r $REPO_DIR/scripts/deploy/requirements.server.txt
 
 MAIN_DIR=$REPO_DIR/henrique/app/main
 PROJECT_NAME=henrique

@@ -16,25 +16,40 @@ func_count2reduce(){
 }
 
 REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
-env_filepath="$REPO_DIR/henrique/env/docker/env.$ENV.list"
+env_filepath="$REPO_DIR/henrique/env/docker/env.${ENV}.list"
 
 main(){
     pushd $REPO_DIR
+
+    local uuid=$(python -c "import uuid; print(uuid.uuid4().hex);")
+    local tag="unittest-${ENV}-${uuid}"
+    TAG="$tag" $FILE_DIR/build.bash "$@"
 
     docker run \
         --env ENV=$ENV \
         --env-file $env_filepath \
         -it \
-        --volume $HOME/env:/app/env:ro \
+        --volume $REPO_DIR/henrique/env:/app/env:ro \
         --volume $REPO_DIR/log:/app/log \
-        --publish 80:80 \
-        --publish 443:443 \
-        foxytrixy/henrique \
-        supervisord -n -c /app/henrique/main/singleton/deploy/supervisord/conf/henrique.supervisord.$ENV.conf
+        foxytrixy/henrique:${tag} \
+        pytest
 
     popd
 }
 
+
+#remove_all_containers(){
+#    # Remove all containers
+#    sudo docker stop $(sudo docker ps -a -q)
+#    sudo docker rm $(sudo docker ps -a -q)
+#}
+#
+#remove_all_images(){
+#    # Remove all images
+#    sudo docker rmi $(sudo docker images -q)
+#}
+
 errcho "[$FILE_NAME] START"
-main
+#$FILE_DIR/build.bash
+main "$@"
 errcho "[$FILE_NAME] END"

@@ -6,7 +6,7 @@ FILE_NAME="start.bash"
 ENV="${1:-}"
 if [[ ! "$ENV" ]]; then errcho "\$ENV missing"; exit 1; fi
 
-docker_image=foxytrixy/henrique:$ENV
+docker_image=foxytrixy/henrique
 
 install(){
     errcho "[$FILE_NAME] install() - Start (ENV:$ENV)"
@@ -46,19 +46,14 @@ main(){
     # Run Docker container with image
     errcho "[$FILE_NAME] main() - docker run (ENV:$ENV, docker_image:$docker_image)"
     sudo docker run \
+        --env ENV=$ENV \
         --env-file $HOME/env/env.$ENV.list \
-        -v $HOME/log:/app/log \
-        -v $HOME/env:/app/env \
-        -d \
-        -p 80:80 \
-        -p 443:443 \
+        --volume $HOME/log:/app/log \
+        --volume $HOME/env:/app/env:ro \
+        --detach \
+        --publish 80:80 \
+        --publish 443:443 \
         $docker_image
-
-#    sudo docker run -it --rm --privileged \
-#                    --env-file $HOME/env.$ENV.list \
-#                    -v $HOME/log:/henrique/log \
-#                    -d -p 80:80 -p 443:443 \
-#                    foxytrixy/henrique:$ENV
 
     errcho "[$FILE_NAME] main() - END (ENV:$ENV)"
 }
