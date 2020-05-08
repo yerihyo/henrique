@@ -1,6 +1,6 @@
 #!/bin/bash -eu
 
-if [[ -f $HOME/.bashrc ]]; then source ~/.bashrc; fi
+if [[ -f $HOME/.bashrc ]]; then source $HOME/.bashrc; fi
 
 ARG0=${BASH_SOURCE[0]}
 FILE_PATH=$(readlink -f $ARG0)
