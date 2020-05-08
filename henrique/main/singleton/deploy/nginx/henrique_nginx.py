@@ -11,7 +11,7 @@ from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 FILE_NAME = os.path.basename(FILE_PATH)
-NGINX_DIR = os.path.dirname(FILE_DIR)
+# NGINX_DIR = os.path.dirname(FILE_DIR)
 REPO_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*4, FILE_DIR)
 
 
@@ -27,7 +27,7 @@ class HenriqueNginx:
 
         @classmethod
         def mode2socket(cls, mode):
-            h = {cls.Value.STANDALONE: "{{REPO_DIR}}/scripts/deploy/uwsgi/henrique.uwsgi.sock",
+            h = {cls.Value.STANDALONE: os.path.join(REPO_DIR, "scripts/deploy/uwsgi/henrique.uwsgi.sock"),
                  cls.Value.DOCKER: "/run/uwsgi.sock",
                  }
             return h[mode]
@@ -100,7 +100,7 @@ class HenriqueNginx:
                 "FILEPATH_SSL_PRIVATE_KEY": None,
                 }
 
-        filepath = os.path.join(NGINX_DIR, "henrique.nginx.{}.conf".format(env))
+        filepath = os.path.join(FILE_DIR, "conf","henrique.nginx.{}.conf".format(env))
         utf8 = Jinja2Renderer.template2text(cls.template(), data=data)
         FileTool.utf82file(utf8, filepath)
 

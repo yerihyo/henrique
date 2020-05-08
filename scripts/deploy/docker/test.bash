@@ -25,16 +25,27 @@ main(){
         --env ENV=$ENV \
         --env-file $env_filepath \
         -it \
-        --volume $HOME/env:/app/env:ro \
+        --volume $REPO_DIR/henrique/env:/app/env:ro \
         --volume $REPO_DIR/log:/app/log \
-        --publish 80:80 \
-        --publish 443:443 \
         foxytrixy/henrique \
-        supervisord -n -c /app/henrique/main/singleton/deploy/supervisord/conf/henrique.supervisord.$ENV.conf
+        pytest
 
     popd
 }
 
+
+#remove_all_containers(){
+#    # Remove all containers
+#    sudo docker stop $(sudo docker ps -a -q)
+#    sudo docker rm $(sudo docker ps -a -q)
+#}
+#
+#remove_all_images(){
+#    # Remove all images
+#    sudo docker rmi $(sudo docker images -q)
+#}
+
 errcho "[$FILE_NAME] START"
+#$FILE_DIR/build.bash
 main
 errcho "[$FILE_NAME] END"

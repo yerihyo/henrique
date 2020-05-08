@@ -46,6 +46,7 @@ main(){
     # Run Docker container with image
     errcho "[$FILE_NAME] main() - docker run (ENV:$ENV, docker_image:$docker_image)"
     sudo docker run \
+        --env ENV=$ENV \
         --env-file $HOME/env/env.$ENV.list \
         --volume $HOME/log:/app/log \
         --volume $HOME/env:/app/env:ro \
@@ -53,12 +54,6 @@ main(){
         --publish 80:80 \
         --publish 443:443 \
         $docker_image
-
-#    sudo docker run -it --rm --privileged \
-#                    --env-file $HOME/env.$ENV.list \
-#                    -v $HOME/log:/henrique/log \
-#                    -d -p 80:80 -p 443:443 \
-#                    foxytrixy/henrique:$ENV
 
     errcho "[$FILE_NAME] main() - END (ENV:$ENV)"
 }

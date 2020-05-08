@@ -134,6 +134,7 @@ class HenriqueEnv:
         h = cls.env2dict(env)
         lines = ["{}={}".format(k, v) for k, v in h.items()]
         filepath = os.path.join(REPO_DIR, "henrique", "env", "docker", "env.{}.list".format(env))
+        FileTool.makedirs_or_skip(os.path.dirname(filepath))
         FileTool.utf82file("\n".join(lines), filepath)
 
     @classmethod
