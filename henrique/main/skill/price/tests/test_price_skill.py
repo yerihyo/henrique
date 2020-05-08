@@ -285,7 +285,7 @@ class TestPriceSkill(TestCase):
         dt_now = datetime.now(pytz.utc)
 
         port = "Lisbon"
-        tradegood = "Nutmeg"
+        tradegood = "Sugar Beet"
         server = Server.Codename.MARIS
         # channel_user = 'kakaotalk_uwo.iris'
 
@@ -315,14 +315,14 @@ class TestPriceSkill(TestCase):
         MarketpriceDoc.server_ports_tradegoods2delete(server, [port], [tradegood])
         insert_docs()
 
-        packet = {KhalaPacket.Field.TEXT: "?price 리스본,세비야 육두구",
+        packet = {KhalaPacket.Field.TEXT: "?price 리스본,세비야 사탕무",
                   KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
                   KhalaPacket.Field.CHANNEL_USER: channel_user_codename,
                   KhalaPacket.Field.SENDER_NAME: sender_name,
                   }
 
         hyp = NORM_LIST(PriceSkill.packet2rowsblocks(packet))
-        ref = [('[육두구] 시세', ['세비야', '리스본'])]
+        ref = [('[사탕무] 시세', ['세비야', '리스본'])]
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)
