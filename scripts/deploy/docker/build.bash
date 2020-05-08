@@ -34,7 +34,7 @@ main(){
     # secret
     # https://docs.docker.com/engine/swarm/secrets/
 
-
+    docker login
     docker push $docker_image
 
     popd
