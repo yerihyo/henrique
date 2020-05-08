@@ -18,6 +18,7 @@ export PYTHONPATH=$FOXYLIB_DIR
 
 main(){
     pushd $REPO_DIR
+    python -m henrique.main.singleton.env.henrique_env  # for Docker
     python -m henrique.main.singleton.deploy.uwsgi.henrique_uwsgi
     python -m henrique.main.singleton.deploy.nginx.henrique_nginx
     python -m henrique.main.singleton.deploy.supervisord.henrique_supervisord

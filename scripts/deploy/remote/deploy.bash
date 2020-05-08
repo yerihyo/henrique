@@ -40,8 +40,6 @@ rsync_env(){
     # Transfer env list into server
     errcho "[$FILE_NAME] rsync_env() - START"
 
-    python -m henrique.main.singleton.env.henrique_env $ENV > "$env_filepath"
-
     echo "mkdir -p /home/$USERNAME/env" | $SSH 'bash -s'
     rsync "${RSYNCOPT[@]}" -r $REPO_DIR/henrique/env/ $AUTHORITY:/home/$USERNAME/env/
     rsync "${RSYNCOPT[@]}" $env_filepath $AUTHORITY:/home/$USERNAME/env/env.$ENV.list

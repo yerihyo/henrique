@@ -20,28 +20,29 @@ env_filepath="$REPO_DIR/henrique/env/docker/env.$ENV.list"
 
 run_supervisord(){
     docker run \
+        --env ENV=$ENV \
         --env-file $env_filepath \
         -it \
         -v $REPO_DIR/log:/app/log \
         -p 80:80 \
         -p 443:443 \
-        foxytrixy/henrique:$ENV \
+        foxytrixy/henrique \
         supervisord -n -c /app/henrique/main/singleton/deploy/nginx/conf/henrique.nginx.$ENV.conf
 }
 
 run_pytest(){
     docker run \
+        --env ENV=$ENV \
         --env-file $env_filepath \
         -it \
         -v $REPO_DIR/log:/app/log \
-        foxytrixy/henrique:$ENV \
+        foxytrixy/henrique \
         pytest
 }
 main(){
     pushd $REPO_DIR
 
     mkdir -p $REPO_DIR/henrique/env/docker/
-    python -m henrique.main.singleton.env.henrique_env $ENV > $env_filepath
     run_supervisord
 #    run_pytest
 

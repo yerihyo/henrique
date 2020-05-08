@@ -5,8 +5,8 @@ FILE_PATH=$(readlink -f $ARG0)
 FILE_NAME=$(basename $FILE_PATH)
 FILE_DIR=$(dirname $FILE_PATH)
 
-ENV=${ENV?'missing $ENV'}
-if [[ ! "$ENV" ]]; then errcho "missing env variable $ENV"; exit 1; fi
+#ENV=${ENV?'missing $ENV'}
+#if [[ ! "$ENV" ]]; then errcho "missing env variable $ENV"; exit 1; fi
 
 
 errcho(){ >&2 echo $@; }
@@ -16,18 +16,19 @@ func_count2reduce(){
 }
 
 REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
-docker_image=foxytrixy/henrique:$ENV
+#docker_image=foxytrixy/henrique:$ENV
+docker_image=foxytrixy/henrique
 
 main(){
     pushd $REPO_DIR
 
-    # $REPO_DIR/scripts/deploy/compile-all.bash  # assuming this is already done
-
+#    $REPO_DIR/scripts/deploy/compile-all.bash  # assuming this is already done
     docker build "$@" \
         -t $docker_image \
-        --build-arg ENV=$ENV \
         -f $FILE_DIR/Dockerfile \
         $REPO_DIR
+
+#    --build-arg ENV=$ENV \
 
     ##########
     # secret
