@@ -135,15 +135,15 @@ class TestPriceSkillClique(TestCase):
         self.assertEqual(hyp, ref)
 
     def test_12(self):
-        text = "?price 리스본 육두구 120 ㅅ"
+        text = "?price 리스본 밀가루 120 ㅅ"
         entity_list = [{'span': (7, 10), 'text': '리스본', 'value': 'Lisbon', 'type': PortEntity.entity_type()},
-                       {'span': (11, 14), 'text': '육두구', 'value': 'Nutmeg', 'type': TradegoodEntity.entity_type()},
+                       {'span': (11, 14), 'text': '밀가루', 'value': 'Flour', 'type': TradegoodEntity.entity_type()},
                        {'span': (15, 18), 'text': '120', 'value': 120, 'type': RateEntity.entity_type()},
                        {'span': (19, 20), 'text': 'ㅅ', 'value': "rise", 'type': TrendEntity.entity_type()},
                        ]
         hyp = PriceSkillClique.entity_list2entities_list_grouped(text, entity_list)
         ref = [[{'span': (7, 10), 'text': '리스본', 'value': 'Lisbon', 'type': PortEntity.entity_type()}],
-               [{'span': (11, 14), 'text': '육두구', 'value': 'Nutmeg', 'type': TradegoodEntity.entity_type()}],
+               [{'span': (11, 14), 'text': '밀가루', 'value': 'Flour', 'type': TradegoodEntity.entity_type()}],
                [{'span': (15, 18), 'text': '120', 'value': 120, 'type': RateEntity.entity_type()}],
                [{'span': (19, 20), 'text': 'ㅅ', 'value': "rise", 'type': TrendEntity.entity_type()}],
                ]
@@ -152,9 +152,9 @@ class TestPriceSkillClique(TestCase):
         self.assertEqual(hyp, ref)
 
     def test_13(self):
-        text = "?price 리스본 육두구 120ㅅ"
+        text = "?price 리스본 밀가루 120ㅅ"
         entity_list = [{'span': (7, 10), 'text': '리스본', 'value': 'Lisbon', 'type': PortEntity.entity_type()},
-                       {'span': (11, 14), 'text': '육두구', 'value': 'Nutmeg', 'type': TradegoodEntity.entity_type()},
+                       {'span': (11, 14), 'text': '밀가루', 'value': 'Flour', 'type': TradegoodEntity.entity_type()},
                        {'span': (15, 18), 'text': '120', 'value': 120, 'type': RateEntity.entity_type()},
                        {'span': (18, 19), 'text': 'ㅅ', 'value': "rise", 'type': TrendEntity.entity_type()},
                        ]
@@ -249,7 +249,7 @@ class TestPriceSkill(TestCase):
         MarketpriceDoc.server_ports_tradegoods2delete(server, ports, tradegoods)
         # channel = Channel.Codename.KAKAOTALK_UWO_UWO  # discord
 
-        packet = {KhalaPacket.Field.TEXT: "?price 육두구 리스본 120ㅅ",
+        packet = {KhalaPacket.Field.TEXT: "?price 육두구 밀가루 120ㅅ",
                   KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
                   KhalaPacket.Field.CHANNEL_USER: channel_user_codename,
                   KhalaPacket.Field.SENDER_NAME: sender_name,
