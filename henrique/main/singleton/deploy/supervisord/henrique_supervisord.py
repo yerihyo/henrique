@@ -13,7 +13,7 @@ from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
 FILE_NAME = os.path.basename(FILE_PATH)
-REPO_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*4, FILE_DIR)
+REPO_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*5, FILE_DIR)
 
 
 class HenriqueSupervisord:
@@ -35,6 +35,9 @@ class HenriqueSupervisord:
 
     @classmethod
     def env2compile(cls, env):
+        logger = HenriqueLogger.func_level2logger(cls.env2compile, logging.DEBUG)
+        logger.debug({"env":env})
+
         uwsgi_mode = HenriqueUwsgi.env2mode(env)
 
         nginx_mode = HenriqueNginx.env2mode(env)
@@ -51,6 +54,10 @@ class HenriqueSupervisord:
         utf8 = Jinja2Renderer.template2text(cls.template(), data=data)
         FileTool.utf82file(utf8, filepath)
 
+        logger.debug({"filepath": filepath,
+                      "data":data,
+                      })
+
     @classmethod
     def compile_all(cls):
         for env in HenriqueEnv.Value.list():
@@ -58,7 +65,7 @@ class HenriqueSupervisord:
 
 
 def main():
-    HenriqueNginx.compile_all()
+    HenriqueSupervisord.compile_all()
 
 if __name__== "__main__":
     HenriqueLogger.attach_stderr2loggers(logging.DEBUG)

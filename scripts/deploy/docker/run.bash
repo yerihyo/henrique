@@ -23,11 +23,12 @@ run_supervisord(){
         --env ENV=$ENV \
         --env-file $env_filepath \
         -it \
-        -v $REPO_DIR/log:/app/log \
-        -p 80:80 \
-        -p 443:443 \
+        --volume $HOME/env:/app/env:ro \
+        --volume $REPO_DIR/log:/app/log \
+        --publish 80:80 \
+        --publish 443:443 \
         foxytrixy/henrique \
-        supervisord -n -c /app/henrique/main/singleton/deploy/nginx/conf/henrique.nginx.$ENV.conf
+        supervisord -n -c /app/henrique/main/singleton/deploy/supervisord/conf/henrique.supervisord.$ENV.conf
 }
 
 run_pytest(){
@@ -35,7 +36,8 @@ run_pytest(){
         --env ENV=$ENV \
         --env-file $env_filepath \
         -it \
-        -v $REPO_DIR/log:/app/log \
+        --volume $REPO_DIR/henrique/env:/app/env:ro \
+        --volume $REPO_DIR/log:/app/log \
         foxytrixy/henrique \
         pytest
 }
@@ -43,8 +45,8 @@ main(){
     pushd $REPO_DIR
 
     mkdir -p $REPO_DIR/henrique/env/docker/
-    run_supervisord
-#    run_pytest
+#    run_supervisord
+    run_pytest
 
     popd
 }
