@@ -13,12 +13,26 @@ func_count2reduce(){
 }
 
 REPO_DIR=$(func_count2reduce $FILE_DIR dirname 2)
-#FOXYLIB_DIR=${FOXYLIB_DIR?'missing $FOXYLIB_DIR'}
-#export PYTHONPATH=$FOXYLIB_DIR
+FOXYLIB_DIR=${FOXYLIB_DIR?''}
+if [[ "$FOXYLIB_DIR" ]]; then
+    export PYTHONPATH=$FOXYLIB_DIR
+fi
+
+compile_docker(){
+    python -m henrique.main.singleton.env.henrique_env
+
+    mkdir -p travis/henrique/env/docker
+    for env in local dev prod; do
+        travis encrypt-file \
+            henrique/env/docker/env.$env.list \
+            travis/henrique/env/docker/env.$env.list.enc \
+            --force --com --add
+    done
+}
 
 main(){
     pushd $REPO_DIR
-    python -m henrique.main.singleton.env.henrique_env  # for Docker
+    compile_docker
     python -m henrique.main.singleton.deploy.uwsgi.henrique_uwsgi
     python -m henrique.main.singleton.deploy.nginx.henrique_nginx
     python -m henrique.main.singleton.deploy.supervisord.henrique_supervisord
