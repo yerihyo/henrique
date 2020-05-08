@@ -1,6 +1,9 @@
+from functools import lru_cache
+
 from future.utils import lfilter
 
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key
+from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.googleapi.sheets.googlesheets_tool import GooglesheetsTool
 from foxylib.tools.string.string_tool import str2strip
 from henrique.main.singleton.config.henrique_config import HenriqueConfig
@@ -33,6 +36,7 @@ class HenriqueConfigGooglesheets:
         return "11XXks43hhrBJX5q0MRU4dQobTiIMsYJ8qtIQdfkLljQ"
 
     @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=10))
     def sheetname2data_ll(cls, sheetname):
         data_ll = GooglesheetsTool.cred_id_name2data_ll(HenriqueGoogleapi.credentials(), cls.spreadsheetId(), sheetname)
         return data_ll

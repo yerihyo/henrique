@@ -24,49 +24,10 @@ func_count2reduce(){
 
 REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
 
-PROJECT_NAME=henrique
-#scheme=http
-# USER=${USER?'missing $USER'}
-
-if [[ "$ENV" == "local" || ! "$ENV" ]]; then
-    DOMAIN_NAME="localhost"
-elif [[ "$ENV" == "dev" ]]; then
-    DOMAIN_NAME="dev.henrique.way2gosu.com"
-elif [[ "$ENV" == "prod" ]]; then
-    DOMAIN_NAME="henrique.way2gosu.com"
-else
-    errcho "[$FILE_NAME] ERROR - \$ENV missing"
-    exit 1
-fi
-
 main(){
-    FILEPATH_SSL_CERTI="$REPO_DIR/env/ssl/ssl_certificate.pem"
-    FILEPATH_SSL_PRIVATE_KEY="$REPO_DIR/env/ssl/ssl_private_key.pem"
-
-    # https://github.com/mattrobenolt/jinja2-cli
-    if [[ DOMAIN_NAME == "localhost" ]]; then
-        jinja2 $FILE_DIR/$PROJECT_NAME.nginx.conf.tmplt \
-            -D DOMAIN_NAME="$DOMAIN_NAME" \
-            -D NGINX_DIR="/usr/local/etc/nginx" \
-            -D mode="local" \
-            -D is_https="" \
-            -D REPO_DIR="$REPO_DIR" \
-            > $FILE_DIR/$PROJECT_NAME.nginx.local.conf
-    else
-        jinja2 $FILE_DIR/$PROJECT_NAME.nginx.conf.tmplt \
-            -D DOMAIN_NAME="$DOMAIN_NAME" \
-            -D NGINX_DIR="/etc/nginx" \
-            -D mode="docker" \
-            -D is_https="" \
-            > $FILE_DIR/$PROJECT_NAME.nginx.$ENV.conf
-
-        rm -f $FILE_DIR/$PROJECT_NAME.nginx.docker.conf
-
-        ln -s $PROJECT_NAME.nginx.$ENV.conf $FILE_DIR/$PROJECT_NAME.nginx.docker.conf
-    fi
-
-#        -D USER="$USER" \
-
+    pushd $REPO_DIR
+    python -m henrique.main.singleton.deploy.nginx.henrique_nginx.HenriqueNginx
+    popd
 }
 
 

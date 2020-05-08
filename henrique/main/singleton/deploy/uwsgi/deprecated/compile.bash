@@ -12,14 +12,31 @@ func_count2reduce(){
     for ((i=0;i<$n;i++)); do v=$($cmd $v) ; done; echo "$v"
 }
 
-REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
+REPO_DIR=$(func_count2reduce $FILE_DIR dirname 4)
+
+MAIN_DIR=$REPO_DIR/henrique/app/main
 PROJECT_NAME=henrique
 
-main(){
-    $FILE_DIR/compile.bash
+USERNAME=$(stat -c '%U' $FILE_PATH)
+#GROUPNAME=$(stat -c '%G' $FILE_PATH)
 
-    mkdir -p $REPO_DIR/log/uwsgi
-    uwsgi "$FILE_DIR/$PROJECT_NAME.uwsgi.local.ini" # --uid www-data --gid www-data
+mode2compile(){
+    local mode="${1?missing 'mode'}"
+
+}
+
+main(){
+    # files are already pre-compiled
+
+    mkdir -p $REPO_DIR/log
+
+    for mode in docker standalone; do
+        jinja2 $FILE_DIR/$PROJECT_NAME.uwsgi.ini.tmplt \
+            -D mode="$mode" \
+            > "$FILE_DIR/ini/henrique.uwsgi.$mode.ini"
+    done
+
+
 }
 
 errcho "[$FILE_NAME] START"
