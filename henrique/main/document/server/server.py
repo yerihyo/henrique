@@ -1,25 +1,18 @@
 import logging
 import os
-import sys
-from itertools import chain
 
+from functools import lru_cache
+from itertools import chain
+from nose.tools import assert_is_not_none
+
+from foxylib.tools.collections.collections_tool import merge_dicts, luniq, vwrite_no_duplicate_key
+from foxylib.tools.collections.iter_tool import IterTool
+from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.json.json_tool import JsonTool
 from henrique.main.singleton.config.henrique_config import HenriqueConfig
 from henrique.main.singleton.locale.henrique_locale import HenriqueLocale
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
-from khala.document.channel.channel import Channel
-from khala.document.chatroom.chatroom import Chatroom
 from khala.document.packet.packet import KhalaPacket
-
-from foxylib.tools.collections.iter_tool import IterTool
-from foxylib.tools.collections.collections_tool import merge_dicts, luniq, vwrite_no_duplicate_key
-from functools import lru_cache
-from nose.tools import assert_is_not_none
-
-from foxylib.tools.function.function_tool import FunctionTool
-from foxylib.tools.function.warmer import Warmer
-from foxylib.tools.json.json_tool import JsonTool
-from foxylib.tools.json.yaml_tool import YAMLTool
-from henrique.main.singleton.env.henrique_env import HenriqueEnv
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
@@ -31,6 +24,7 @@ class Server:
         HELENE = "helene"
         EIRENE = "eirene"
         POLARIS = "polaris"
+        JAPAN = "japan"
 
         @classmethod
         def set(cls):
