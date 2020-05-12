@@ -56,7 +56,7 @@ class ServerGooglesheets:
                                     )
                               )
 
-        def codename2culture(codename):
+        def codename2server(codename):
             aliases = DictTool.filter(lambda k, v: v,
                                       {"en": h_codename2aliases_en.get(codename),
                                        "ko": h_codename2aliases_ko.get(codename),
@@ -67,5 +67,5 @@ class ServerGooglesheets:
                        }
             return DictTool.filter(lambda k, v: v, culture)
 
-        return lmap(codename2culture, codename_list)
+        return lmap(codename2server, codename_list)
 

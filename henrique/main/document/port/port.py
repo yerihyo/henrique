@@ -24,7 +24,7 @@ class Port:
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def _dict_codename2port_all(cls):
+    def _dict_codename2port_all_OLD(cls):
         from henrique.main.document.port.mongodb.port_doc import PortDoc
         h_mongo = PortDoc.dict_codename2port_partial()
 
@@ -44,6 +44,13 @@ class Port:
                                           for codename in codename_list],
                                          vwrite=vwrite_no_duplicate_key, )
         return dict_codename2port
+
+    @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def _dict_codename2port_alㅣ(cls):
+        from henrique.main.document.port.googlesheets.port_googlesheets import PortGooglesheets
+        return PortGooglesheets.dict_codename2port_partial()
+
 
     @classmethod
     def list_all(cls):
@@ -119,10 +126,15 @@ class Port:
 class Product:
     class Field:
         TRADEGOOD = "tradegood"
+        PRICE = "price"
 
     @classmethod
     def product2tradegood(cls, product):
         return product.get(cls.Field.TRADEGOOD)
+
+    @classmethod
+    def product2price(cls, product):
+        return product.get(cls.Field.PRICE)
 
 
 
