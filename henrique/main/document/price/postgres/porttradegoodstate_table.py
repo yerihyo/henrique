@@ -32,6 +32,10 @@ class PortTradegoodStateTable:
         return JsonTool.down(cls.tuple2j(t), ["market_status", "rate"])
 
     @classmethod
+    def tuple2chatuser_uuid(cls, t):
+        return JsonTool.down(cls.tuple2j(t), ["chatuser", "uuid"])
+
+    @classmethod
     def tuple2trend(cls, t):
         trend = JsonTool.down(cls.tuple2j(t), ["market_status", "trend", "value"])
         return trend - 2
