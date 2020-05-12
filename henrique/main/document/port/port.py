@@ -22,32 +22,32 @@ class Port:
         ALIASES = "aliases"
         PRODUCTS = "products"
 
+    # @classmethod
+    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    # def _dict_codename2port_all_OLD(cls):
+    #     from henrique.main.document.port.mongodb.port_doc import PortDoc
+    #     h_mongo = PortDoc.dict_codename2port_partial()
+    #
+    #     from henrique.main.document.port.googlesheets.port_googlesheets import PortGooglesheets
+    #     h_googlesheets = PortGooglesheets.dict_codename2port_partial()
+    #
+    #     codename_list = luniq(chain(h_googlesheets.keys(), h_mongo.keys(),))
+    #
+    #     def codename2port(codename):
+    #         port = merge_dicts([h_mongo.get(codename) or {},
+    #                             h_googlesheets.get(codename) or {},
+    #                             ], vwrite=vwrite_update_if_identical,
+    #                            )
+    #         return port
+    #
+    #     dict_codename2port = merge_dicts([{codename: codename2port(codename)}
+    #                                       for codename in codename_list],
+    #                                      vwrite=vwrite_no_duplicate_key, )
+    #     return dict_codename2port
+
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def _dict_codename2port_all_OLD(cls):
-        from henrique.main.document.port.mongodb.port_doc import PortDoc
-        h_mongo = PortDoc.dict_codename2port_partial()
-
-        from henrique.main.document.port.googlesheets.port_googlesheets import PortGooglesheets
-        h_googlesheets = PortGooglesheets.dict_codename2port_partial()
-
-        codename_list = luniq(chain(h_googlesheets.keys(), h_mongo.keys(),))
-
-        def codename2port(codename):
-            port = merge_dicts([h_mongo.get(codename) or {},
-                                h_googlesheets.get(codename) or {},
-                                ], vwrite=vwrite_update_if_identical,
-                               )
-            return port
-
-        dict_codename2port = merge_dicts([{codename: codename2port(codename)}
-                                          for codename in codename_list],
-                                         vwrite=vwrite_no_duplicate_key, )
-        return dict_codename2port
-
-    @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def _dict_codename2port_alㅣ(cls):
+    def _dict_codename2port_all(cls):
         from henrique.main.document.port.googlesheets.port_googlesheets import PortGooglesheets
         return PortGooglesheets.dict_codename2port_partial()
 
