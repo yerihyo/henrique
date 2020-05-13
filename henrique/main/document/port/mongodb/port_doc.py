@@ -91,7 +91,7 @@ class PortDoc:
         return product_list
 
     @classmethod
-    def dict_codename2port_partial(cls):
+    def dict_codename2port(cls):
         doc_list = cls.doc_list_all()
 
         def doc2port_partial(doc):

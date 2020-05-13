@@ -57,19 +57,20 @@ class ProductSheet:
     def dict_codename2products(cls):
         data_ll = PortGooglesheets.sheetname2data_ll(cls.NAME)
 
-        h_raw = gb_tree_global(data_ll[1:], [ig(0)])
+        port2row_list = gb_tree_global(data_ll[1:], [ig(0)])
 
         def row2product(row):
-            tradegood = row[1]
+            port, tradegood = row[0], row[1]
             price = row[2] if len(row) >= 3 else None
-            raw = {Product.Field.TRADEGOOD: tradegood,
-                       Product.Field.PRICE: price,
-                       }
+            raw = {Product.Field.PORT: port,
+                   Product.Field.TRADEGOOD: tradegood,
+                   Product.Field.PRICE: price,
+                   }
             product = DictTool.filter(lambda k,v:v, raw)
             return product
 
-        h = {k:lmap(row2product, l)
-             for k, l in h_raw.items()}
+        h = {port: lmap(row2product, row_list)
+             for port, row_list in port2row_list}
 
         return h
 
@@ -85,16 +86,16 @@ class PortGooglesheets:
         return data_ll
 
     @classmethod
-    def dict_codename2port_partial(cls):
-        h_codename2culture = CultureSheet.dict_codename2culture()
+    def dict_codename2port(cls):
+        port_list_all = cls.port_list_all()
 
-        def codename_culture2port_partial(codename, culture):
-            h = {Port.Field.CODENAME: codename,
-                 Port.Field.CULTURE: culture,
-                 }
-            return h
-        h = merge_dicts([{codename: codename_culture2port_partial(codename,culture)}
-                         for codename, culture in h_codename2culture.items()],
+        # def codename_culture2port_partial(codename, culture):
+        #     h = {Port.Field.CODENAME: codename,
+        #          Port.Field.CULTURE: culture,
+        #          }
+        #     return h
+        h = merge_dicts([{Port.port2codename(port): port}
+                         for port in cls.port_list_all()],
                         vwrite=DictTool.VWrite.f_vwrite2f_hvwrite(vwrite_no_duplicate_key),
                         )
         return h
@@ -107,6 +108,7 @@ class PortGooglesheets:
         h_codename2aliases_ko = NameskoSheet.dict_codename2aliases()
         h_codename2culture = CultureSheet.dict_codename2culture()
         h_codename2product_list = ProductSheet.dict_codename2products()
+        # raise Exception({"h_codename2product_list":h_codename2product_list})
 
         codename_list = luniq(chain(h_codename2aliases_en.keys(),
                                     h_codename2aliases_ko.keys(),
