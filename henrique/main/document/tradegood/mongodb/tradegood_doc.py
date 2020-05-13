@@ -5,7 +5,7 @@ import sys
 from functools import lru_cache
 from future.utils import lmap
 
-from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, DictTool
+from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, DictTool, lchain
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
@@ -92,3 +92,46 @@ class TradegoodDoc:
         h = cls._dict_id2codename()
         logger.debug({"h": h})
         return h[doc_id]
+
+class Mongodb2Googlesheets:
+    @classmethod
+    def docs2sheet_name_en(cls, doc_list):
+        def doc2sheet_name_en_row(doc):
+            key = TradegoodDoc.doc2key(doc)
+            name_list_en = TradegoodDoc.doc_lang2names(doc, "en")
+
+            return lchain([key], name_list_en)
+
+        for doc in doc_list:
+            yield doc2sheet_name_en_row(doc)
+
+    @classmethod
+    def docs2sheet_name_ko(cls, doc_list):
+        def doc2sheet_name_ko_row(doc):
+            key = TradegoodDoc.doc2key(doc)
+            name_list_en = TradegoodDoc.doc_lang2names(doc, "ko")
+
+            return lchain([key], name_list_en)
+
+        for doc in doc_list:
+           yield doc2sheet_name_ko_row(doc)
+
+    @classmethod
+    def rows2text(cls, rows):
+        return "\n".join(map(lambda row: ",".join(map(str, row)), rows))
+
+
+    @classmethod
+    def collection2sheets(cls,):
+        doc_list = list(TradegoodCollection.collection().find())
+        block_list = [cls.rows2text(cls.docs2sheet_name_en(doc_list)),
+                      cls.rows2text(cls.docs2sheet_name_ko(doc_list)),
+                      ]
+        print("\n\n".join(block_list))
+
+
+def main():
+    Mongodb2Googlesheets.collection2sheets()
+
+if __name__ == '__main__':
+    main()
