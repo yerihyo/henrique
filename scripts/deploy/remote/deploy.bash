@@ -7,7 +7,7 @@ FILE_PATH=$(readlink -f $ARG0)
 FILE_NAME=$(basename $FILE_PATH)
 FILE_DIR=$(dirname $FILE_PATH)
 
-errcho(){ >&2 echo $@; }
+errcho(){ >&2 echo "$@"; }
 usage(){ errcho "usage: $ARG0 <filepath_script>"; }
 func_count2reduce(){
     local v="${1?missing}"; local cmd="${2?missing}"; local n=${3?missing};

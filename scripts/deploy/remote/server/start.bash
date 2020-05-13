@@ -1,7 +1,7 @@
 #!/bin/bash -eu
 
 
-errcho(){ >&2 echo $@; }
+errcho(){ >&2 echo "$@"; }
 FILE_NAME="start.bash"
 ENV="${1:-}"
 if [[ ! "$ENV" ]]; then errcho "\$ENV missing"; exit 1; fi
