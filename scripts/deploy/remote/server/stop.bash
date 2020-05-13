@@ -1,7 +1,7 @@
 #!/bin/bash -eu
 
 
-errcho(){ >&2 echo $@; }
+errcho(){ >&2 echo "$@"; }
 FILE_NAME="stop.bash"
 
 main(){
