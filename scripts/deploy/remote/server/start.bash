@@ -1,7 +1,7 @@
 #!/bin/bash -eu
 
 
-errcho(){ >&2 echo $@; }
+errcho(){ >&2 echo "$@"; }
 FILE_NAME="start.bash"
 ENV="${1:-}"
 if [[ ! "$ENV" ]]; then errcho "\$ENV missing"; exit 1; fi
@@ -22,9 +22,7 @@ install(){
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
     sudo apt-key fingerprint 0EBFCD88
     sudo add-apt-repository \
-       "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
-       $(lsb_release -cs) \
-       stable"
+       "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 
     sudo apt-get -y update
     sudo apt-get -y install docker-ce docker-ce-cli containerd.io
@@ -59,7 +57,7 @@ main(){
 }
 
 tail_log(){
-    sudo docker logs -f $(sudo docker ps -a -q)
+    sudo docker logs -f "$(sudo docker ps -a -q)"
 }
 
 errcho "[$FILE_NAME] Start (ENV:$ENV)"
