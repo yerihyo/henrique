@@ -55,7 +55,7 @@ git_clone(){
     pushd $HENRIQUE_DIR || exit 1
 
     virtualenv -p "$(which python3.6)" venv
-    source $HENRIQUE_DIR/venv/bin/activate
+    . $HENRIQUE_DIR/venv/bin/activate
     $PIP install -U setuptools==41.0.1
     $PIP install -U -r henrique/requirements.txt
     popd
@@ -65,12 +65,13 @@ lpass(){
     mkdir -p $HOME/.config/lpass $HOME/.local/share/lpass
 
     export FOXYLIB_DIR=$HOME/jenkins/foxylib
-    source $HENRIQUE_DIR/venv/bin/activate
+    . $HENRIQUE_DIR/venv/bin/activate
 
     export LPASS_USERNAME=${LPASS_USERNAME?'missing $LPASS_USERNAME'}
     export LPASS_PASSWORD=${LPASS_PASSWORD?'missing $LPASS_PASSWORD'}
 
     $HENRIQUE_DIR/scripts/lpass/pull.bash
+    $HENRIQUE_DIR/scripts/direnv/load.bash
 
 #    sudo apt-get --no-install-recommends -yqq install \
 #      bash-completion \
