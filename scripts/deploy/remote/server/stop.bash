@@ -10,7 +10,7 @@ main(){
     set +e
 
     # Stop running containers
-    local containers=$(sudo docker ps -a -q)
+    containers="$(sudo docker ps -a -q)"
     if [[ "$containers" ]]; then
         sudo docker stop ${containers}
         if ! [ $? -eq 0 ]; then
