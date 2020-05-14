@@ -108,6 +108,8 @@ git_clone(){
     popd
 
     mkdir -p $HOME/.config/lpass $HOME/.local/share/lpass
+
+    errcho "update .bash_profile"
 }
 # sudo su - jenkins
 
