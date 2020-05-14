@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash -euf
 
 ARG0=${BASH_SOURCE[0]}
 FILE_PATH=$(readlink -f $ARG0)
@@ -18,6 +18,10 @@ HENRIQUE_DIR=$PROJECTS_DIR/henrique
 pull_foxylib(){
     pushd $FOXYLIB_DIR
     git pull origin master
+    . venv/bin/activate
+    python setup.py install
+    deactivate
+    python
     popd
 }
 
@@ -33,6 +37,7 @@ pull_henrique(){
 
     ENV=$ENV ./scripts/deploy/remote/deploy.bash ./scripts/deploy/remote/server/stop.bash
     ENV=$ENV ./scripts/deploy/remote/deploy.bash ./scripts/deploy/remote/server/start.bash
+    deactivate
     popd
 
 }

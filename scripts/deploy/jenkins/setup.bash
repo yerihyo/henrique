@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash -euf
 
 ARG0=${BASH_SOURCE[0]}
 #FILE_PATH=$(readlink -f $ARG0)
@@ -79,13 +79,24 @@ git_clone(){
     if [[ "$(whoami)" != "jenkins" ]]; then errcho "invalid user $(whoami)"; exit 1; fi
 
     PROJECTS_DIR=$HOME/projects
-    HENRIQUE_DIR=$PROJECTS_DIR/henrique
+
     PIP=pip3
 
     mkdir -p "$PROJECTS_DIR"
-    git clone https://github.com/yerihyo/foxylib.git $PROJECTS_DIR/foxylib
 
-    # virtualenv
+    # foxylib
+    FOXYLIB_DIR=$PROJECTS_DIR/foxylib
+    git clone https://github.com/yerihyo/foxylib.git $FOXYLIB_DIR
+    pushd $FOXYLIB_DIR || exit 1
+    virtualenv -p "$(which python3.6)" venv
+    . $FOXYLIB_DIR/venv/bin/activate
+    python setup.py install
+    deactivate
+    popd
+
+
+    # henrique
+    HENRIQUE_DIR=$PROJECTS_DIR/henrique
     git clone https://github.com/yerihyo/henrique.git $HENRIQUE_DIR
 
     pushd $HENRIQUE_DIR || exit 1
@@ -93,6 +104,7 @@ git_clone(){
     . $HENRIQUE_DIR/venv/bin/activate
     $PIP install -U setuptools==41.0.1
     $PIP install -U -r henrique/requirements.txt
+    deactivate
     popd
 
     mkdir -p $HOME/.config/lpass $HOME/.local/share/lpass
