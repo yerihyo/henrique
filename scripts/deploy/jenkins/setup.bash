@@ -20,7 +20,7 @@ aptitude_install(){
     # virtualenv
     sudo apt update
     sudo apt -y install virtualenv python3-pip
-    sudo apt install lastpass-cli
+    sudo apt install lastpass-cli direnv
 
     # docker
     sudo apt-get remove docker docker-engine docker.io containerd runc

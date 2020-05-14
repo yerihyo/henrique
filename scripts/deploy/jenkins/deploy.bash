@@ -24,6 +24,7 @@ pull_foxylib(){
 pull_henrique(){
     pushd $HENRIQUE_DIR
     . venv/bin/activate
+    pip3 install -U -r henrique/requirements.txt
 
     ./scripts/lpass/pull.bash
     . ./scripts/direnv/load.bash
