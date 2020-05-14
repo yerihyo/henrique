@@ -7,6 +7,7 @@ FILE_NAME=$(basename $FILE_PATH)
 
 errcho(){ >&2 echo "$@"; }
 
+ENV=${ENV?'missing $ENV'}
 
 PROJECTS_DIR=$HOME/projects
 export FOXYLIB_DIR=$PROJECTS_DIR/foxylib
@@ -29,7 +30,8 @@ pull_henrique(){
 
     echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME
 
-    ./scripts/deploy/remote/deploy.bash ./scripts/deploy/remote/server/start.bash
+    ENV=$ENV ./scripts/deploy/remote/deploy.bash ./scripts/deploy/remote/server/stop.bash
+    ENV=$ENV ./scripts/deploy/remote/deploy.bash ./scripts/deploy/remote/server/start.bash
     popd
 
 }
