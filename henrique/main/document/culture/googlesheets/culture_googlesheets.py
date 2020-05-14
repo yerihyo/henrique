@@ -1,8 +1,11 @@
+from functools import lru_cache
+
 from future.utils import lmap
 from itertools import chain
 
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, luniq, \
     DictTool
+from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.googleapi.sheets.googlesheets_tool import GooglesheetsTool
 from henrique.main.document.culture.culture import Culture, Prefer
 from henrique.main.singleton.google.googledoc.henrique_googleapi import HenriqueGoogleapi
@@ -68,6 +71,7 @@ class CultureGooglesheets:
     #     return flow
 
     @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=10))
     def sheetname2data_ll(cls, sheetname):
         data_ll = GooglesheetsTool.cred_id_name2data_ll(HenriqueGoogleapi.credentials(), cls.spreadsheetId(), sheetname)
         return data_ll

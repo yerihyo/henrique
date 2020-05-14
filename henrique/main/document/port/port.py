@@ -22,28 +22,35 @@ class Port:
         ALIASES = "aliases"
         PRODUCTS = "products"
 
+    # @classmethod
+    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    # def _dict_codename2port_all_OLD(cls):
+    #     from henrique.main.document.port.mongodb.port_doc import PortDoc
+    #     h_mongo = PortDoc.dict_codename2port()
+    #
+    #     from henrique.main.document.port.googlesheets.port_googlesheets import PortGooglesheets
+    #     h_googlesheets = PortGooglesheets.dict_codename2port()
+    #
+    #     codename_list = luniq(chain(h_googlesheets.keys(), h_mongo.keys(),))
+    #
+    #     def codename2port(codename):
+    #         port = merge_dicts([h_mongo.get(codename) or {},
+    #                             h_googlesheets.get(codename) or {},
+    #                             ], vwrite=vwrite_update_if_identical,
+    #                            )
+    #         return port
+    #
+    #     dict_codename2port = merge_dicts([{codename: codename2port(codename)}
+    #                                       for codename in codename_list],
+    #                                      vwrite=vwrite_no_duplicate_key, )
+    #     return dict_codename2port
+
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def _dict_codename2port_all(cls):
-        from henrique.main.document.port.mongodb.port_doc import PortDoc
-        h_mongo = PortDoc.dict_codename2port_partial()
-
         from henrique.main.document.port.googlesheets.port_googlesheets import PortGooglesheets
-        h_googlesheets = PortGooglesheets.dict_codename2port_partial()
+        return PortGooglesheets.dict_codename2port()
 
-        codename_list = luniq(chain(h_googlesheets.keys(), h_mongo.keys(),))
-
-        def codename2port(codename):
-            port = merge_dicts([h_mongo.get(codename) or {},
-                                h_googlesheets.get(codename) or {},
-                                ], vwrite=vwrite_update_if_identical,
-                               )
-            return port
-
-        dict_codename2port = merge_dicts([{codename: codename2port(codename)}
-                                          for codename in codename_list],
-                                         vwrite=vwrite_no_duplicate_key, )
-        return dict_codename2port
 
     @classmethod
     def list_all(cls):
@@ -91,13 +98,15 @@ class Port:
     @classmethod
     def _dict_tradegood2ports(cls,):
         def h_tradegood2ports_iter():
-            for port in cls.list_all():
+            port_list = cls.list_all()
+            # raise Exception({"port_list":port_list})
+
+            for port in port_list:
                 for product in cls.port2products(port):
                     yield {Product.product2tradegood(product): [port]}
 
         h_tg2ports_list = list(h_tradegood2ports_iter())
         h_tg2ports = merge_dicts(h_tg2ports_list, vwrite=DictTool.VWrite.extend)
-        # raise Exception(h_tg2ports)
         return h_tg2ports
 
     @classmethod
@@ -118,11 +127,21 @@ class Port:
 
 class Product:
     class Field:
+        PORT = "port"
         TRADEGOOD = "tradegood"
+        PRICE = "price"
+
+    @classmethod
+    def product2port(cls, product):
+        return product.get(cls.Field.PORT)
 
     @classmethod
     def product2tradegood(cls, product):
         return product.get(cls.Field.TRADEGOOD)
+
+    @classmethod
+    def product2price(cls, product):
+        return product.get(cls.Field.PRICE)
 
 
 

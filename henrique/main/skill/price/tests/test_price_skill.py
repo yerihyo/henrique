@@ -46,23 +46,23 @@ class TestPriceSkillClique(TestCase):
                          [{'span': (11, 14), 'text': '육두구', 'value': 'Nutmeg', 'type': TradegoodEntity.entity_type()}],
                          ]
         hyp = PriceSkillClique.entities_list2clique(entities_list)
-        ref = {'ports': ['Seville',
-                         'Ceuta',
-                         'Casablanca',
-                         'Las Palmas',
-                         'Madeira',
+        ref = {'ports': ['Las Palmas',
                          'Faro',
-                         'Lisbon',
-                         'Porto',
-                         'Vianna do Castelo',
+                         'Casablanca',
                          'Gijon',
-                         'Bilbao',
-                         'Malaga',
-                         'Valencia',
                          'Palma',
+                         'Madeira',
+                         'Vianna do Castelo',
+                         'Lisbon',
+                         'Sagres',
+                         'Bilbao',
+                         'Seville',
                          'Barcelona',
+                         'Porto',
+                         'Malaga',
+                         'Ceuta',
                          'Montpellier',
-                         'Sagres'],
+                         'Valencia'],
                'tradegoods': ['Nutmeg']}
 
         # pprint(hyp)
@@ -135,15 +135,15 @@ class TestPriceSkillClique(TestCase):
         self.assertEqual(hyp, ref)
 
     def test_12(self):
-        text = "?price 리스본 육두구 120 ㅅ"
+        text = "?price 리스본 사탕무 120 ㅅ"
         entity_list = [{'span': (7, 10), 'text': '리스본', 'value': 'Lisbon', 'type': PortEntity.entity_type()},
-                       {'span': (11, 14), 'text': '육두구', 'value': 'Nutmeg', 'type': TradegoodEntity.entity_type()},
+                       {'span': (11, 14), 'text': '사탕무', 'value': 'Sugar Beet', 'type': TradegoodEntity.entity_type()},
                        {'span': (15, 18), 'text': '120', 'value': 120, 'type': RateEntity.entity_type()},
                        {'span': (19, 20), 'text': 'ㅅ', 'value': "rise", 'type': TrendEntity.entity_type()},
                        ]
         hyp = PriceSkillClique.entity_list2entities_list_grouped(text, entity_list)
         ref = [[{'span': (7, 10), 'text': '리스본', 'value': 'Lisbon', 'type': PortEntity.entity_type()}],
-               [{'span': (11, 14), 'text': '육두구', 'value': 'Nutmeg', 'type': TradegoodEntity.entity_type()}],
+               [{'span': (11, 14), 'text': '사탕무', 'value': 'Sugar Beet', 'type': TradegoodEntity.entity_type()}],
                [{'span': (15, 18), 'text': '120', 'value': 120, 'type': RateEntity.entity_type()}],
                [{'span': (19, 20), 'text': 'ㅅ', 'value': "rise", 'type': TrendEntity.entity_type()}],
                ]
@@ -152,14 +152,14 @@ class TestPriceSkillClique(TestCase):
         self.assertEqual(hyp, ref)
 
     def test_13(self):
-        text = "?price 리스본 육두구 120ㅅ"
+        text = "?price 리스본 밀가루 120ㅅ"
         entity_list = [{'span': (7, 10), 'text': '리스본', 'value': 'Lisbon', 'type': PortEntity.entity_type()},
-                       {'span': (11, 14), 'text': '육두구', 'value': 'Nutmeg', 'type': TradegoodEntity.entity_type()},
+                       {'span': (11, 14), 'text': '사탕무', 'value': 'Sugar Beet', 'type': TradegoodEntity.entity_type()},
                        {'span': (15, 18), 'text': '120', 'value': 120, 'type': RateEntity.entity_type()},
                        {'span': (18, 19), 'text': 'ㅅ', 'value': "rise", 'type': TrendEntity.entity_type()},
                        ]
         hyp = PriceSkillClique.text_entity_list2clique_list(text, entity_list)
-        ref = [{'ports': ['Lisbon'], 'rate': 120, 'tradegoods': ['Nutmeg'], 'trend': 'rise'}]
+        ref = [{'ports': ['Lisbon'], 'rate': 120, 'tradegoods': ['Sugar Beet'], 'trend': 'rise'}]
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)
@@ -244,19 +244,19 @@ class TestPriceSkill(TestCase):
 
         server = "maris"
         ports = ["Lisbon"]
-        tradegoods = ["Nutmeg"]
+        tradegoods = ["Sugar Beet"]
 
         MarketpriceDoc.server_ports_tradegoods2delete(server, ports, tradegoods)
         # channel = Channel.Codename.KAKAOTALK_UWO_UWO  # discord
 
-        packet = {KhalaPacket.Field.TEXT: "?price 육두구 리스본 120ㅅ",
+        packet = {KhalaPacket.Field.TEXT: "?price 사탕무 리스본 120ㅅ",
                   KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
                   KhalaPacket.Field.CHANNEL_USER: channel_user_codename,
                   KhalaPacket.Field.SENDER_NAME: sender_name,
                   }
 
         hyp_01 = PriceSkill.packet2response(packet)
-        ref_01 = """[육두구] 시세
+        ref_01 = """[사탕무] 시세
 리스본 120↗ @ 방금전 [by iris]"""
 
         #pprint({"hyp_01": hyp_01})
@@ -266,7 +266,7 @@ class TestPriceSkill(TestCase):
         hyp_02 = lmap(MarketpriceDoc.doc2norm_unittest, price_list_latest)
         ref_02 = [{'port': 'Lisbon',
                    'rate': 120,
-                   'tradegood': 'Nutmeg',
+                   'tradegood': 'Sugar Beet',
                    'server': 'maris',
                    'trend': 'rise',
                    'channel_user': 'kakaotalk_uwo.iris',
@@ -285,7 +285,7 @@ class TestPriceSkill(TestCase):
         dt_now = datetime.now(pytz.utc)
 
         port = "Lisbon"
-        tradegood = "Nutmeg"
+        tradegood = "Sugar Beet"
         server = Server.Codename.MARIS
         # channel_user = 'kakaotalk_uwo.iris'
 
@@ -315,14 +315,14 @@ class TestPriceSkill(TestCase):
         MarketpriceDoc.server_ports_tradegoods2delete(server, [port], [tradegood])
         insert_docs()
 
-        packet = {KhalaPacket.Field.TEXT: "?price 리스본,세비야 육두구",
+        packet = {KhalaPacket.Field.TEXT: "?price 리스본,세비야 사탕무",
                   KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
                   KhalaPacket.Field.CHANNEL_USER: channel_user_codename,
                   KhalaPacket.Field.SENDER_NAME: sender_name,
                   }
 
         hyp = NORM_LIST(PriceSkill.packet2rowsblocks(packet))
-        ref = [('[육두구] 시세', ['세비야', '리스본'])]
+        ref = [('[사탕무] 시세', ['세비야', '리스본'])]
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)

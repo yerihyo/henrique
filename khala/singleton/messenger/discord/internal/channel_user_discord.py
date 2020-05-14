@@ -8,8 +8,12 @@ from khala.singleton.messenger.discord.internal.packet_discord import PacketDisc
 
 class ChannelUserDiscord:
     @classmethod
+    def id2codename(cls, id_str):
+        return ChannelUser.channel_suffix2codename(Channel.Codename.DISCORD, id_str)
+
+    @classmethod
     def message2codename(cls, message):
-        return ChannelUser.channel_suffix2codename(Channel.Codename.DISCORD, str(message.author.id))
+        return cls.id2codename(str(message.author.id))
 
     @classmethod
     def message2channel_user(cls, message):

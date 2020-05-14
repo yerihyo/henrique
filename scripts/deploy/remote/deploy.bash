@@ -1,13 +1,13 @@
 #!/bin/bash -eu
 
-if [[ -f $HOME/.bashrc ]]; then source $HOME/.bashrc; fi
+if [[ -f $HOME/.bashrc ]]; then . $HOME/.bashrc; fi
 
 ARG0=${BASH_SOURCE[0]}
 FILE_PATH=$(readlink -f $ARG0)
 FILE_NAME=$(basename $FILE_PATH)
 FILE_DIR=$(dirname $FILE_PATH)
 
-errcho(){ >&2 echo $@; }
+errcho(){ >&2 echo "$@"; }
 usage(){ errcho "usage: $ARG0 <filepath_script>"; }
 func_count2reduce(){
     local v="${1?missing}"; local cmd="${2?missing}"; local n=${3?missing};
@@ -40,8 +40,6 @@ rsync_env(){
     # Transfer env list into server
     errcho "[$FILE_NAME] rsync_env() - START"
 
-    python -m henrique.main.singleton.env.henrique_env $ENV > "$env_filepath"
-
     echo "mkdir -p /home/$USERNAME/env" | $SSH 'bash -s'
     rsync "${RSYNCOPT[@]}" -r $REPO_DIR/henrique/env/ $AUTHORITY:/home/$USERNAME/env/
     rsync "${RSYNCOPT[@]}" $env_filepath $AUTHORITY:/home/$USERNAME/env/env.$ENV.list
@@ -54,7 +52,7 @@ main(){
     errcho "[$FILE_NAME] main() - START"
     pushd $REPO_DIR
 
-    ENV=$ENV $REPO_DIR/scripts/deploy/docker/build.bash
+    TAG=${ENV} $REPO_DIR/scripts/deploy/docker/build.bash
     #ENV=$ENV $REPO_DIR/scripts/deploy/docker/push.bash
 
     rsync_env

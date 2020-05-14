@@ -8,7 +8,7 @@ FILE_DIR=$(dirname $FILE_PATH)
 SCRIPTS_DIR=$(dirname $FILE_DIR)
 REPO_DIR=$(dirname $SCRIPTS_DIR)
 
-errcho(){ >&2 echo $@; }
+errcho(){ >&2 echo "$@"; }
 usage(){ errcho "usage: $ARG0 <env>"; }
 
 env="${1:-}"

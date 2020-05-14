@@ -50,15 +50,13 @@ class Port2MongoDB:
         n = len(j_list)
         logger.debug({"n":n})
 
-
         write_concern = WriteConcern(w=3, wtimeout=chunk_size)
-        collection = PortCollection.collection(write_concern=write_concern)
-
+        collection = PortCollection.collection().with_options(write_concern=write_concern)
 
         for i, j_list_chunk in enumerate(ChunkTool.chunk_size2chunks(j_list, chunk_size)):
             logger.debug({"i/n": "{}/{}".format(i*chunk_size, n)})
             j_pair_list = [(JsonTool.j_jpaths2filtered(j, [[PortDoc.F.KEY]]),j) for j in j_list_chunk]
-            MongoDBTool.j_pair_iter2upsert(collection, j_pair_list)
+            MongoDBTool.j_pair_list2upsert(collection, j_pair_list)
 
 
 def main():
