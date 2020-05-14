@@ -5,46 +5,14 @@ ARG0=${BASH_SOURCE[0]}
 #FILE_DIR=$(dirname $FILE_PATH)
 #FILE_NAME=$(basename $FILE_PATH)
 
-errcho(){ >&2 echo "$@"; }
+#errcho(){ >&2 echo "$@"; }
 #usage(){ errcho "usage: $ARG0 <passphrase> <jenkins_password>"; }
 
 #if [[ $# -lt 2 ]]; then usage; exit 1; fi
 
-create_key(){
-    passphrase=${1?'missing $1'}
+# copy, paste & execute !
 
-    # git clone
-    if [[ ! -e "$HOME/.ssh/id_rsa" ]]; then
-        # ssh-keygen
-        ssh-keygen -f $HOME/.ssh/id_rsa -t rsa -N "$passphrase"
-    fi
-    cat $HOME/.ssh/id_rsa.pub
-    ## add key to github
-}
-
-git_clone(){
-    sudo su - jenkins
-
-    PROJECTS_DIR=$HOME/projects
-    HENRIQUE_DIR=$PROJECTS_DIR/henrique
-    PIP=pip3
-
-    mkdir -p "$PROJECTS_DIR"
-    git clone https://github.com/yerihyo/foxylib.git $PROJECTS_DIR/foxylib
-
-    # virtualenv
-    git clone https://github.com/yerihyo/henrique.git $HENRIQUE_DIR
-
-    pushd $HENRIQUE_DIR || exit 1
-    virtualenv -p "$(which python3.6)" venv
-    . $HENRIQUE_DIR/venv/bin/activate
-    $PIP install -U setuptools==41.0.1
-    $PIP install -U -r henrique/requirements.txt
-    popd
-
-    mkdir -p $HOME/.config/lpass $HOME/.local/share/lpass
-    sudo su - ubuntu
-}
+errcho(){ >&2 echo "$@"; }
 
 aptitude_install(){
     jenkins_password=${1?'missing $1'}
@@ -86,10 +54,7 @@ aptitude_install(){
 
     sudo groupadd docker || errcho "[WARNING] groupadd: group 'docker' already exists"
     sudo usermod -aG docker --password "$jenkins_password" "jenkins"
-}
 
-
-port_forwarding(){
     # port forwarding
     ## https://wiki.jenkins.io/display/JENKINS/Running+Jenkins+on+Port+80+or+443+using+iptables
     ## (script below only. do NOT adde ACCEPT lines)
@@ -97,13 +62,50 @@ port_forwarding(){
     sudo iptables -A PREROUTING -t nat -i eth0 -p tcp --dport 443 -j REDIRECT --to-port 8443
 }
 
+create_key(){
+    passphrase=${1?'missing $1'}
+
+    # git clone
+    if [[ ! -e "$HOME/.ssh/id_rsa" ]]; then
+        # ssh-keygen
+        ssh-keygen -f $HOME/.ssh/id_rsa -t rsa -N "$passphrase"
+    fi
+    cat $HOME/.ssh/id_rsa.pub
+    errcho "add above public key to github (username:jenkins.way2gosu@gmail.com)!"
+    ## add key to github
+}
+
+git_clone(){
+    if [[ "$(whoami)" != "jenkins" ]]; then errcho "invalid user $(whoami)"; exit 1; fi
+
+    PROJECTS_DIR=$HOME/projects
+    HENRIQUE_DIR=$PROJECTS_DIR/henrique
+    PIP=pip3
+
+    mkdir -p "$PROJECTS_DIR"
+    git clone https://github.com/yerihyo/foxylib.git $PROJECTS_DIR/foxylib
+
+    # virtualenv
+    git clone https://github.com/yerihyo/henrique.git $HENRIQUE_DIR
+
+    pushd $HENRIQUE_DIR || exit 1
+    virtualenv -p "$(which python3.6)" venv
+    . $HENRIQUE_DIR/venv/bin/activate
+    $PIP install -U setuptools==41.0.1
+    $PIP install -U -r henrique/requirements.txt
+    popd
+
+    mkdir -p $HOME/.config/lpass $HOME/.local/share/lpass
+}
+# sudo su - jenkins
+
+# su - jenkins -c git_clone
+
 
 main(){
+    aptitude_install
     create_key  # need to copy key into github manually
     git_clone
-
-    aptitude_install
-    port_forwarding
 }
 
 main
