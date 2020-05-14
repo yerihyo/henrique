@@ -1,19 +1,54 @@
 #!/usr/bin/env bash
 
-## java
-sudo apt update
-sudo apt install openjdk-8-jdk
+ARG0=${BASH_SOURCE[0]}
+#FILE_PATH=$(readlink -f $ARG0)
+#FILE_DIR=$(dirname $FILE_PATH)
+#FILE_NAME=$(basename $FILE_PATH)
 
+errcho(){ >&2 echo "$@"; }
+#usage(){ errcho "usage: $ARG0 <passphrase> <jenkins_password>"; }
 
+#if [[ $# -lt 2 ]]; then usage; exit 1; fi
 
 create_key(){
+    passphrase=${1?'missing $1'}
+
     # git clone
-    ssh-keygen -t rsa
+    if [[ ! -e "$HOME/.ssh/id_rsa" ]]; then
+        # ssh-keygen
+        ssh-keygen -f $HOME/.ssh/id_rsa -t rsa -N "$passphrase"
+    fi
     cat $HOME/.ssh/id_rsa.pub
     ## add key to github
 }
 
-install(){
+git_clone(){
+    sudo su - jenkins
+
+    PROJECTS_DIR=$HOME/projects
+    HENRIQUE_DIR=$PROJECTS_DIR/henrique
+    PIP=pip3
+
+    mkdir -p "$PROJECTS_DIR"
+    git clone https://github.com/yerihyo/foxylib.git $PROJECTS_DIR/foxylib
+
+    # virtualenv
+    git clone https://github.com/yerihyo/henrique.git $HENRIQUE_DIR
+
+    pushd $HENRIQUE_DIR || exit 1
+    virtualenv -p "$(which python3.6)" venv
+    . $HENRIQUE_DIR/venv/bin/activate
+    $PIP install -U setuptools==41.0.1
+    $PIP install -U -r henrique/requirements.txt
+    popd
+
+    mkdir -p $HOME/.config/lpass $HOME/.local/share/lpass
+    sudo su - ubuntu
+}
+
+aptitude_install(){
+    jenkins_password=${1?'missing $1'}
+
     # virtualenv
     sudo apt update
     sudo apt -y install virtualenv python3-pip
@@ -49,10 +84,8 @@ install(){
     sudo apt update
     sudo apt -y install jenkins
 
-    USERNAME_JENKINS="jenkins"
     sudo groupadd docker || errcho "[WARNING] groupadd: group 'docker' already exists"
-    sudo usermod -aG docker "$USERNAME_JENKINS"
-    sudo password "$USERNAME_JENKINS"
+    sudo usermod -aG docker --password "$jenkins_password" "jenkins"
 }
 
 
@@ -65,65 +98,12 @@ port_forwarding(){
 }
 
 
-
-git_clone(){
-    su - jenkins
-
-    export FOXYLIB_DIR=$HOME/jenkins/foxylib
-    HENRIQUE_DIR=$HOME/jenkins/henrique
-    PIP=pip3
-
-    mkdir -p "$(dirname $HENRIQUE_DIR)"
-    git clone https://github.com/yerihyo/foxylib.git $FOXYLIB_DIR
-
-    # virtualenv
-    git clone https://github.com/yerihyo/henrique.git $HENRIQUE_DIR
-
-    pushd $HENRIQUE_DIR || exit 1
-    virtualenv -p "$(which python3.6)" venv
-    . $HENRIQUE_DIR/venv/bin/activate
-    $PIP install -U setuptools==41.0.1
-    $PIP install -U -r henrique/requirements.txt
-    popd
-
-    mkdir -p $HOME/.config/lpass $HOME/.local/share/lpass
-}
-
-run_docker(){
-    export FOXYLIB_DIR=$HOME/jenkins/foxylib
-    . $HENRIQUE_DIR/venv/bin/activate
-
-    $HENRIQUE_DIR/scripts/lpass/pull.bash
-    . $HENRIQUE_DIR/scripts/direnv/load.bash
-
-    echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME
-
-    pushd $HOME/jenkins/henrique
-    ./scripts/deploy/remote/deploy.bash ./scripts/deploy/remote/server/start.bash
-    popd
-#    sudo apt-get --no-install-recommends -yqq install \
-#      bash-completion \
-#      build-essential \
-#      cmake \
-#      libcurl4  \
-#      libcurl4-openssl-dev  \
-#      libssl-dev  \
-#      libxml2 \
-#      libxml2-dev  \
-#      libssl1.1 \
-#      pkg-config \
-#      ca-certificates \
-#      xclip
-
-}
-
 main(){
     create_key  # need to copy key into github manually
-    install
-    port_forwarding
     git_clone
 
-    run_docker
+    aptitude_install
+    port_forwarding
 }
 
 main
