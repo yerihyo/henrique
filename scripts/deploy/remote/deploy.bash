@@ -8,14 +8,14 @@ FILE_NAME=$(basename $FILE_PATH)
 FILE_DIR=$(dirname $FILE_PATH)
 
 errcho(){ >&2 echo "$@"; }
-usage(){ errcho "usage: $ARG0 <filepath_script>"; }
+usage(){ errcho "usage: $ARG0 <option>"; }
 func_count2reduce(){
     local v="${1?missing}"; local cmd="${2?missing}"; local n=${3?missing};
     for ((i=0;i<$n;i++)); do v=$($cmd $v) ; done; echo "$v"
 }
 
-filepath_script="${1:-}"
-if [[ ! "$filepath_script" ]]; then usage; exit 1; fi
+option="${1:-}"
+if [[ ! "$option" ]]; then usage; exit 1; fi
 
 REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
 
@@ -48,15 +48,29 @@ rsync_env(){
     errcho "[$FILE_NAME] rsync_env() - END"
 }
 
+option2filepath_script(){
+    if [[ "$option" == "start" ]]; then
+        echo "$REPO_DIR/scripts/deploy/remote/server/start.bash"
+    elif [[ "$option" == "stop" ]]; then
+        echo "$REPO_DIR/scripts/deploy/remote/server/stop.bash"
+    else
+        errcho "invalid option: $option"
+        exit 1
+    fi
+}
+
 main(){
     errcho "[$FILE_NAME] main() - START"
     pushd $REPO_DIR
 
-    TAG=${ENV} $REPO_DIR/scripts/deploy/docker/build.bash
+    if [[ "$option" == "start" ]]; then
+        TAG=${ENV} $REPO_DIR/scripts/deploy/docker/build.bash
+    fi
     #ENV=$ENV $REPO_DIR/scripts/deploy/docker/push.bash
 
     rsync_env && exit 1
 
+    filepath_script=$(option2filepath_script) || exit 1
     # Remotely Execute Docker Container
     $SSH 'bash -s' < $filepath_script $ENV
 
