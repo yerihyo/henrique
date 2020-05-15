@@ -64,6 +64,8 @@ main(){
     errcho "[$FILE_NAME] main() - START"
     pushd $REPO_DIR
 
+    $REPO_DIR/scripts/deploy/compile-all.bash
+
     if [[ "$option" == "start" ]]; then
         TAG=${ENV} $REPO_DIR/scripts/deploy/docker/build.bash
     fi

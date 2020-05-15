@@ -22,7 +22,7 @@ docker_image=foxytrixy/henrique
 main(){
     pushd $REPO_DIR
 
-    $REPO_DIR/scripts/deploy/compile-all.bash  # assuming this is already done
+    # $REPO_DIR/scripts/deploy/compile-all.bash  # assuming this is already done
     docker build "$@" \
         -t ${docker_image}:${TAG} \
         -f $FILE_DIR/Dockerfile \

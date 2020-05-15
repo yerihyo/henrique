@@ -18,9 +18,7 @@ if [[ "$FOXYLIB_DIR" ]]; then
     export PYTHONPATH=$FOXYLIB_DIR
 fi
 
-compile_docker(){
-    python -m henrique.main.singleton.env.henrique_env
-
+compile_travis(){
     mkdir -p travis/henrique/env/docker
     for env in local dev prod; do
         travis encrypt-file \
@@ -32,7 +30,13 @@ compile_docker(){
 
 main(){
     pushd $REPO_DIR
-    compile_docker
+
+    python -m henrique.main.singleton.env.henrique_env
+
+    if [[ "" ]]; then
+        compile_travis
+    fi
+
     python -m henrique.main.singleton.deploy.uwsgi.henrique_uwsgi
     python -m henrique.main.singleton.deploy.nginx.henrique_nginx
     python -m henrique.main.singleton.deploy.supervisord.henrique_supervisord
