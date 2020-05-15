@@ -7,6 +7,7 @@ from pathlib import Path
 from functools import lru_cache, reduce
 from yaml import BaseLoader
 
+from foxylib.tools.file.file_tool import FileTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.jinja2.jinja2_tool import Jinja2Renderer
 from foxylib.tools.native.native_tool import BooleanTool
@@ -30,6 +31,10 @@ class HenriqueEnv:
         DEV = "dev"
         STAGING = "staging"
         PROD = "prod"
+
+        @classmethod
+        def list(cls):
+            return [cls.LOCAL, cls.DEV, cls.PROD]
 
 
     @classmethod
@@ -124,11 +129,23 @@ class HenriqueEnv:
         return nb
 
 
+    @classmethod
+    def env2compile(cls, env):
+        h = cls.env2dict(env)
+        lines = ["{}={}".format(k, v) for k, v in h.items()]
+        filepath = os.path.join(REPO_DIR, "henrique", "env", "docker", "env.{}.list".format(env))
+        FileTool.makedirs_or_skip(os.path.dirname(filepath))
+        FileTool.utf82file("\n".join(lines), filepath)
+
+    @classmethod
+    def compile_all(cls):
+        for env in cls.Value.list():
+            cls.env2compile(env)
+
+
 def main():
-    env = sys.argv[1]
-    h = HenriqueEnv.env2dict(env)
-    for k,v in h.items():
-        print("{}={}".format(k,v))
+    HenriqueEnv.compile_all()
+
 
 if __name__ == "__main__":
     main()

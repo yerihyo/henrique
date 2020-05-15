@@ -8,7 +8,7 @@ FILE_NAME=$(basename $FILE_PATH)
 SCRIPTS_DIR=$(dirname $FILE_DIR)
 LPASS_DIR=$SCRIPTS_DIR/lpass
 
-errcho(){ >&2 echo $@; }
+errcho(){ >&2 echo "$@"; }
 
 errcho "[$FILE_NAME] START"
 

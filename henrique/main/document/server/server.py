@@ -1,22 +1,18 @@
+import logging
 import os
-import sys
-from itertools import chain
 
-from henrique.main.singleton.config.henrique_config import HenriqueConfig
-from khala.document.channel.channel import Channel
-from khala.document.chatroom.chatroom import Chatroom
-from khala.document.packet.packet import KhalaPacket
-
-from foxylib.tools.collections.iter_tool import IterTool
-from foxylib.tools.collections.collections_tool import merge_dicts, luniq
 from functools import lru_cache
+from itertools import chain
 from nose.tools import assert_is_not_none
 
+from foxylib.tools.collections.collections_tool import merge_dicts, luniq, vwrite_no_duplicate_key
+from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.function.function_tool import FunctionTool
-from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.json.json_tool import JsonTool
-from foxylib.tools.json.yaml_tool import YAMLTool
-from henrique.main.singleton.env.henrique_env import HenriqueEnv
+from henrique.main.singleton.config.henrique_config import HenriqueConfig
+from henrique.main.singleton.locale.henrique_locale import HenriqueLocale
+from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
+from khala.document.packet.packet import KhalaPacket
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
@@ -28,10 +24,34 @@ class Server:
         HELENE = "helene"
         EIRENE = "eirene"
         POLARIS = "polaris"
+        JAPAN = "japan"
+
+        @classmethod
+        def set(cls):
+            return {cls.MARIS, cls.HELENE, cls.EIRENE, cls.POLARIS}
 
     class Field:
         CODENAME = "codename"
         ALIASES = "aliases"
+
+    @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def _lang2dict_alias2server(cls, lang):
+        langs_recognizable = HenriqueLocale.lang2langs_recognizable(lang)
+        h = merge_dicts([{alias: server}
+                         for server in cls.list_all()
+                         for alias in cls.server_langs2aliases(server, langs_recognizable)],
+                        vwrite=vwrite_no_duplicate_key)
+        return h
+
+    @classmethod
+    def alias_lang2server(cls, alias, lang):
+        logger = HenriqueLogger.func_level2logger(cls.alias_lang2server, logging.DEBUG)
+
+        h = cls._lang2dict_alias2server(lang)
+        # logger.debug({"h": h})
+        return h.get(alias)
+
 
     @classmethod
     def packet2codename(cls, packet):

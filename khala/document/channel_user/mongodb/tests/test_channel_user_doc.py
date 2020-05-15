@@ -30,7 +30,7 @@ class TestChannelUserDoc(TestCase):
         # collection = ChannelUserCollection.collection()
         # collection.delete_one({ChannelUser.Field.CODENAME: channel_user_codename})
 
-        packet = {KhalaPacket.Field.TEXT: "?price 육두구 리스본 120ㅅ",
+        packet = {KhalaPacket.Field.TEXT: "?price 사탕무 리스본 120ㅅ",
                   KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
                   KhalaPacket.Field.CHANNEL_USER: channel_user_codename,
                   KhalaPacket.Field.SENDER_NAME: sender_name,

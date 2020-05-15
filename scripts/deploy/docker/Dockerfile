@@ -1,7 +1,7 @@
 FROM ubuntu:18.04
 MAINTAINER Foxytrixy "foxytrixy.bot@gmail.com"
 
-ARG ENV
+#ARG ENV
 
 #ENV PATH /usr/local/bin:$PATH
 #ENV LANG C.UTF-8

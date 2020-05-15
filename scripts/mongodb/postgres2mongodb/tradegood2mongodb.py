@@ -50,7 +50,7 @@ class Tradegood2MongoDB:
 
 
         write_concern = WriteConcern(w=3, wtimeout=chunk_size)
-        collection = TradegoodCollection.collection(write_concern=write_concern)
+        collection = TradegoodCollection.collection().with_options(write_concern=write_concern)
 
 
         for i, j_list_chunk in enumerate(ChunkTool.chunk_size2chunks(j_list, chunk_size)):

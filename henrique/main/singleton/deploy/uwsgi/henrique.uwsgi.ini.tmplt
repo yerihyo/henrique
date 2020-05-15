@@ -11,14 +11,6 @@ master = true
 processes = 1
 threads = 1
 
-
-# socket = [addr:port]
-{% if mode == "local" %}
-http = 127.0.0.1:14920
-{% elif mode == "docker" %}
-socket = /run/uwsgi.sock
-{% endif %}
-
 # Base application directory
 # chdir = /full/path
 
@@ -32,3 +24,11 @@ log-slow = 5000
 log-4xx = true
 log-5xx = true
 log-ioerror = true
+
+
+### difference
+
+# socket = [addr:port]
+{% if mode == "standalone" %}http = 127.0.0.1:14920
+{% elif mode == "nginx" %}socket = /run/uwsgi.sock
+{% endif %}

@@ -11,15 +11,15 @@ from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.database.postgres.postgres_tool import PostgresTool
 from foxylib.tools.json.json_tool import jdown
 from foxylib.tools.string.string_tool import str2lower
-from henrique.main.document.markettrend.trend_entity import PortTradegoodStateTable, MarkettrendCollection, \
-    MarkettrendDocument
-from henrique.main.document.port.port_entity import PortDoc
-from henrique.main.document.tradegood.tradegood_entity import TradegoodDoc
+from henrique.main.document.port.mongodb.port_doc import PortDoc
+from henrique.main.document.price.mongodb.markettrend_doc import MarkettrendDoc, MarkettrendCollection
+from henrique.main.document.price.postgres.porttradegoodstate_table import PortTradegoodStateTable
+from henrique.main.document.tradegood.mongodb.tradegood_doc import TradegoodDoc
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.singleton.postgres.henrique_postgres import HenriquePostgres
 
 
-class Markettrend2MongoDB:
+class Porttradegoodstate2Markettrend:
 
 
 
@@ -55,16 +55,16 @@ class Markettrend2MongoDB:
                     j_postgres = t[PortTradegoodStateTable.index_json()]
                     sender_name = j_postgres.get("sender_name")
 
-                    j_doc = {MarkettrendDocument.F.SERVER: jdown(j_postgres, ["server","name"]),
-                             MarkettrendDocument.F.CREATED_AT: datetime.fromisoformat(j_postgres["created_at"]),
-                             MarkettrendDocument.F.PORT_ID: MongoDBTool.doc2id(j_port_list[i]),
-                             MarkettrendDocument.F.TRADEGOOD_ID: tradegood_id_list[i],
-                             MarkettrendDocument.F.RATE: rate_list[i],
-                             MarkettrendDocument.F.TREND: trend_list[i],
+                    j_doc = {MarkettrendDoc.Field.SERVER: jdown(j_postgres, ["server","name"]),
+                             MarkettrendDoc.Field.CREATED_AT: datetime.fromisoformat(j_postgres["created_at"]),
+                             MarkettrendDoc.Field.PORT_ID: MongoDBTool.doc2id(j_port_list[i]),
+                             MarkettrendDoc.Field.TRADEGOOD_ID: tradegood_id_list[i],
+                             MarkettrendDoc.Field.RATE: rate_list[i],
+                             MarkettrendDoc.Field.TREND: trend_list[i],
                              }
 
                     if sender_name:
-                        j_doc[MarkettrendDocument.F.SENDER_NAME] = sender_name
+                        j_doc[MarkettrendDoc.Field.SENDER_NAME] = sender_name
 
                     return j_doc
 
@@ -78,24 +78,23 @@ class Markettrend2MongoDB:
         n = len(j_list)
         logger.debug({"n":n})
 
-
         write_concern = WriteConcern(w=3, wtimeout=chunk_size)
-        collection = MarkettrendCollection.collection(write_concern=write_concern)
+        collection = MarkettrendCollection.collection().with_options(write_concern=write_concern)
 
         for i, j_list_chunk in enumerate(ChunkTool.chunk_size2chunks(j_list, chunk_size)):
             logger.debug({"i/n": "{}/{}".format(i*chunk_size, n)})
             j_pair_list = [(j,j) for j in j_list_chunk]
-            MongoDBTool.j_pair_iter2upsert(collection, j_pair_list)
+            MongoDBTool.j_pair_list2upsert(collection, j_pair_list)
 
 
 def main():
     HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
     logger = HenriqueLogger.func_level2logger(main, logging.DEBUG)
 
-    j_list = list(Markettrend2MongoDB.postgres2j_iter())
+    j_list = list(Porttradegoodstate2Markettrend.postgres2j_iter())
     logger.debug({"# j_list":len(j_list)})
 
-    Markettrend2MongoDB.j_iter2mongodb(j_list)
+    Porttradegoodstate2Markettrend.j_iter2mongodb(j_list)
 
 if __name__ == "__main__":
     main()
