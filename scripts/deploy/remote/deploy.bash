@@ -22,7 +22,7 @@ REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
 ENV=${ENV?'missing ENV'}
 USERNAME="ubuntu"
 
-IP=$(python -m scripts.deploy.remote.henrique_server $ENV)
+IP=$(ENV=$ENV python -m scripts.deploy.remote.henrique_server)
 if [[ ! "$IP" ]]; then errcho "no 'IP'"; exit 1; fi
 
 AUTHORITY="$USERNAME@$IP"

@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 
@@ -15,6 +16,7 @@ from foxylib.tools.string.string_tool import str2lower
 
 from foxylib.tools.env.env_tool import EnvTool
 from henrique.main.singleton.jinja2.henrique_jinja2 import HenriqueJinja2
+from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
@@ -39,7 +41,11 @@ class HenriqueEnv:
 
     @classmethod
     def env(cls):
-        return cls.env2norm(EnvTool.env_raw()) or "local"
+        logger = HenriqueLogger.func_level2logger(cls.env, logging.DEBUG)
+
+        env_raw = EnvTool.env_raw()
+        # logger.debug({"env_raw":env_raw})
+        return cls.env2norm(env_raw) or "local"
 
     @classmethod
     def env2norm(cls, env):

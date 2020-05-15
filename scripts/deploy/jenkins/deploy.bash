@@ -32,7 +32,7 @@ pull_henrique(){
     ./scripts/lpass/pull.bash
     . ./scripts/direnv/load.bash
 
-    echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME
+    # echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME
 
     ENV=$ENV ./scripts/deploy/remote/deploy.bash stop
     ENV=$ENV ./scripts/deploy/remote/deploy.bash start
