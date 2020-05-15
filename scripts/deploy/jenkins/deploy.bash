@@ -34,8 +34,8 @@ pull_henrique(){
 
     echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME
 
-    ENV=$ENV ./scripts/deploy/remote/deploy.bash ./scripts/deploy/remote/server/stop.bash
-    ENV=$ENV ./scripts/deploy/remote/deploy.bash ./scripts/deploy/remote/server/start.bash
+    ENV=$ENV ./scripts/deploy/remote/deploy.bash stop
+    ENV=$ENV ./scripts/deploy/remote/deploy.bash start
     deactivate
     popd
 
