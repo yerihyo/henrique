@@ -21,7 +21,6 @@ pull_foxylib(){
     . venv/bin/activate
     python setup.py install
     deactivate
-    python
     popd
 }
 
@@ -43,11 +42,11 @@ pull_henrique(){
 }
 
 main(){
-    pull_foxylib
-    pull_henrique
+    pull_foxylib && exit 1
+    pull_henrique && exit 1
 }
 
-main
+main && exit 1
 
 # jenkins active exited
 # https://stackoverflow.com/questions/42607771/jenkins-active-exited
