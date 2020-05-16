@@ -31,11 +31,9 @@ compile_travis(){
 main(){
     pushd $REPO_DIR
 
+    # compile docker
     python -m henrique.main.singleton.env.henrique_env
-
-    if [[ "" ]]; then
-        compile_travis
-    fi
+    compile_travis
 
     python -m henrique.main.singleton.deploy.uwsgi.henrique_uwsgi
     python -m henrique.main.singleton.deploy.nginx.henrique_nginx

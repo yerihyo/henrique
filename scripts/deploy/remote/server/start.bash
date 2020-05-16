@@ -7,6 +7,7 @@ ENV="${1:-}"
 if [[ ! "$ENV" ]]; then errcho "\$ENV missing"; exit 1; fi
 
 docker_image=foxytrixy/henrique
+tag="$ENV"
 
 install(){
     errcho "[$FILE_NAME] install() - Start (ENV:$ENV)"
@@ -35,7 +36,7 @@ main(){
 
     # Pull Docker image from Docker hub
     errcho "[$FILE_NAME] main() - docker pull (ENV:$ENV)"
-    sudo docker pull $docker_image
+    sudo docker pull $docker_image:$tag
     errcho "Docker images pulled from Docker hub"
 
     # Stop & Clean existing docker container
@@ -51,7 +52,8 @@ main(){
         --detach \
         --publish 80:80 \
         --publish 443:443 \
-        $docker_image
+        $docker_image:$tag \
+        supervisord -n -c /app/henrique/main/singleton/deploy/supervisord/conf/henrique.supervisord.$ENV.conf
 
     errcho "[$FILE_NAME] main() - END (ENV:$ENV)"
 }

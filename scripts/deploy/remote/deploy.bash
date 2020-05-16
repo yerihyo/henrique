@@ -17,8 +17,13 @@ func_count2reduce(){
 option="${1:-}"
 if [[ ! "$option" ]]; then usage; exit 1; fi
 
-REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
 
+lightsail(){
+REPO_DIR="/var/lib/jenkins/projects/henrique"
+ENV="prod"
+}
+
+REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
 ENV=${ENV?'missing ENV'}
 USERNAME="ubuntu"
 
@@ -64,7 +69,7 @@ main(){
     errcho "[$FILE_NAME] main() - START"
     pushd $REPO_DIR
 
-    $REPO_DIR/scripts/deploy/compile-all.bash
+    python -m henrique.main.singleton.env.henrique_env
 
     if [[ "$option" == "start" ]]; then
         TAG=${ENV} $REPO_DIR/scripts/deploy/docker/build.bash
