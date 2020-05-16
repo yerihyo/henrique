@@ -30,7 +30,8 @@ class TestHenriqueKhala(TestCase):
                   KhalaPacket.Field.SENDER_NAME: "iris",
                   }
         hyp = HenriqueKhala.packet2response(packet)
-        ref = "[리스본]"
+        ref = """[리스본]
+- 문화권: 이베리아"""
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)
