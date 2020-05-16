@@ -24,10 +24,10 @@ TRAVIS_BRANCH=${TRAVIS_BRANCH?'missing $TRAVIS_BRANCH'}
 branch2env(){
     local branch=${1?'missing $1'}
     if [[ "$branch" == "master" ]]; then
-        errcho "branch2env: env==prod"
+        errcho "branch2env: P"
         echo "prod"
     else
-        errcho "branch2env: env==dev"
+        errcho "branch2env: D"
         echo "dev"
     fi
 }
