@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+set -eux
 
 FILE_PATH=$(readlink -f $0)
 FILE_NAME=$(basename $FILE_PATH)
