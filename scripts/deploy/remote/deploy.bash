@@ -1,4 +1,8 @@
-#!/bin/bash -euf
+#!/bin/bash
+
+set -e
+set -u
+set -f
 
 if [[ -f $HOME/.bashrc ]]; then . $HOME/.bashrc; fi
 
