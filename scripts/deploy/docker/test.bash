@@ -24,8 +24,10 @@ TRAVIS_BRANCH=${TRAVIS_BRANCH?'missing $TRAVIS_BRANCH'}
 branch2env(){
     local branch=${1?'missing $1'}
     if [[ "$branch" == "master" ]]; then
+        errcho "branch2env: env==prod"
         echo "prod"
     else
+        errcho "branch2env: env==dev"
         echo "dev"
     fi
 }
@@ -40,7 +42,7 @@ main(){
     local docker_image=foxytrixy/henrique
     local env_filepath="$REPO_DIR/henrique/env/docker/env.${ENV}.list"
 
-    errcho "[$FILE_NAME] main - env=$env, tag=$tag"
+    errcho "[$FILE_NAME] main - TRAVIS_BRANCH=$TRAVIS_BRANCH env=$env, tag=$tag"
 
     docker build \
         -t ${docker_image}:${tag} \
