@@ -76,7 +76,7 @@ main(){
     fi
     #ENV=$ENV $REPO_DIR/scripts/deploy/docker/push.bash
 
-    rsync_env && exit 1
+    rsync_env || exit 1
 
     filepath_script=$(option2filepath_script) || exit 1
     # Remotely Execute Docker Container
@@ -89,5 +89,5 @@ main(){
 
 
 errcho "[$FILE_NAME] START (ENV:$ENV, IP:$IP, filepath_script:$filepath_script)"
-main && exit 1
+main || exit 1
 errcho "[$FILE_NAME] END (ENV:$ENV, IP:$IP, filepath_script:$filepath_script)"

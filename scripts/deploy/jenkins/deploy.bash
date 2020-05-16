@@ -42,11 +42,11 @@ pull_henrique(){
 }
 
 main(){
-    pull_foxylib && exit 1
-    pull_henrique && exit 1
+    pull_foxylib || exit 1
+    pull_henrique || exit 1
 }
 
-main && exit 1
+main || exit 1
 
 # jenkins active exited
 # https://stackoverflow.com/questions/42607771/jenkins-active-exited
