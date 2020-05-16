@@ -16,7 +16,8 @@ class TestPortPortResponse(TestCase):
 
     def test_01(self):
         hyp = Rowsblock.text2norm(PortPortResponse.codename_lang2text("Lisbon", "ko"))
-        ref = '[리스본]'
+        ref = """[리스본]
+- 문화권: 이베리아"""
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)
