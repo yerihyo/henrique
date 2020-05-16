@@ -36,7 +36,7 @@ pull_henrique(){
 
     # echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME
 
-    TAG=$ENV ./scripts/deploy/docker/build.bash
+    # TAG=$ENV ./scripts/deploy/docker/build.bash
     ENV=$ENV ./scripts/deploy/remote/deploy.bash stop
     ENV=$ENV ./scripts/deploy/remote/deploy.bash start
     deactivate
