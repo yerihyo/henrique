@@ -1,8 +1,4 @@
-#!/bin/bash 
-
-set -e
-set -u
-
+#!/bin/bash -eu
 
 ARG0=${BASH_SOURCE[0]}
 FILE_PATH=$(readlink -f $ARG0)
@@ -15,19 +11,14 @@ func_count2reduce(){
     for ((i=0;i<$n;i++)); do v=$($cmd $v) ; done; echo "$v"
 }
 
-REPO_DIR=$(func_count2reduce $FILE_DIR dirname 2)
-
-branch="$(git branch | grep '\*' | awk '{print $2}')"
-target=develop
+REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
+branch="${1:-$(git branch | grep '\*' | awk '{print $2}')}"
 
 main(){
     pushd $REPO_DIR
 
-    git push origin $branch
-    git checkout $target
-    git merge --no-ff $branch
-    $FILE_DIR/push/push.bash "$branch"
-    git checkout $branch
+    $FILE_DIR/compile-all.bash
+    git push origin "$branch"
 
     popd
 }
@@ -35,4 +26,5 @@ main(){
 errcho "[$FILE_NAME] START"
 main
 errcho "[$FILE_NAME] END"
+
 

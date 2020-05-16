@@ -32,21 +32,21 @@ pull_henrique(){
     ./scripts/lpass/pull.bash
     . ./scripts/direnv/load.bash
 
-    echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME
+    # echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME
 
-    ENV=$ENV ./scripts/deploy/remote/deploy.bash ./scripts/deploy/remote/server/stop.bash
-    ENV=$ENV ./scripts/deploy/remote/deploy.bash ./scripts/deploy/remote/server/start.bash
+    ENV=$ENV ./scripts/deploy/remote/deploy.bash stop
+    ENV=$ENV ./scripts/deploy/remote/deploy.bash start
     deactivate
     popd
 
 }
 
 main(){
-    pull_foxylib && exit 1
-    pull_henrique && exit 1
+    pull_foxylib || exit 1
+    pull_henrique || exit 1
 }
 
-main && exit 1
+main || exit 1
 
 # jenkins active exited
 # https://stackoverflow.com/questions/42607771/jenkins-active-exited

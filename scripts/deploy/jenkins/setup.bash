@@ -22,6 +22,10 @@ aptitude_install(){
     sudo apt -y install virtualenv python3-pip
     sudo apt install lastpass-cli direnv
 
+    # travis
+    sudo apt -y install ruby ruby-dev
+    sudo gem install travis --no-rdoc --no-ri
+
     # docker
     sudo apt-get remove docker docker-engine docker.io containerd runc
     sudo apt-get update
