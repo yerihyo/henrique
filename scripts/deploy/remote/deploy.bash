@@ -83,6 +83,7 @@ main(){
     rsync_env || exit 1
 
     filepath_script=$(option2filepath_script) || exit 1
+    errcho "[$FILE_NAME] main - filepath_script:$filepath_script"
     # Remotely Execute Docker Container
     $SSH 'bash -s' < $filepath_script $ENV
 
@@ -92,6 +93,6 @@ main(){
 
 
 
-errcho "[$FILE_NAME] START (ENV:$ENV, IP:$IP, filepath_script:$filepath_script)"
+errcho "[$FILE_NAME] START (ENV:$ENV, IP:$IP)"
 main || exit 1
-errcho "[$FILE_NAME] END (ENV:$ENV, IP:$IP, filepath_script:$filepath_script)"
+errcho "[$FILE_NAME] END (ENV:$ENV, IP:$IP)"
