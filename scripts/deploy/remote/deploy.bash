@@ -1,4 +1,8 @@
-#!/bin/bash -euf
+#!/bin/bash
+
+set -e
+set -u
+set -f
 
 if [[ -f $HOME/.bashrc ]]; then . $HOME/.bashrc; fi
 
@@ -17,8 +21,13 @@ func_count2reduce(){
 option="${1:-}"
 if [[ ! "$option" ]]; then usage; exit 1; fi
 
-REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
 
+lightsail(){
+REPO_DIR="/var/lib/jenkins/projects/henrique"
+ENV="prod"
+}
+
+REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
 ENV=${ENV?'missing ENV'}
 USERNAME="ubuntu"
 
@@ -64,14 +73,17 @@ main(){
     errcho "[$FILE_NAME] main() - START"
     pushd $REPO_DIR
 
+    python -m henrique.main.singleton.env.henrique_env
+
     if [[ "$option" == "start" ]]; then
         TAG=${ENV} $REPO_DIR/scripts/deploy/docker/build.bash
     fi
     #ENV=$ENV $REPO_DIR/scripts/deploy/docker/push.bash
 
-    rsync_env && exit 1
+    rsync_env || exit 1
 
     filepath_script=$(option2filepath_script) || exit 1
+    errcho "[$FILE_NAME] main - filepath_script:$filepath_script"
     # Remotely Execute Docker Container
     $SSH 'bash -s' < $filepath_script $ENV
 
@@ -81,6 +93,6 @@ main(){
 
 
 
-errcho "[$FILE_NAME] START (ENV:$ENV, IP:$IP, filepath_script:$filepath_script)"
-main && exit 1
-errcho "[$FILE_NAME] END (ENV:$ENV, IP:$IP, filepath_script:$filepath_script)"
+errcho "[$FILE_NAME] START (ENV:$ENV, IP:$IP)"
+main || exit 1
+errcho "[$FILE_NAME] END (ENV:$ENV, IP:$IP)"
