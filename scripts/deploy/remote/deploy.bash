@@ -1,8 +1,4 @@
-#!/bin/bash
-
-set -e
-set -u
-set -f
+#!/bin/bash -eux
 
 if [[ -f $HOME/.bashrc ]]; then . $HOME/.bashrc; fi
 
@@ -75,9 +71,9 @@ main(){
 
     python -m henrique.main.singleton.env.henrique_env
 
-    if [[ "$option" == "start" ]]; then
-        TAG=${ENV} $REPO_DIR/scripts/deploy/docker/build.bash
-    fi
+#    if [[ "$option" == "start" ]]; then
+#        TAG=${ENV} $REPO_DIR/scripts/deploy/docker/build.bash
+#    fi
     #ENV=$ENV $REPO_DIR/scripts/deploy/docker/push.bash
 
     rsync_env || exit 1
