@@ -1,4 +1,5 @@
-#!/usr/bin/env bash -eu
+#!/usr/bin/env bash
+set -eux
 
 # https://medium.com/@ekwinder/setting-up-uwsgi-with-nginx-on-macos-for-python-web-apps-25edf4edab19
 

@@ -1,4 +1,5 @@
-#!/usr/bin/env bash -euf
+#!/usr/bin/env bash
+set -eux
 
 ARG0=${BASH_SOURCE[0]}
 FILE_PATH=$(readlink -f $ARG0)
@@ -19,6 +20,7 @@ pull_foxylib(){
     pushd $FOXYLIB_DIR
     git pull origin master
     . venv/bin/activate
+    rm -Rf build
     python setup.py install
     deactivate
     popd
@@ -34,6 +36,7 @@ pull_henrique(){
 
     # echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME
 
+    # TAG=$ENV ./scripts/deploy/docker/build.bash
     ENV=$ENV ./scripts/deploy/remote/deploy.bash stop
     ENV=$ENV ./scripts/deploy/remote/deploy.bash start
     deactivate
