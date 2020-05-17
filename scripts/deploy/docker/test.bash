@@ -70,7 +70,6 @@ main(){
     popd
 }
 
-
 #remove_all_containers(){
 #    # Remove all containers
 #    sudo docker stop $(sudo docker ps -a -q)
