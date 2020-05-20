@@ -6,16 +6,11 @@ import pytz
 from datetime import datetime, timedelta
 from future.utils import lmap
 
-from henrique.main.document.culture.culture_entity import CultureEntity
-from henrique.main.document.port.port_entity import PortEntity
 from henrique.main.document.price.mongodb.marketprice_doc import MarketpriceDoc, MarketpriceCollection
-from henrique.main.document.price.rate.rate_entity import RateEntity
-from henrique.main.document.price.trend.trend_entity import Trend, TrendEntity
+from henrique.main.document.price.trend.trend_entity import Trend
 from henrique.main.document.server.server import Server
-from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
-from henrique.main.skill.price.price_skill import PriceSkill, PriceSkillClique
-from khala.document.channel.channel import KakaotalkUWOChannel
+from henrique.main.skill.price.price_skill import PriceSkill
 from khala.document.channel_user.channel_user import ChannelUser
 from khala.document.chatroom.chatroom import KakaotalkUWOChatroom, Chatroom
 from khala.document.packet.packet import KhalaPacket
@@ -24,145 +19,6 @@ from khala.singleton.messenger.kakaotalk.internal.chatroom_kakaotalk import Chat
 
 NORM_LIST = PriceSkill.blocks2norm_list_for_unittest
 NORM_SET = PriceSkill.blocks2norm_set_for_unittest
-
-
-class TestPriceSkillClique(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
-
-    def test_01(self):
-        entities_list = [[{'span': (7, 10), 'text': '리스본', 'value': 'Lisbon', 'type': PortEntity.entity_type()}],
-                         [{'span': (11, 14), 'text': '육두구', 'value': 'Nutmeg', 'type': TradegoodEntity.entity_type()}],
-                         ]
-        hyp = PriceSkillClique.entities_list2clique(entities_list)
-        ref = {'ports': ['Lisbon'], 'tradegoods': ['Nutmeg']}
-
-        # pprint(hyp)
-        self.assertEqual(hyp, ref)
-
-    def test_02(self):
-        entities_list = [[{'span': (6, 10), 'text': '이베리아', 'value': 'Iberia', 'type': CultureEntity.entity_type()}],
-                         [{'span': (11, 14), 'text': '육두구', 'value': 'Nutmeg', 'type': TradegoodEntity.entity_type()}],
-                         ]
-        hyp = PriceSkillClique.entities_list2clique(entities_list)
-        ref = {'ports': ['Las Palmas',
-                         'Faro',
-                         'Casablanca',
-                         'Gijon',
-                         'Palma',
-                         'Madeira',
-                         'Vianna do Castelo',
-                         'Lisbon',
-                         'Sagres',
-                         'Bilbao',
-                         'Seville',
-                         'Barcelona',
-                         'Porto',
-                         'Malaga',
-                         'Ceuta',
-                         'Montpellier',
-                         'Valencia'],
-               'tradegoods': ['Nutmeg']}
-
-        # pprint(hyp)
-        self.assertEqual(hyp, ref)
-
-    def test_03(self):
-        entities_list = [[{'span': (7, 10), 'text': '리스본', 'value': 'Lisbon', 'type': PortEntity.entity_type()}],
-                         [{'span': (11, 14), 'text': '육두구', 'value': 'Nutmeg', 'type': TradegoodEntity.entity_type()}],
-                         ]
-        hyp = PriceSkillClique.text_entities_list2entities_spans_clique("?price 리스본 육두구", entities_list)
-        ref = [(0, 2)]
-
-        # pprint(hyp)
-        self.assertEqual(hyp, ref)
-
-    def test_04(self):
-        entity_list = [{'span': (7, 10), 'text': '리스본', 'value': 'Lisbon', 'type': PortEntity.entity_type()},
-                       {'span': (11, 14), 'text': '육두구', 'value': 'Nutmeg', 'type': TradegoodEntity.entity_type()},
-                       ]
-        hyp = PriceSkillClique.text_entity_list2clique_list("?price 리스본 육두구", entity_list)
-        ref = [{'ports': ['Lisbon'], 'tradegoods': ['Nutmeg']}]
-
-        # pprint(hyp)
-        self.assertEqual(hyp, ref)
-
-    def test_05(self):
-        entities_list = [[{'span': (7, 8), 'text': '육', 'value': 'Nutmeg', 'type': TradegoodEntity.entity_type()},
-                          {'span': (8, 9), 'text': '메', 'value': 'Mace', 'type': TradegoodEntity.entity_type()}
-                          ],
-                         [{'span': (16, 17), 'text': '리스본', 'value': 'Lisbon', 'type': PortEntity.entity_type()}],
-                         ]
-        hyp = PriceSkillClique.entities_list2clique(entities_list)
-        ref = {'ports': ['Lisbon'], 'tradegoods': ['Nutmeg', 'Mace']}
-
-        # pprint(hyp)
-        self.assertEqual(hyp, ref)
-
-    def test_06(self):
-        entity_list = [{'span': (0, 1), 'text': '육', 'value': 'Nutmeg', 'type': TradegoodEntity.entity_type()},
-                       {'span': (1, 2), 'text': '메', 'value': 'Mace', 'type': TradegoodEntity.entity_type()}
-                       ]
-        hyp = list(PriceSkillClique.entity_list2group_spans("육메", entity_list))
-        ref = [(0, 2)]
-
-        # pprint(hyp)
-        self.assertEqual(hyp, ref)
-
-    def test_07(self):
-        entity_list = [{'span': (7, 10), 'text': '리스본', 'value': 'Lisbon', 'type': PortEntity.entity_type()},
-                       {'span': (11, 12), 'text': '육', 'value': 'Nutmeg', 'type': TradegoodEntity.entity_type()},
-                       {'span': (12, 13), 'text': '메', 'value': 'Mace', 'type': TradegoodEntity.entity_type()},
-
-                       ]
-        hyp = PriceSkillClique.text_entity_list2clique_list("?price 리스본 육메", entity_list)
-        ref = [{'ports': ['Lisbon'], 'tradegoods': ['Nutmeg', 'Mace']}]
-
-        # pprint(hyp)
-        self.assertEqual(hyp, ref)
-
-    def test_11(self):
-        entities_list = [[{'span': (7, 10), 'text': '리스본', 'value': 'Lisbon', 'type': PortEntity.entity_type()}],
-                         [{'span': (11, 14), 'text': '육두구', 'value': 'Nutmeg', 'type': TradegoodEntity.entity_type()}],
-                         [{'span': (15, 18), 'text': '120', 'value': 120, 'type': RateEntity.entity_type()}],
-                         [{'span': (19, 20), 'text': 'ㅅ', 'value': "rise", 'type': TrendEntity.entity_type()}],
-                         ]
-        hyp = PriceSkillClique.entities_list2clique(entities_list)
-        ref = {'ports': ['Lisbon'], 'rate': 120, 'tradegoods': ['Nutmeg'], 'trend': 'rise'}
-
-        # pprint(hyp)
-        self.assertEqual(hyp, ref)
-
-    def test_12(self):
-        text = "?price 리스본 사탕무 120 ㅅ"
-        entity_list = [{'span': (7, 10), 'text': '리스본', 'value': 'Lisbon', 'type': PortEntity.entity_type()},
-                       {'span': (11, 14), 'text': '사탕무', 'value': 'Sugar Beet', 'type': TradegoodEntity.entity_type()},
-                       {'span': (15, 18), 'text': '120', 'value': 120, 'type': RateEntity.entity_type()},
-                       {'span': (19, 20), 'text': 'ㅅ', 'value': "rise", 'type': TrendEntity.entity_type()},
-                       ]
-        hyp = PriceSkillClique.entity_list2entities_list_grouped(text, entity_list)
-        ref = [[{'span': (7, 10), 'text': '리스본', 'value': 'Lisbon', 'type': PortEntity.entity_type()}],
-               [{'span': (11, 14), 'text': '사탕무', 'value': 'Sugar Beet', 'type': TradegoodEntity.entity_type()}],
-               [{'span': (15, 18), 'text': '120', 'value': 120, 'type': RateEntity.entity_type()}],
-               [{'span': (19, 20), 'text': 'ㅅ', 'value': "rise", 'type': TrendEntity.entity_type()}],
-               ]
-
-        # pprint(hyp)
-        self.assertEqual(hyp, ref)
-
-    def test_13(self):
-        text = "?price 리스본 밀가루 120ㅅ"
-        entity_list = [{'span': (7, 10), 'text': '리스본', 'value': 'Lisbon', 'type': PortEntity.entity_type()},
-                       {'span': (11, 14), 'text': '사탕무', 'value': 'Sugar Beet', 'type': TradegoodEntity.entity_type()},
-                       {'span': (15, 18), 'text': '120', 'value': 120, 'type': RateEntity.entity_type()},
-                       {'span': (18, 19), 'text': 'ㅅ', 'value': "rise", 'type': TrendEntity.entity_type()},
-                       ]
-        hyp = PriceSkillClique.text_entity_list2clique_list(text, entity_list)
-        ref = [{'ports': ['Lisbon'], 'rate': 120, 'tradegoods': ['Sugar Beet'], 'trend': 'rise'}]
-
-        # pprint(hyp)
-        self.assertEqual(hyp, ref)
 
 
 class TestPriceSkill(TestCase):
@@ -186,7 +42,7 @@ class TestPriceSkill(TestCase):
         hyp = NORM_LIST(PriceSkill.packet2rowsblocks(packet))
         ref = [('[리스본] 시세', ['육두구'])]
 
-        # pprint(hyp)
+        pprint(hyp)
         self.assertEqual(hyp, ref)
 
     def test_02(self):
@@ -326,3 +182,31 @@ class TestPriceSkill(TestCase):
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)
+
+    def test_06(self):
+        Chatroom.chatrooms2upsert([ChatroomKakaotalk.chatroom()])
+
+        sender_name = "iris"
+        channel_user_codename = ChannelUserKakaotalk.sender_name2codename(sender_name)
+        ChannelUser.channel_users2upsert([ChannelUserKakaotalk.sender_name2channel_user(sender_name)])
+
+        # server = "maris"
+        # ports = ["Lisbon"]
+        # tradegoods = ["Sugar Beet"]
+        #
+        # MarketpriceDoc.server_ports_tradegoods2delete(server, ports, tradegoods)
+        # channel = Channel.Codename.KAKAOTALK_UWO_UWO  # discord
+
+        packet = {KhalaPacket.Field.TEXT: "?시세 초롱 : 말세80ㅎ; 사사리75ㅎ; 시라130ㅅ;",
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
+                  KhalaPacket.Field.CHANNEL_USER: channel_user_codename,
+                  KhalaPacket.Field.SENDER_NAME: sender_name,
+                  }
+
+        hyp_01 = PriceSkill.packet2response(packet)
+        ref_01 = """[사탕무] 시세
+리스본 120↗ @ 방금전 [by iris]"""
+
+        pprint({"hyp_01": hyp_01})
+        self.assertEqual(hyp_01, ref_01)
+

@@ -1,8 +1,6 @@
-from cachetools import LRUCache, cached
-from cachetools.keys import hashkey
-from functools import partial
+from cachetools import LRUCache, cachedmethod
 
-from foxylib.tools.cache.cachetools.cachetools_tool import CachetoolsTool, CachetoolsManager
+from foxylib.tools.cache.cache_manager import CacheManager
 from khala.singleton.messenger.discord.external.channel.discord_channel import DiscordChannel
 
 
@@ -13,16 +11,15 @@ class DiscordMessageCache:
 
 class DiscordMessage:
     @classmethod
-    @CachetoolsManager.attach2func(key=CachetoolsTool.key4classmethod(hashkey),
-                                   cache=LRUCache(maxsize=DiscordMessageCache.Constant.MAXSIZE),
-                                   )
+    @CacheManager.attach2method(self2cache=lambda x: LRUCache(maxsize=DiscordMessageCache.Constant.MAXSIZE), )
+    @CacheManager.cachedmethod2use_manager(cachedmethod=cachedmethod)
     def id2message(cls, channel_id, message_id):
         channel = DiscordChannel.id2channel(channel_id)
         return channel.messages.fetch(message_id)
-
 
     @classmethod
     def add_message2cache(cls, message):
         channel = message.channel
         DiscordChannel.add_channel2cache(channel)
-        cls.id2message.cachetools_manager.add2cache(message, [cls, channel.id, message.id])
+        manager = CacheManager.callable2manager(cls.id2message)
+        CacheManager.add2cache(manager, message, [channel.id, message.id])

@@ -77,8 +77,8 @@ class HenriqueFlask:
         WTFormsTool.json_init()
 
         # warmup
-        from henrique.main.singleton.warmer.henrique_warmup import HenriqueWarmup
-        HenriqueWarmup.warmup_all()
+        from henrique.main.singleton.warmer.henrique_warmer import HenriqueWarmer
+        HenriqueWarmer.warmup_all()
 
         application = connexion.FlaskApp(__name__, )
         # application.add_api('swagger.yaml', resolver=RestyResolver("ariana.main"))

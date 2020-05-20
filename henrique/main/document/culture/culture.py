@@ -11,9 +11,13 @@ from foxylib.tools.collections.groupby_tool import dict_groupby_tree, GroupbyToo
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.json.json_tool import JsonTool
+from henrique.main.singleton.env.henrique_env import HenriqueEnv
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
+
+MODULE = sys.modules[__name__]
+WARMER = Warmer(MODULE)
 
 
 class Culture:
@@ -23,6 +27,7 @@ class Culture:
         PREFERS = "prefers"
 
     @classmethod
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def _dict_codename2culture(cls):
         from henrique.main.document.culture.googlesheets.culture_googlesheets import CultureGooglesheets
@@ -34,7 +39,6 @@ class Culture:
         return h_codename2culture
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def list_all(cls):
         return list(cls._dict_codename2culture().values())
 
@@ -106,3 +110,5 @@ class Prefer:
 # class SpecialtyTradegood:
 #     class Field:
 #         CODENAME = "codename"
+
+WARMER.warmup()

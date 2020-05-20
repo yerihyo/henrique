@@ -1,19 +1,17 @@
 import logging
 
-from cachetools import cached, LRUCache
-from cachetools.keys import hashkey
+from cachetools import LRUCache
 from functools import lru_cache, partial
 from future.utils import lmap
 from nose.tools import assert_equal
 
-from foxylib.tools.cache.cache_tool import CacheTool
-from foxylib.tools.cache.cachetools.cachetools_tool import CachetoolsTool, CachetoolsManager
+from foxylib.tools.cache.cache_decorator import CacheDecorator
+from foxylib.tools.cache.cache_manager import CacheManager
 from foxylib.tools.collections.collections_tool import DictTool, l_singleton2obj, vwrite_no_duplicate_key, merge_dicts
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.function.function_tool import FunctionTool
-from henrique.main.singleton.logger.henrique_logger import KhalaLogger
 from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb
-from khala.document.channel.channel import KakaotalkUWOChannel, Channel
+from khala.document.channel.channel import Channel
 from khala.singleton.logger.khala_logger import KhalaLogger
 
 
@@ -57,10 +55,8 @@ class Chatroom:
         return l_singleton2obj(cls.codenames2chatrooms([codename]))
 
     @classmethod
-    @CachetoolsManager.attach2func(cached=partial(CachetoolsTool.Decorator.cached_each, index_each=1),
-                                   key=CachetoolsTool.key4classmethod(hashkey),
-                                   cache=LRUCache(maxsize=ChatroomCache.Constant.MAXSIZE),
-                                   )
+    @CacheManager.attach2method(self2cache=lambda x: LRUCache(maxsize=ChatroomCache.Constant.MAXSIZE), )
+    @CacheManager.cachedmethod2use_manager(cachedmethod=partial(CacheDecorator.cachedmethod_each, indexes_each=[1]))
     def codenames2chatrooms(cls, codenames):
         logger = KhalaLogger.func_level2logger(cls.codenames2chatrooms, logging.DEBUG)
 
@@ -85,7 +81,8 @@ class Chatroom:
     @classmethod
     def add_chatroom2cache(cls, chatroom):
         codename = cls.chatroom2codename(chatroom)
-        cls.codenames2chatrooms.cachetools_manager.add2cache(chatroom, [cls, codename,])
+        manager = CacheManager.callable2manager(cls.codenames2chatrooms)
+        CacheManager.add2cache(manager, chatroom, [codename,])
 
     @classmethod
     def chatroom2codename(cls, chatroom):

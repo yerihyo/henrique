@@ -1,3 +1,5 @@
+import sys
+
 from functools import lru_cache
 
 from future.utils import lmap
@@ -6,9 +8,14 @@ from itertools import chain
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, luniq, \
     DictTool
 from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.googleapi.sheets.googlesheets_tool import GooglesheetsTool
 from henrique.main.document.culture.culture import Culture, Prefer
+from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.singleton.google.googledoc.henrique_googleapi import HenriqueGoogleapi
+
+MODULE = sys.modules[__name__]
+WARMER = Warmer(MODULE)
 
 
 class NameskoSheet:
@@ -71,6 +78,7 @@ class CultureGooglesheets:
     #     return flow
 
     @classmethod
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=10))
     def sheetname2data_ll(cls, sheetname):
         data_ll = GooglesheetsTool.cred_id_name2data_ll(HenriqueGoogleapi.credentials(), cls.spreadsheetId(), sheetname)
@@ -102,3 +110,5 @@ class CultureGooglesheets:
 
         return lmap(codename2culture, codename_list)
 
+
+WARMER.warmup()

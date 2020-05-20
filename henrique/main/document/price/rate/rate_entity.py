@@ -55,7 +55,7 @@ class RateEntity:
     def rstr(cls):
         rstr = format_str(r"{}\s*{}?",
                           RegexTool.name_rstr2named("cardinal", "\d+", ),
-                          RegexTool.name_rstr2named("Metricprefix",Metricprefix.rstr(),),
+                          RegexTool.name_rstr2named("Metricprefix", Metricprefix.rstr(),),
                           )
         return rstr
 
@@ -74,8 +74,10 @@ class RateEntity:
                                  RegexTool.rstr2wrapped(TrendEntity.lang2rstr(lang)),
                                  )
 
-        rstr_prefixed = RegexTool.rstr2rstr_words_prefixed(cls.rstr())
-        rstr_suffixed = RegexTool.rstr2rstr_words_suffixed(rstr_prefixed, rstr_suffix=rstr_suffix)
+        ### may be concatenated with port/tradegood name
+        # rstr_prefixed = RegexTool.rstr2rstr_words_prefixed(cls.rstr())
+        # raise Exception({"rstr_suffix":rstr_suffix})
+        rstr_suffixed = RegexTool.rstr2rstr_words_suffixed(cls.rstr(), rstr_suffix=rstr_suffix)
 
         # raise Exception({"rstr_trend": rstr_trend, "rstr_suffixed": rstr_suffixed})
         # return re.compile(RegexTool.rstr2rstr_words(cls.rstr()))
