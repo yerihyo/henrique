@@ -1,19 +1,22 @@
 import os
-from operator import itemgetter as ig
+import sys
 
 from functools import lru_cache
-from future.utils import lfilter
 from itertools import chain
 
+from foxylib.tools.collections.collections_tool import merge_dicts, luniq, DictTool
 from foxylib.tools.collections.iter_tool import IterTool
-from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, luniq, DictTool, \
-    vwrite_update_if_identical
-from foxylib.tools.collections.groupby_tool import GroupbyTool
 from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.json.json_tool import JsonTool
+from henrique.main.singleton.env.henrique_env import HenriqueEnv
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
+
+MODULE = sys.modules[__name__]
+WARMER = Warmer(MODULE)
+
 
 class Port:
     class Field:
@@ -46,6 +49,7 @@ class Port:
     #     return dict_codename2port
 
     @classmethod
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def _dict_codename2port_all(cls):
         from henrique.main.document.port.googlesheets.port_googlesheets import PortGooglesheets
@@ -144,5 +148,4 @@ class Product:
         return product.get(cls.Field.PRICE)
 
 
-
-
+WARMER.warmup()

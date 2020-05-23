@@ -12,6 +12,6 @@ class TestPortSkillDescription(TestCase):
 
         description = PortSkillDescription.lang2text("ko")
 
-        # pprint({"description":description})
+        pprint(description)
         self.assertTrue(description.startswith("?항구 명령어"))
 

@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 
 from functools import lru_cache
@@ -11,6 +12,7 @@ from foxylib.tools.locale.locale_tool import LocaleTool
 from foxylib.tools.native.clazz.class_tool import ClassTool
 from foxylib.tools.native.module.module_tool import ModuleTool
 from foxylib.tools.nlp.gazetteer.gazetteer_matcher import GazetteerMatcher
+from foxylib.tools.regex.regex_tool import RegexTool
 from foxylib.tools.string.string_tool import str2lower, StringTool
 from henrique.main.document.henrique_entity import Entity, HenriqueEntity
 from henrique.main.document.port.port import Port
@@ -38,7 +40,9 @@ class PortEntity:
                                           for port in Port.list_all()],
                                          vwrite=vwrite_no_duplicate_key)
 
-        config = {GazetteerMatcher.Config.Key.NORMALIZER: cls.text2norm}
+        config = {GazetteerMatcher.Config.Key.NORMALIZER: cls.text2norm,
+                  GazetteerMatcher.Config.Key.TEXTS2PATTERN: HenriqueEntity.texts2rstr_word_with_cardinal_suffix,
+                  }
         matcher = GazetteerMatcher(h_codename2aliases, config)
         return matcher
 

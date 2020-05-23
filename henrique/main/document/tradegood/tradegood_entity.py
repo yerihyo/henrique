@@ -111,7 +111,9 @@ class TradegoodEntity:
         h_value2aliases = merge_dicts([{Tradegood.tradegood2codename(tg): list(tg2aliases(tg))} for tg in tg_list],
                                       vwrite=vwrite_no_duplicate_key)
 
-        config = {GazetteerMatcher.Config.Key.NORMALIZER: cls.text2norm}
+        config = {GazetteerMatcher.Config.Key.NORMALIZER: cls.text2norm,
+                  GazetteerMatcher.Config.Key.TEXTS2PATTERN: HenriqueEntity.texts2rstr_word_with_cardinal_suffix,
+                  }
         matcher = GazetteerMatcher(h_value2aliases, config)
         return matcher
 

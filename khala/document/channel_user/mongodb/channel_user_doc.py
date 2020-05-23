@@ -1,26 +1,19 @@
 import logging
 import sys
 
-from cachetools import LRUCache, cached
-from cachetools.keys import hashkey
-from future.utils import lmap
-from pymongo.results import BulkWriteResult
-
-from foxylib.tools.cache.cachetools.cachetools_tool import CachetoolsManager, CachetoolsTool
-from foxylib.tools.collections.collections_tool import DictTool, vwrite_no_duplicate_key, merge_dicts
+from cachetools import LRUCache
 from functools import lru_cache, partial
+from future.utils import lmap
 
-from foxylib.tools.collections.iter_tool import IterTool
+from foxylib.tools.cache.cache_decorator import CacheDecorator
+from foxylib.tools.cache.cache_manager import CacheManager
+from foxylib.tools.collections.collections_tool import DictTool, vwrite_no_duplicate_key, merge_dicts
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
-from foxylib.tools.function.warmer import Warmer
-from khala.document.channel.channel import Channel
-from henrique.main.singleton.env.henrique_env import HenriqueEnv
-from khala.document.channel_user.channel_user import ChannelUser
-from khala.document.chatroom.chatroom import Chatroom
-from khala.document.packet.packet import KhalaPacket
-
 from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.function.warmer import Warmer
+from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb
+from khala.document.channel_user.channel_user import ChannelUser
 from khala.singleton.logger.khala_logger import KhalaLogger
 
 MODULE = sys.modules[__name__]
@@ -51,10 +44,9 @@ class ChannelUserDoc:
     Cache = ChannelUserDocCache
 
     @classmethod
-    @CachetoolsManager.attach2func(cached=partial(CachetoolsTool.Decorator.cached_each, index_each=1),
-                                   key=CachetoolsTool.key4classmethod(hashkey),
-                                   cache=LRUCache(maxsize=ChannelUserDocCache.Constant.MAXSIZE),
-                                   )
+    @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=ChannelUserDocCache.Constant.MAXSIZE),
+                                      cachedmethod=partial(CacheDecorator.cachedmethod_each, indexes_each=[1]),
+                                      )
     def codenames2docs(cls, codenames):
         collection = ChannelUserCollection.collection()
 
@@ -69,9 +61,11 @@ class ChannelUserDoc:
 
     @classmethod
     def _docs2cache(cls, docs):
+        logger = KhalaLogger.func_level2logger(cls._docs2cache, logging.DEBUG)
+
         for doc in docs:
             codename = ChannelUser.channel_user2codename(doc)
-            cls.codenames2docs.cachetools_manager.add2cache(doc, args=[codename])
+            CacheManager.add2cache(cls.codenames2docs, doc, args=[codename])
 
     @classmethod
     def docs2upsert(cls, docs):

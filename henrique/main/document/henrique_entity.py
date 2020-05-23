@@ -1,9 +1,12 @@
+import re
+
 from itertools import chain
 
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, lchain
 from functools import lru_cache
 
 from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.regex.regex_tool import RegexTool
 from khala.document.chatroom.chatroom import Chatroom
 from khala.document.packet.packet import KhalaPacket
 
@@ -68,6 +71,16 @@ class Entity:
 class HenriqueEntity:
     class Cache:
         DEFAULT_SIZE = 100
+
+    @classmethod
+    def texts2rstr_word_with_cardinal_suffix(cls, texts):
+        regex_raw = RegexTool.rstr_iter2or(map(re.escape, texts))
+        rstr_prefixed = RegexTool.rstr2rstr_words_prefixed(regex_raw)
+
+        rstr_suf = r"(?=(?:\s|\b|[0-9]|$))"
+        rstr_word = r'{0}{1}'.format(RegexTool.rstr2wrapped(rstr_prefixed), rstr_suf)
+
+        return re.compile(rstr_word, )  # re.I can be dealt with normalizer
 
     # @classmethod
     # def classes(cls):

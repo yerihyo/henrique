@@ -19,7 +19,11 @@ HENRIQUE_DIR=$PROJECTS_DIR/henrique
 pull_foxylib(){
     pushd $FOXYLIB_DIR
     git pull origin master
+
+    set +eu
     . venv/bin/activate
+    set -eu
+
     rm -Rf build
     python setup.py install
     deactivate
@@ -28,7 +32,10 @@ pull_foxylib(){
 
 pull_henrique(){
     pushd $HENRIQUE_DIR
+    set +eu
     . venv/bin/activate
+    set -eu
+
     pip3 install -U -r henrique/requirements.txt
 
     ./scripts/lpass/pull.bash

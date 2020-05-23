@@ -1,3 +1,4 @@
+import sys
 from operator import itemgetter as ig
 
 from future.utils import lmap
@@ -8,11 +9,15 @@ from functools import lru_cache
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, DictTool, luniq
 from foxylib.tools.collections.groupby_tool import dict_groupby_tree, gb_tree_global
 from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.googleapi.sheets.googlesheets_tool import GooglesheetsTool
 from henrique.main.document.port.port import Product
 from henrique.main.document.port.port_entity import Port
+from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.singleton.google.googledoc.henrique_googleapi import HenriqueGoogleapi
 
+MODULE = sys.modules[__name__]
+WARMER = Warmer(MODULE)
 
 class NameskoSheet:
     NAME = "names.ko"
@@ -74,6 +79,7 @@ class ProductSheet:
 
         return h
 
+
 class PortGooglesheets:
     @classmethod
     def spreadsheetId(cls):
@@ -94,14 +100,14 @@ class PortGooglesheets:
         #          Port.Field.CULTURE: culture,
         #          }
         #     return h
-        h = merge_dicts([{Port.port2codename(port): port}
-                         for port in cls.port_list_all()],
+        h = merge_dicts([{Port.port2codename(port): port} for port in port_list_all],
                         vwrite=DictTool.VWrite.f_vwrite2f_hvwrite(vwrite_no_duplicate_key),
                         )
         return h
 
 
     @classmethod
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def port_list_all(cls):
         h_codename2aliases_en = NamesenSheet.dict_codename2aliases()
@@ -132,3 +138,5 @@ class PortGooglesheets:
 
         return lmap(codename2port, codename_list)
 
+
+WARMER.warmup()
