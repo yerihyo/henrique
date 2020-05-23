@@ -22,6 +22,7 @@ class NameskoSheet:
     NAME = "names.ko"
 
     @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def dict_codename2aliases(cls):
         data_ll = CultureGooglesheets.sheetname2data_ll(cls.NAME)
 
@@ -34,6 +35,7 @@ class NamesenSheet:
     NAME = "names.en"
 
     @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def dict_codename2aliases(cls):
         data_ll = CultureGooglesheets.sheetname2data_ll(cls.NAME)
 
@@ -45,6 +47,7 @@ class PrefersSheet:
     NAME = "prefers"
 
     @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def dict_codename2prefers(cls):
         data_ll = CultureGooglesheets.sheetname2data_ll(cls.NAME)
 
@@ -78,13 +81,12 @@ class CultureGooglesheets:
     #     return flow
 
     @classmethod
-    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=10))
     def sheetname2data_ll(cls, sheetname):
         data_ll = GooglesheetsTool.cred_id_name2data_ll(HenriqueGoogleapi.credentials(), cls.spreadsheetId(), sheetname)
         return data_ll
 
     @classmethod
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     def culture_list_all(cls):
         h_codename2aliases_en = NamesenSheet.dict_codename2aliases()
         h_codename2aliases_ko = NameskoSheet.dict_codename2aliases()
