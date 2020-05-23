@@ -1,20 +1,25 @@
+import sys
+
 from functools import lru_cache
 from future.utils import lmap
 
 from foxylib.tools.collections.collections_tool import DictTool
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.function.warmer import Warmer
+from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb
 from khala.document.channel.channel import Channel
 from khala.document.chatroom.chatroom import Chatroom
 
-# MODULE = sys.modules[__name__]
-# WARMER = Warmer(MODULE)
+MODULE = sys.modules[__name__]
+WARMER = Warmer(MODULE)
 from khala.document.packet.packet import KhalaPacket
 
 
 class ChatroomCollection:
     @classmethod
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def collection(cls, *_, **__):
         db = HenriqueMongodb.db()
@@ -35,3 +40,4 @@ class ChatroomDoc:
         mongo_result = MongoDBTool.j_pair_list2upsert(collection, pair_list)
         return mongo_result
 
+WARMER.warmup()
