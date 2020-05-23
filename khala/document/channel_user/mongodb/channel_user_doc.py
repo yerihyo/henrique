@@ -44,8 +44,9 @@ class ChannelUserDoc:
     Cache = ChannelUserDocCache
 
     @classmethod
-    @CacheManager.attach2method(self2cache=lambda x: LRUCache(maxsize=ChannelUserDocCache.Constant.MAXSIZE), )
-    @CacheManager.cachedmethod2use_manager(cachedmethod=partial(CacheDecorator.cachedmethod_each, indexes_each=[1]))
+    @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=ChannelUserDocCache.Constant.MAXSIZE),
+                                      cachedmethod=partial(CacheDecorator.cachedmethod_each, indexes_each=[1]),
+                                      )
     def codenames2docs(cls, codenames):
         collection = ChannelUserCollection.collection()
 
@@ -62,14 +63,9 @@ class ChannelUserDoc:
     def _docs2cache(cls, docs):
         logger = KhalaLogger.func_level2logger(cls._docs2cache, logging.DEBUG)
 
-        manager = CacheManager.callable2manager(cls.codenames2docs)
-        logger.debug({"hex(id(manager))": hex(id(manager)),
-                      "manager": manager,
-                      })
-
         for doc in docs:
             codename = ChannelUser.channel_user2codename(doc)
-            CacheManager.add2cache(manager, doc, args=[codename])
+            CacheManager.add2cache(cls.codenames2docs, doc, args=[codename])
 
     @classmethod
     def docs2upsert(cls, docs):

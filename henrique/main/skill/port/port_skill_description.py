@@ -22,7 +22,7 @@ class PortSkillDescription:
 
         h_lang2text = merge_dicts([{row[0]: row[1]} for row in data_ll[1:]],
                                   vwrite=vwrite_no_duplicate_key)
-
+        # raise Exception({"h_lang2text":h_lang2text})
         return h_lang2text
 
     @classmethod

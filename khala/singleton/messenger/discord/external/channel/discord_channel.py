@@ -11,8 +11,7 @@ class DiscordChannelCache:
 
 class DiscordChannel:
     @classmethod
-    @CacheManager.attach2method(self2cache=lambda x: LRUCache(maxsize=DiscordChannelCache.Constant.MAXSIZE), )
-    @CacheManager.cachedmethod2use_manager(cachedmethod=cachedmethod)
+    @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=DiscordChannelCache.Constant.MAXSIZE),)
     def id2channel(cls, channel_id):
         client = DiscordClient.client()
         return client.get_channel(channel_id)
@@ -20,5 +19,4 @@ class DiscordChannel:
 
     @classmethod
     def add_channel2cache(cls, channel):
-        manager = CacheManager.callable2manager(cls.id2channel)
-        CacheManager.add2cache(manager, channel, [channel.id])
+        CacheManager.add2cache(cls.id2channel, channel, [channel.id])

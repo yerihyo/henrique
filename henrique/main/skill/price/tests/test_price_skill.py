@@ -197,7 +197,7 @@ class TestPriceSkill(TestCase):
         # MarketpriceDoc.server_ports_tradegoods2delete(server, ports, tradegoods)
         # channel = Channel.Codename.KAKAOTALK_UWO_UWO  # discord
 
-        packet = {KhalaPacket.Field.TEXT: "?시세 초롱 : 말세80ㅎ; 사사리75ㅎ; 시라130ㅅ;",
+        packet = {KhalaPacket.Field.TEXT: "?시세 사탕무 : 말세80ㅎ; 사사리75ㅎ; 시라130ㅅ;",
                   KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
                   KhalaPacket.Field.CHANNEL_USER: channel_user_codename,
                   KhalaPacket.Field.SENDER_NAME: sender_name,
@@ -205,8 +205,10 @@ class TestPriceSkill(TestCase):
 
         hyp_01 = PriceSkill.packet2response(packet)
         ref_01 = """[사탕무] 시세
-리스본 120↗ @ 방금전 [by iris]"""
+시라쿠사 130↗ @ 방금전 [by iris]
+마르세이유 80↘ @ 방금전 [by iris]
+사사리 75↘ @ 방금전 [by iris]"""
 
-        pprint({"hyp_01": hyp_01})
+        # pprint(hyp_01)
         self.assertEqual(hyp_01, ref_01)
 

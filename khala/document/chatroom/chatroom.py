@@ -55,8 +55,9 @@ class Chatroom:
         return l_singleton2obj(cls.codenames2chatrooms([codename]))
 
     @classmethod
-    @CacheManager.attach2method(self2cache=lambda x: LRUCache(maxsize=ChatroomCache.Constant.MAXSIZE), )
-    @CacheManager.cachedmethod2use_manager(cachedmethod=partial(CacheDecorator.cachedmethod_each, indexes_each=[1]))
+    @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=ChatroomCache.Constant.MAXSIZE),
+                                      cachedmethod=partial(CacheDecorator.cachedmethod_each, indexes_each=[1]),
+                                      )
     def codenames2chatrooms(cls, codenames):
         logger = KhalaLogger.func_level2logger(cls.codenames2chatrooms, logging.DEBUG)
 
@@ -81,8 +82,7 @@ class Chatroom:
     @classmethod
     def add_chatroom2cache(cls, chatroom):
         codename = cls.chatroom2codename(chatroom)
-        manager = CacheManager.callable2manager(cls.codenames2chatrooms)
-        CacheManager.add2cache(manager, chatroom, [codename,])
+        CacheManager.add2cache(cls.codenames2chatrooms, chatroom, [codename,])
 
     @classmethod
     def chatroom2codename(cls, chatroom):
