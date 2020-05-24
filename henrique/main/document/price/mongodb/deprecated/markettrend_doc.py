@@ -11,7 +11,7 @@ from foxylib.tools.json.json_tool import JsonTool
 from henrique.main.document.port.mongodb.port_doc import PortDoc
 from henrique.main.document.price.mongodb.marketprice_doc import MarketpriceDoc
 from henrique.main.document.price.trend.trend_entity import Trend
-from henrique.main.document.tradegood.mongodb.tradegood_doc import TradegoodDoc
+from henrique.main.document.tradegood.deprecated.mongodb.tradegood_doc import TradegoodDoc
 from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb
 
 FILE_PATH = os.path.realpath(__file__)

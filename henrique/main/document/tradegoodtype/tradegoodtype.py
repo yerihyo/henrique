@@ -14,7 +14,7 @@ class Tradegoodtype:
     @classmethod
     def _dict_codename2tradegoodtype_all(cls):
         from henrique.main.document.tradegoodtype.googlesheets.tradegoodtype_googlesheets import TradegoodtypeGooglesheets
-        return TradegoodtypeGooglesheets.dict_codename2tradegood()
+        return TradegoodtypeGooglesheets.dict_codename2tradegoodtype()
 
     @classmethod
     def list_all(cls):
