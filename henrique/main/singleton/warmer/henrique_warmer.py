@@ -1,5 +1,7 @@
 import logging
+import os
 
+from foxylib.tools.collections.iter_tool import IterTool
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 
 
@@ -11,7 +13,10 @@ class HenriqueWarmer:
         logger.debug("START")
 
         # not really necessary cuz warmer will run once loaded in each file, but still to avoid unnecessary warnings
-        for x in cls.warmer_iter():
+        warmer_list = list(cls.warmer_iter())
+        # warmer_list = [IterTool.first(cls.warmer_iter())]
+        logger.debug({"warmer_list":warmer_list})
+        for x in warmer_list:
             logger.debug({"warmer": x})
             x.warmup()
 
@@ -19,10 +24,12 @@ class HenriqueWarmer:
 
     @classmethod
     def warmer_iter(cls):
-        logger = HenriqueLogger.func_level2logger(cls.warmup_all, logging.DEBUG)
+        logger = HenriqueLogger.func_level2logger(cls.warmer_iter, logging.DEBUG)
 
         logger.debug("START")
 
+        import khala.singleton.messenger.kakaotalk.internal.chatroom_kakaotalk
+        yield khala.singleton.messenger.kakaotalk.internal.chatroom_kakaotalk.WARMER
 
         import henrique.main.document.skill.skill_entity
         yield henrique.main.document.skill.skill_entity.WARMER
@@ -59,3 +66,13 @@ class HenriqueWarmer:
 
 
         logger.debug("END")
+
+
+def main():
+    HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
+    os.environ["SKIP_WARMUP"] = ""
+    HenriqueWarmer.warmup_all()
+
+
+if __name__ == '__main__':
+    main()
