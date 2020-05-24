@@ -14,7 +14,7 @@ install(){
 
     # https://docs.docker.com/engine/install/ubuntu/
     sudo apt-get -y update
-    DEBIAN_FRONTEND=noninteractive sudo apt-get -y install \
+    sudo DEBIAN_FRONTEND=noninteractive apt-get -y install \
         apt-transport-https \
         ca-certificates \
         curl \
