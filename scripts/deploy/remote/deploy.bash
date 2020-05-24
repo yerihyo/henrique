@@ -37,7 +37,7 @@ mkdir -p $REPO_DIR/henrique/env/docker
 
 pem_filepath=$REPO_DIR/henrique/env/aws/lightsail/key_pair/$ENV.henrique.pem
 chmod 400 $pem_filepath
-SSH="ssh -i $pem_filepath $USERNAME@$IP"
+SSH="ssh -i $pem_filepath -o StrictHostKeyChecking=no $USERNAME@$IP"
 SCP="scp -i $pem_filepath"
 #RSYNC="rsync --delete -azv -e 'ssh -i $pem_filepath'"
 RSYNCOPT=(--delete -azv -e "ssh -i $pem_filepath")
