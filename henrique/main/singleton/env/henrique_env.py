@@ -3,6 +3,7 @@ import os
 import sys
 
 import yaml
+from nose.tools import assert_is_none
 from pathlib import Path
 
 from functools import lru_cache, reduce
@@ -66,16 +67,20 @@ class HenriqueEnv:
         return _env
 
     @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def is_skip_warmup(cls):
+        logger = HenriqueLogger.func_level2logger(cls.env, logging.DEBUG)
+
         nb = cls.key2nullboolean(cls.Key.SKIP_WARMUP)
+        logger.debug({"nb": nb})
+
         if nb is True:
             return True
 
         if nb is False:
-            return True
+            return False
 
-        # raise Exception({"cls.env()":cls.env()})
-        # return cls.env() in {cls.Value.LOCAL, cls.Value.DEV}
+        assert_is_none(nb)
         return cls.env() in {cls.Value.LOCAL, }
 
 

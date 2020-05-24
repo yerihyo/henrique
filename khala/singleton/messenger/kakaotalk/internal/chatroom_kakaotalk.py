@@ -1,10 +1,18 @@
 import logging
+import sys
+
 from functools import lru_cache
 
 from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.function.warmer import Warmer
+from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from khala.document.channel.channel import Channel
 from khala.document.chatroom.chatroom import Chatroom
 from khala.singleton.logger.khala_logger import KhalaLogger
+
+
+MODULE = sys.modules[__name__]
+WARMER = Warmer(MODULE)
 
 
 class ChatroomKakaotalk:
@@ -18,6 +26,7 @@ class ChatroomKakaotalk:
 
 
     @classmethod
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def chatroom(cls, ):
         logger = KhalaLogger.func_level2logger(cls.chatroom, logging.DEBUG)
@@ -30,3 +39,5 @@ class ChatroomKakaotalk:
         logger.debug({"chatroom": chatroom,
                       })
         return chatroom
+
+WARMER.warmup()

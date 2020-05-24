@@ -72,6 +72,7 @@ class HenriqueFlask:
         HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
         logger = HenriqueLogger.func_level2logger(cls.app, logging.DEBUG)
         logger.debug({"START": "START"})
+        logging.getLogger('googleapicliet.discovery_cache').setLevel(logging.ERROR)  # quiet googleapiclient
 
         # WTForm
         WTFormsTool.json_init()
