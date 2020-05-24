@@ -1,6 +1,5 @@
 import logging
 import os
-import sys
 
 from functools import lru_cache
 from future.utils import lmap
@@ -8,7 +7,6 @@ from future.utils import lmap
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, DictTool, lchain
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.function.function_tool import FunctionTool
-from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.json.json_tool import JsonTool
 from henrique.main.document.tradegood.tradegood import Tradegood
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
@@ -16,6 +14,9 @@ from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
+
+# MODULE = sys.modules[__name__]
+# WARMER = Warmer(MODULE)
 
 
 class TradegoodCollection:
@@ -46,7 +47,9 @@ class TradegoodDoc:
         return lmap(MongoDBTool.bson2json, collection.find({}))
 
     @classmethod
-    def dict_codename2tradegood_partial(cls):
+    # @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def dict_codename2tradegood(cls):
 
         def doc2tradegood_partial(doc):
             langs = ["en", "ko"]
@@ -93,6 +96,7 @@ class TradegoodDoc:
         logger.debug({"h": h})
         return h[doc_id]
 
+
 class Mongodb2Googlesheets:
     @classmethod
     def docs2sheet_name_en(cls, doc_list):
@@ -121,17 +125,22 @@ class Mongodb2Googlesheets:
         return "\n".join(map(lambda row: ",".join(map(str, row)), rows))
 
 
-    @classmethod
-    def collection2sheets(cls,):
-        doc_list = list(TradegoodCollection.collection().find())
-        block_list = [cls.rows2text(cls.docs2sheet_name_en(doc_list)),
-                      cls.rows2text(cls.docs2sheet_name_ko(doc_list)),
-                      ]
-        print("\n\n".join(block_list))
-
-
+#     @classmethod
+#     def collection2sheets(cls,):
+#         doc_list = list(TradegoodCollection.collection().find())
+#         block_list = [cls.rows2text(cls.docs2sheet_name_en(doc_list)),
+#                       cls.rows2text(cls.docs2sheet_name_ko(doc_list)),
+#                       ]
+#         print("\n\n".join(block_list))
+#
+#
 def main():
     Mongodb2Googlesheets.collection2sheets()
 
+
+# WARMER.warmup()
+
+
 if __name__ == '__main__':
     main()
+

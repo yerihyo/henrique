@@ -49,8 +49,6 @@ class Port:
     #     return dict_codename2port
 
     @classmethod
-    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def _dict_codename2port_all(cls):
         from henrique.main.document.port.googlesheets.port_googlesheets import PortGooglesheets
         return PortGooglesheets.dict_codename2port()
