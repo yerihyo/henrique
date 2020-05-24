@@ -1,5 +1,5 @@
-#!/bin/bash -eu
-
+#!/bin/bash
+set -eux
 
 errcho(){ >&2 echo "$@"; }
 FILE_NAME="start.bash"
@@ -14,7 +14,7 @@ install(){
 
     # https://docs.docker.com/engine/install/ubuntu/
     sudo apt-get -y update
-    sudo apt-get -y install \
+    sudo DEBIAN_FRONTEND=noninteractive apt-get -y install \
         apt-transport-https \
         ca-certificates \
         curl \

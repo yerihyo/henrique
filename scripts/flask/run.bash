@@ -15,7 +15,7 @@ REPO_DIR=$(func_count2reduce $FILE_DIR dirname 2)
 
 FOXYLIB_DIR=${FOXYLIB_DIR?'missing $FOXYLIB_DIR'}
 
-export SKIP_WARMUP=1
+export SKIP_WARMUP=${SKIP_WARMUP-1}
 export FLASK_ENV=development
 export FLASK_APP="henrique.main.run" #:create_app"
 export ELASTICSEARCH_HOST="http://localhost:9200"
