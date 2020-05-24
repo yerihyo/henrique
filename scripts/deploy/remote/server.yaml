@@ -2,5 +2,6 @@ henrique:
   local:
     ip: localhost
   prod:
-    ip: 54.203.163.31
+#    ip: 54.203.163.31
+    ip: 35.160.210.98
     username: ubuntu
