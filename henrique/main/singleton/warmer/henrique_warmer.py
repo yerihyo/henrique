@@ -61,6 +61,15 @@ class HenriqueWarmer:
         import henrique.main.document.culture.googlesheets.culture_googlesheets
         yield henrique.main.document.culture.googlesheets.culture_googlesheets.WARMER
 
+        import henrique.main.document.server.googlesheets.server_googlesheets
+        yield henrique.main.document.server.googlesheets.server_googlesheets.WARMER
+
+        import henrique.main.document.skill.googlesheets.skill_googlesheets
+        yield henrique.main.document.skill.googlesheets.skill_googlesheets.WARMER
+
+        import henrique.main.document.tradegoodtype.googlesheets.tradegoodtype_googlesheets
+        yield henrique.main.document.tradegoodtype.googlesheets.tradegoodtype_googlesheets.WARMER
+
         import henrique.main.document.tradegood.tradegood_entity
         yield henrique.main.document.tradegood.tradegood_entity.WARMER
 

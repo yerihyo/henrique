@@ -1,8 +1,15 @@
+import sys
+
+from foxylib.tools.function.warmer import Warmer
 from functools import lru_cache
 
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.googleapi.sheets.googlesheets_tool import GooglesheetsTool
+from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.singleton.google.googledoc.henrique_googleapi import HenriqueGoogleapi
+
+MODULE = sys.modules[__name__]
+WARMER = Warmer(MODULE)
 
 
 class AliasesEn:
@@ -31,6 +38,7 @@ class SkillGooglesheets:
         return "18D67KgdOwq1RbDP5mgIS8FzFAAOkQPCHbD8zcFRyoyQ"
 
     @classmethod
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=10))
     def sheetname2data_ll(cls, sheetname):
         data_ll = GooglesheetsTool.cred_id_name2data_ll(HenriqueGoogleapi.credentials(), cls.spreadsheetId(), sheetname)
@@ -41,3 +49,5 @@ class SkillGooglesheets:
         return {"en": AliasesEn.dict_codename2aliases(),
                 "ko": AliasesKo.dict_codename2aliases(),
                 }
+
+WARMER.warmup()

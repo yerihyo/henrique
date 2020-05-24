@@ -1,15 +1,14 @@
 import sys
 
-from foxylib.tools.function.warmer import Warmer
 from functools import lru_cache
-
 from future.utils import lmap
 from itertools import chain
 
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, DictTool, luniq
 from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.googleapi.sheets.googlesheets_tool import GooglesheetsTool
-from henrique.main.document.server.server import Server
+from henrique.main.document.tradegoodtype.tradegoodtype import Tradegoodtype
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.singleton.google.googledoc.henrique_googleapi import HenriqueGoogleapi
 
@@ -21,7 +20,7 @@ class NameskoSheet:
 
     @classmethod
     def dict_codename2aliases(cls):
-        data_ll = ServerGooglesheets.sheetname2data_ll(cls.NAME)
+        data_ll = TradegoodtypeGooglesheets.sheetname2data_ll(cls.NAME)
 
         h = merge_dicts([{row[0]: row[1:]} for row in data_ll[1:]],
                         vwrite=vwrite_no_duplicate_key)
@@ -33,19 +32,32 @@ class NamesenSheet:
 
     @classmethod
     def dict_codename2aliases(cls):
-        data_ll = ServerGooglesheets.sheetname2data_ll(cls.NAME)
+        data_ll = TradegoodtypeGooglesheets.sheetname2data_ll(cls.NAME)
 
         h = merge_dicts([{row[0]: row[1:]} for row in data_ll[1:]],
                         vwrite=vwrite_no_duplicate_key)
         return h
 
 
-class ServerGooglesheets:
-    @classmethod
-    def spreadsheetId(cls):
-        return "1z_8oCBFUj5ArGr8WvQFio3-uoQgbAOC87BupNNAF0_M"
+class CategorySheet:
+    NAME = "category"
 
     @classmethod
+    def dict_codename2tradegoodtype(cls):
+        data_ll = TradegoodtypeGooglesheets.sheetname2data_ll(cls.NAME)
+
+        h = merge_dicts([{row[0]: row[1]} for row in data_ll[1:] if len(row) > 1],
+                        vwrite=vwrite_no_duplicate_key)
+        return h
+
+
+class TradegoodtypeGooglesheets:
+    @classmethod
+    def spreadsheetId(cls):
+        return "1tCXSXrjzOdR8URx8SavC9feUrgSELuB87V5IvzdFsPE"
+
+    @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=10))
     def sheetname2data_ll(cls, sheetname):
         data_ll = GooglesheetsTool.cred_id_name2data_ll(HenriqueGoogleapi.credentials(), cls.spreadsheetId(), sheetname)
         return data_ll
@@ -53,27 +65,44 @@ class ServerGooglesheets:
     @classmethod
     @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def server_list_all(cls):
+    def dict_codename2tradegoodtype(cls):
+        tradegoodtype_list_all = cls.tradegoodtype_list_all()
+        h = merge_dicts([{Tradegoodtype.tradegoodtype2codename(tgt): tgt} for tgt in tradegoodtype_list_all],
+                        vwrite=DictTool.VWrite.f_vwrite2f_hvwrite(vwrite_no_duplicate_key),
+                        )
+        return h
+
+
+    @classmethod
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def tradegoodtype_list_all(cls):
         h_codename2aliases_en = NamesenSheet.dict_codename2aliases()
         h_codename2aliases_ko = NameskoSheet.dict_codename2aliases()
+        h_codename2category = CategorySheet.dict_codename2tradegoodtype()
+        # raise Exception({"h_codename2product_list":h_codename2product_list})
 
         codename_list = luniq(chain(h_codename2aliases_en.keys(),
                                     h_codename2aliases_ko.keys(),
                                     )
                               )
 
-        def codename2server(codename):
+        def codename2port(codename):
             aliases = DictTool.filter(lambda k, v: v,
                                       {"en": h_codename2aliases_en.get(codename),
                                        "ko": h_codename2aliases_ko.get(codename),
                                        })
+            category = h_codename2category.get(codename)
 
-            culture = {Server.Field.CODENAME: codename,
-                       Server.Field.ALIASES: aliases,
-                       }
-            return DictTool.filter(lambda k, v: v, culture)
+            port = DictTool.filter(lambda k, v: bool(v),
+                                   {Tradegoodtype.Field.CODENAME: codename,
+                                    Tradegoodtype.Field.CATEGORY: category,
+                                    Tradegoodtype.Field.ALIASES: aliases,
+                                    }
+                                   )
+            return DictTool.filter(lambda k, v: v, port)
 
-        return lmap(codename2server, codename_list)
+        return lmap(codename2port, codename_list)
 
 
 WARMER.warmup()
