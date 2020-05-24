@@ -13,6 +13,7 @@ from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.googleapi.sheets.googlesheets_tool import GooglesheetsTool
 from henrique.main.document.port.port import Product
 from henrique.main.document.port.port_entity import Port
+from henrique.main.document.tradegood.tradegood import Tradegood
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.singleton.google.googledoc.henrique_googleapi import HenriqueGoogleapi
 
@@ -24,7 +25,7 @@ class NameskoSheet:
 
     @classmethod
     def dict_codename2aliases(cls):
-        data_ll = PortGooglesheets.sheetname2data_ll(cls.NAME)
+        data_ll = TradegoodGooglesheets.sheetname2data_ll(cls.NAME)
 
         h = merge_dicts([{row[0]: row[1:]} for row in data_ll[1:]],
                         vwrite=vwrite_no_duplicate_key)
@@ -36,54 +37,29 @@ class NamesenSheet:
 
     @classmethod
     def dict_codename2aliases(cls):
-        data_ll = PortGooglesheets.sheetname2data_ll(cls.NAME)
+        data_ll = TradegoodGooglesheets.sheetname2data_ll(cls.NAME)
 
         h = merge_dicts([{row[0]: row[1:]} for row in data_ll[1:]],
                         vwrite=vwrite_no_duplicate_key)
         return h
 
 
-class CultureSheet:
-    NAME = "culture"
+class TradegoodtypeSheet:
+    NAME = "tradegoodtype"
 
     @classmethod
-    def dict_codename2culture(cls):
-        data_ll = PortGooglesheets.sheetname2data_ll(cls.NAME)
+    def dict_codename2tradegoodtype(cls):
+        data_ll = TradegoodGooglesheets.sheetname2data_ll(cls.NAME)
 
-        h = merge_dicts([{row[0]: row[1]} for row in data_ll[1:]],
+        h = merge_dicts([{row[0]: row[1]} for row in data_ll[1:] if len(row)>1],
                         vwrite=vwrite_no_duplicate_key)
         return h
 
 
-class ProductSheet:
-    NAME = "product"
-
-    @classmethod
-    def dict_codename2products(cls):
-        data_ll = PortGooglesheets.sheetname2data_ll(cls.NAME)
-
-        port2row_list = gb_tree_global(data_ll[1:], [ig(0)])
-
-        def row2product(row):
-            port, tradegood = row[0], row[1]
-            price = row[2] if len(row) >= 3 else None
-            raw = {Product.Field.PORT: port,
-                   Product.Field.TRADEGOOD: tradegood,
-                   Product.Field.PRICE: price,
-                   }
-            product = DictTool.filter(lambda k,v:v, raw)
-            return product
-
-        h = {port: lmap(row2product, row_list)
-             for port, row_list in port2row_list}
-
-        return h
-
-
-class PortGooglesheets:
+class TradegoodGooglesheets:
     @classmethod
     def spreadsheetId(cls):
-        return "1DxaBuSsOvAf4nsy4n2XNwcmPVqBLRvWgCbs5Y8AHFtE"
+        return "1XgTitp7h-oeAIzaxlLkQx1KX4c2uk4-izwn6W5ke290"
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=10))
@@ -94,9 +70,9 @@ class PortGooglesheets:
     @classmethod
     @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def dict_codename2port(cls):
-        port_list_all = cls.port_list_all()
-        h = merge_dicts([{Port.port2codename(port): port} for port in port_list_all],
+    def dict_codename2tradegood(cls):
+        tradegood_list_all = cls.tradegood_list_all()
+        h = merge_dicts([{Tradegood.tradegood2codename(tradegood): tradegood} for tradegood in tradegood_list_all],
                         vwrite=DictTool.VWrite.f_vwrite2f_hvwrite(vwrite_no_duplicate_key),
                         )
         return h
@@ -105,11 +81,10 @@ class PortGooglesheets:
     @classmethod
     @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def port_list_all(cls):
+    def tradegood_list_all(cls):
         h_codename2aliases_en = NamesenSheet.dict_codename2aliases()
         h_codename2aliases_ko = NameskoSheet.dict_codename2aliases()
-        h_codename2culture = CultureSheet.dict_codename2culture()
-        h_codename2product_list = ProductSheet.dict_codename2products()
+        h_codename2tradegoodtype = TradegoodtypeSheet.dict_codename2tradegoodtype()
         # raise Exception({"h_codename2product_list":h_codename2product_list})
 
         codename_list = luniq(chain(h_codename2aliases_en.keys(),
@@ -122,14 +97,14 @@ class PortGooglesheets:
                                       {"en": h_codename2aliases_en.get(codename),
                                        "ko": h_codename2aliases_ko.get(codename),
                                        })
-            culture = h_codename2culture[codename]
-            product_list = h_codename2product_list.get(codename)
+            tradegoodtype = h_codename2tradegoodtype.get(codename)
 
-            port = {Port.Field.CODENAME: codename,
-                    Port.Field.CULTURE: culture,
-                    Port.Field.ALIASES: aliases,
-                    Port.Field.PRODUCTS: product_list,
-                    }
+            port = DictTool.filter(lambda k, v: bool(v),
+                                   {Tradegood.Field.CODENAME: codename,
+                                    Tradegood.Field.TRADEGOODTYPE: tradegoodtype,
+                                    Tradegood.Field.ALIASES: aliases,
+                                    }
+                                   )
             return DictTool.filter(lambda k, v: v, port)
 
         return lmap(codename2port, codename_list)

@@ -27,16 +27,9 @@ class Culture:
         PREFERS = "prefers"
 
     @classmethod
-    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def _dict_codename2culture(cls):
         from henrique.main.document.culture.googlesheets.culture_googlesheets import CultureGooglesheets
-        culture_list = CultureGooglesheets.culture_list_all()
-        assert_is_not_none(culture_list)
-
-        h_codename2culture = merge_dicts([{cls.culture2codename(culture): culture}
-                                          for culture in culture_list])
-        return h_codename2culture
+        return CultureGooglesheets.dict_codename2culture()
 
     @classmethod
     def list_all(cls):
