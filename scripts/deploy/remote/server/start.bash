@@ -1,5 +1,5 @@
-#!/bin/bash -eu
-
+#!/bin/bash
+set -eux
 
 errcho(){ >&2 echo "$@"; }
 FILE_NAME="start.bash"
