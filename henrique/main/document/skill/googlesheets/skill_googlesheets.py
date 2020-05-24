@@ -38,13 +38,13 @@ class SkillGooglesheets:
         return "18D67KgdOwq1RbDP5mgIS8FzFAAOkQPCHbD8zcFRyoyQ"
 
     @classmethod
-    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=10))
     def sheetname2data_ll(cls, sheetname):
         data_ll = GooglesheetsTool.cred_id_name2data_ll(HenriqueGoogleapi.credentials(), cls.spreadsheetId(), sheetname)
         return data_ll
 
     @classmethod
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=10))
     def dict_lang2codename2aliases(cls):
         return {"en": AliasesEn.dict_codename2aliases(),
                 "ko": AliasesKo.dict_codename2aliases(),
