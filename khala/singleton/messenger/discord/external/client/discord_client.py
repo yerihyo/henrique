@@ -10,6 +10,7 @@ from nose.tools import assert_true
 
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.socialmedia.discord.discord_tool import DiscordTool, DiscordLogger
+from henrique.main.singleton.warmer.henrique_warmer import HenriqueWarmer
 from khala.document.channel_user.channel_user import ChannelUser
 from khala.document.chatroom.chatroom import Chatroom
 from khala.singleton.logger.khala_logger import KhalaLogger
@@ -85,6 +86,8 @@ def start_discord():
     from henrique.main.singleton.logger.henrique_logger import KhalaLogger
     logger = KhalaLogger.func_level2logger(start_discord, logging.DEBUG)
     logger.debug({"HenriqueEnv.env()": HenriqueEnv.env()})
+
+    HenriqueWarmer.warmup_all()
 
     # maybe update?
     # https://stackoverflow.com/a/50981577

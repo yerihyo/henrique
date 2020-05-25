@@ -16,7 +16,7 @@ REPO_DIR=$(func_count2reduce $FILE_DIR dirname 2)
 FOXYLIB_DIR=${FOXYLIB_DIR?'missing $FOXYLIB_DIR'}
 
 main(){
-    PYTHONPATH=$FOXYLIB_DIR python -m khala.singleton.messenger.discord.external.client.discord_client
+    SKIP_WARMUP="" PYTHONPATH=$FOXYLIB_DIR python -m khala.singleton.messenger.discord.external.client.discord_client
 }
 # $REPO_DIR/henrique/scripts/run.bash >& $REPO_DIR/log/henrique.log &
 
