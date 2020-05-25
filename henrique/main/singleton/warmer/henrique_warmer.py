@@ -46,9 +46,6 @@ class HenriqueWarmer:
         import henrique.main.skill.price.price_skill
         yield henrique.main.skill.price.price_skill.WARMER
 
-        import henrique.main.document.port.deprecated.port_reference
-        yield henrique.main.document.port.deprecated.port_reference.WARMER
-
         import henrique.main.document.port.port
         yield henrique.main.document.port.port.WARMER
 
