@@ -4,7 +4,7 @@ from unittest import TestCase
 import pytest
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj
-from henrique.main.document.price.mongodb.markettrend_doc import MarkettrendDoc
+from henrique.main.document.price.mongodb.deprecated.markettrend_doc import MarkettrendDoc
 from henrique.main.document.price.mongodb.marketprice_doc import MarketpriceDoc, MarketpriceDict
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 

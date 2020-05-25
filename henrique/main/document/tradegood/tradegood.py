@@ -1,9 +1,7 @@
-from functools import lru_cache
 from itertools import chain
 
-from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.collections.collections_tool import luniq
-from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.json.json_tool import JsonTool
 
 
@@ -11,14 +9,12 @@ class Tradegood:
     class Field:
         CODENAME = "codename"
         ALIASES = "aliases"
+        TRADEGOODTYPE = "tradegoodtype"
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def _dict_codename2tradegood_all(cls):
-        from henrique.main.document.tradegood.mongodb.tradegood_doc import TradegoodDoc
-        h_mongo = TradegoodDoc.dict_codename2tradegood_partial()
-
-        return h_mongo
+        from henrique.main.document.tradegood.googlesheets.tradegood_googlesheets import TradegoodGooglesheets
+        return TradegoodGooglesheets.dict_codename2tradegood()
 
     @classmethod
     def list_all(cls):
@@ -27,6 +23,10 @@ class Tradegood:
     @classmethod
     def tradegood2codename(cls, tradegood):
         return tradegood[cls.Field.CODENAME]
+
+    @classmethod
+    def tradegood2tradegoodtype(cls, tradegood):
+        return tradegood[cls.Field.TRADEGOODTYPE]
 
     @classmethod
     def tradegood_lang2aliases(cls, tradegood, lang):
@@ -44,3 +44,5 @@ class Tradegood:
     @classmethod
     def codename2tradegood(cls, codename):
         return cls._dict_codename2tradegood_all().get(codename)
+
+

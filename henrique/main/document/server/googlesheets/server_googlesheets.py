@@ -1,3 +1,6 @@
+import sys
+
+from foxylib.tools.function.warmer import Warmer
 from functools import lru_cache
 
 from future.utils import lmap
@@ -7,8 +10,11 @@ from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_du
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.googleapi.sheets.googlesheets_tool import GooglesheetsTool
 from henrique.main.document.server.server import Server
+from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.singleton.google.googledoc.henrique_googleapi import HenriqueGoogleapi
 
+MODULE = sys.modules[__name__]
+WARMER = Warmer(MODULE)
 
 class NameskoSheet:
     NAME = "names.ko"
@@ -40,12 +46,12 @@ class ServerGooglesheets:
         return "1z_8oCBFUj5ArGr8WvQFio3-uoQgbAOC87BupNNAF0_M"
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=10))
     def sheetname2data_ll(cls, sheetname):
         data_ll = GooglesheetsTool.cred_id_name2data_ll(HenriqueGoogleapi.credentials(), cls.spreadsheetId(), sheetname)
         return data_ll
 
     @classmethod
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def server_list_all(cls):
         h_codename2aliases_en = NamesenSheet.dict_codename2aliases()
@@ -69,3 +75,5 @@ class ServerGooglesheets:
 
         return lmap(codename2server, codename_list)
 
+
+WARMER.warmup()
