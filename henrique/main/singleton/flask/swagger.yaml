@@ -69,6 +69,9 @@ paths:
         in: query
         type: string
         required: true
+      - name: newline
+        in: query
+        type: string
       produces:
         - text/plain; charset=utf-8
       responses:
