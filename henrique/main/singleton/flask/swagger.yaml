@@ -69,6 +69,8 @@ paths:
         in: query
         type: string
         required: true
+      produces:
+        - text/plain; charset=utf-8
       responses:
         200:
           description: Return deploy info
@@ -110,15 +112,19 @@ definitions:
     type: object
     required:
     - text
-    - locale
+    - channel_user
+    - chatroom
+    - sender_name
     properties:
-      sender_id:
+      channel_user:
         type: string
-      chatroom_id:
+        example: kakaotalk_uwo.iris
+      chatroom:
         type: string
-      locale:
+        example: kakaotalk_uwo.uwo
+      sender_name:
         type: string
-        example: ko-KR
+        example: iris
       text:
         type: string
         example: "?항구 리습"

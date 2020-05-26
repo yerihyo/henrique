@@ -44,7 +44,7 @@ class SkillGooglesheets:
 
     @classmethod
     @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=10))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def dict_lang2codename2aliases(cls):
         return {"en": AliasesEn.dict_codename2aliases(),
                 "ko": AliasesKo.dict_codename2aliases(),

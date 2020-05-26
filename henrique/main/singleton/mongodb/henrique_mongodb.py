@@ -1,3 +1,5 @@
+import logging
+
 from functools import lru_cache
 
 from pymongo import MongoClient
@@ -5,6 +7,7 @@ from pymongo import MongoClient
 from foxylib.tools.env.env_tool import EnvTool
 from foxylib.tools.function.function_tool import FunctionTool
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
+from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 
 
 class HenriqueMongodb:
@@ -15,7 +18,10 @@ class HenriqueMongodb:
 
     @classmethod
     def uri(cls):
-        return HenriqueEnv.key2value(cls.Env.MONGO_URI)
+        logger = HenriqueLogger.func_level2logger(cls.client, logging.DEBUG)
+        uri = HenriqueEnv.key2value(cls.Env.MONGO_URI)
+        # logger.debug({"uri": uri})
+        return uri
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
