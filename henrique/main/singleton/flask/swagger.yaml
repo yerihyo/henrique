@@ -69,6 +69,8 @@ paths:
         in: query
         type: string
         required: true
+      produces:
+        - text/plain; charset=utf-8
       responses:
         200:
           description: Return deploy info
