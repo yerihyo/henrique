@@ -1,26 +1,97 @@
 const scriptName="uwo.js";
+
+function msg2response(msg, sender){
+    Log.d("[msg2response] msg "+msg);
+    var newline="_=_=_";
+
+    var host = "6abc8164.ngrok.io";
+    //var host="henrique.way2gosu.com";
+
+    var endpoint = "http://"+host+"/khala/kakaotalk/query";
+    var url = endpoint+"?sender_name="+sender+"&text="+msg+"&newline="+newline;
+    var html = Utils.getWebText(url);
+
+    Log.d("html "+html);
+    var content = html.split("<body>")[1].split("</body>")[0].trim();
+    Log.d("content: "+content);
+
+    if(!content){ return; }
+
+    var text_out = content.replace(newline,"\n");
+    Log.d("[msg2response] text_out: "+text_out);
+    return text_out;
+}
+
+function word2chunks(word, limit){
+    Log.d("[word2chunks] word: "+word);
+    var i;
+    var chunks = [];
+    for(i=0; i*limit<msg.length; i++){
+        var start = i*limit;
+        var end = Math.min((i+1)*limit, msg.length);
+        chunks.push(word.substring(start,end));
+    }
+    Log.d("[word2chunks] chunks: "+chunks);
+    return chunks;
+}
+function extend(l1, l2){
+    var j;
+    for(j=0; j<l2.length; j++){
+        l1.push(l2[j]);
+    }
+    return l1;
+}
+
+function msg2chunks(msg, limit){
+    Log.d("[msg2chunks] msg: "+msg);
+
+    var chunks = [];
+    lines = msg.split(/\r?\n/);
+
+    var i;
+    var current = "";
+    for(i=0; i<lines.length; i++){
+        var line = lines[i];
+
+        if((current + "\n"+line).length > limit){
+            if(current){ chunks.push(current); }
+
+            if(line.length>limit){
+                chunks = extend(chunks, word2chunks(line, limit));
+                current = "";
+            }
+            else {
+                current = line;
+            }
+        }
+        else{
+            current += "\n" + line;
+        }
+
+        current = current.trim();
+    }
+
+    if(current){
+        chunks.push(current);
+    }
+
+    Log.d("[msg2chunks] chunks: "+chunks);
+    return chunks;
+
+}
+
 function response(room, msg, sender, isGroupChat, replier, ImageDB, packageName, threadId){
-    //alert(msg);
-    Log.d(msg);
-    var endpoint="http://6abc8164.ngrok.io/khala/kakaotalk/query";
-    var url=endpoint+"?sender_name="+sender+"&text="+msg;
-    var html =Utils.getWebText(url);
-    //alert(url);
-    replier.reply(html.substring(32,html.length-17));
-    /*(이 내용은 길잡이일 뿐이니 지우셔도 무방합니다)
-     *(String) room: 메시지를 받은 방 이름
-     *(String) msg: 메시지 내용
-     *(String) sender: 전송자 닉네임
-     *(boolean) isGroupChat: 단체/오픈채팅 여부
-     *replier: 응답용 객체. replier.reply("메시지") 또는 replier.reply("방이름","메시지")로 전송
-     *(String) ImageDB.getProfileImage(): 전송자의 프로필 이미지를 Base64로 인코딩하여 반환
-     *(String) packageName: 메시지를 받은 메신저의 패키지 이름. (카카오톡: com.kakao.talk, 페메: com.facebook.orca, 라인: jp.naver.line.android
-     *(int) threadId: 현재 쓰레드의 순번(스크립트별로 따로 매김)     *Api,Utils객체에 대해서는 설정의 도움말 참조*/
+    var response = msg2response(msg, sender);
+    if (!response){ return; }
+
+    var chunks = msg2chunks(response, 200);
+    var i;
+    for(i=0; i<chunks.length; i++){
+        replier.reply(chunks[i]);
+    }
 }
-function onStartCompile(){
-    /*컴파일 또는 Api.reload호출시, 컴파일 되기 이전에 호출되는 함수입니다.
-     *제안하는 용도: 리로드시 자동 백업*/
-}
+
+function onStartCompile(){}
 //아래 4개의 메소드는 액티비티 화면을 수정할때 사용됩니다.
 function onCreate(savedInstanceState,activity) {
     var layout=new android.widget.LinearLayout(activity);

@@ -19,6 +19,7 @@ class KakaotalkUWOHandler:
         class Field:
             TEXT = "text"
             SENDER_NAME = "sender_name"
+            NEWLINE = "newline"
 
     @classmethod
     def url(cls):
@@ -29,6 +30,7 @@ class KakaotalkUWOHandler:
     def get(cls):
         sender_name = request.args.get(cls.Data.Field.SENDER_NAME)
         text_in = request.args.get(cls.Data.Field.TEXT)
+        newline = request.args.get(cls.Data.Field.NEWLINE)
 
         if not HenriqueCommand.text2is_query(text_in):
             return
@@ -45,6 +47,8 @@ class KakaotalkUWOHandler:
                   KhalaPacket.Field.SENDER_NAME: sender_name,
                   }
 
-        text_out = HenriqueKhala.packet2response(packet)
+        text_response = HenriqueKhala.packet2response(packet)
+
+        text_out = newline.join(text_response.splitlines()) if newline else text_response
 
         return text_out, 200
