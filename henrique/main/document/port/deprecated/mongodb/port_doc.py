@@ -117,14 +117,14 @@ class PortDoc:
     #     return doc.get("tradegoods") or []
 
 
-    @classmethod
-    def tradegoods2docs_MONGO(cls, tg_codenames):
-        tg_codename_list = list(tg_codenames)
-
-        collection = PortCollection.collection()
-        mongo_query = {"tradegoods.name.en": {"$in": tg_codename_list}}
-        doc_iter = map(MongoDBTool.bson2json,collection.find(mongo_query))
-        yield from doc_iter
+    # @classmethod
+    # def tradegoods2docs_MONGO(cls, tg_codenames):
+    #     tg_codename_list = list(tg_codenames)
+    #
+    #     collection = PortCollection.collection()
+    #     mongo_query = {"tradegoods.name.en": {"$in": tg_codename_list}}
+    #     doc_iter = map(MongoDBTool.bson2json,collection.find(mongo_query))
+    #     yield from doc_iter
 
 
 class Mongodb2Googlesheets:

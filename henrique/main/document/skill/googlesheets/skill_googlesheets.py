@@ -38,9 +38,17 @@ class SkillGooglesheets:
         return "18D67KgdOwq1RbDP5mgIS8FzFAAOkQPCHbD8zcFRyoyQ"
 
     @classmethod
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def dict_sheetname2data_ll(cls, ):
+        sheetname_list = [AliasesEn.NAME, AliasesKo.NAME]
+        return GooglesheetsTool.sheet_ranges2dict_range2data_ll(HenriqueGoogleapi.credentials(),
+                                                                cls.spreadsheetId(),
+                                                                sheetname_list,
+                                                                )
+
+    @classmethod
     def sheetname2data_ll(cls, sheetname):
-        data_ll = GooglesheetsTool.cred_id_name2data_ll(HenriqueGoogleapi.credentials(), cls.spreadsheetId(), sheetname)
-        return data_ll
+        return cls.dict_sheetname2data_ll()[sheetname]
 
     @classmethod
     @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())

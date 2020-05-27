@@ -1,6 +1,7 @@
 import sys
 
 import re
+from foxylib.tools.cache.cache_tool import CacheTool
 from functools import lru_cache, partial
 from future.utils import lfilter, lmap
 from nose.tools import assert_in
@@ -10,7 +11,7 @@ from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.nlp.contextfree.contextfree_tool import ContextfreeTool
 from foxylib.tools.string.string_tool import str2strip, StringTool
-from henrique.main.document.henrique_entity import Entity
+from henrique.main.document.henrique_entity import Entity, HenriqueEntity
 from henrique.main.document.skill.skill_entity import SkillEntity
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from khala.document.packet.packet import KhalaPacket
@@ -23,9 +24,6 @@ class HenriqueKhala:
     @classmethod
     def packet2response(cls, packet):
         from henrique.main.document.skill.skill_entity import HenriqueSkill
-
-        # ChatroomDoc.chatroom2upsert(Chatroom.packet2chatroom(packet))
-
 
         skill_code = HenriqueCommand.packet2skill_code(packet)
         skill_class = HenriqueSkill.codename2class(skill_code)
@@ -44,7 +42,12 @@ class HenriqueCommand:
     def packet2skill_code(cls, packet):
         text_in = KhalaPacket.packet2text(packet)
         config = Entity.Config.packet2config(packet)
+        return cls._text_config2skill_code(text_in, config)
 
+    @classmethod
+    @CacheTool.cache2hashable(cache=lru_cache(maxsize=HenriqueEntity.Cache.DEFAULT_SIZE),
+                              f_pair=CacheTool.JSON.func_pair(), )
+    def _text_config2skill_code(cls, text_in, config):
         pattern_prefix = cls.pattern_prefix()
         match_list_prefix = list(pattern_prefix.finditer(text_in))
         if not match_list_prefix:
