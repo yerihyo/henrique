@@ -2,8 +2,13 @@ import os
 
 from flask import request
 
+from henrique.main.document.henrique_entity import Entity
+from henrique.main.document.port.port_entity import PortEntity
+from henrique.main.document.skill.skill_entity import HenriqueSkill
+from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
 from henrique.main.singleton.flask.henrique_urlpath import HenriqueUrlpath
 from henrique.main.singleton.khala.henrique_khala import HenriqueKhala, HenriqueCommand
+from henrique.main.skill.port.port_skill import PortSkill
 from khala.document.channel_user.channel_user import ChannelUser
 from khala.document.chatroom.chatroom import Chatroom
 from khala.document.packet.packet import KhalaPacket
@@ -24,6 +29,27 @@ class KakaotalkUWOHandler:
     @classmethod
     def url(cls):
         return HenriqueUrlpath.obj2url(cls.get)
+
+    @classmethod
+    def packet2skip_response(cls, packet):
+        skill_code = HenriqueCommand.packet2skill_code(packet)
+
+        if skill_code == HenriqueSkill.Codename.PRICE:
+            return True
+
+        text_in = KhalaPacket.packet2text(packet)
+        config = Entity.Config.packet2config(packet)
+
+        if skill_code == HenriqueSkill.Codename.PORT:
+            entity_list_port = PortEntity.text2entity_list(text_in, config=config)
+            return bool(entity_list_port)
+
+        if skill_code == HenriqueSkill.Codename.TRADEGOOD:
+            entity_list_tradegood = TradegoodEntity.text2entity_list(text_in, config=config)
+            return bool(entity_list_tradegood)
+
+        return False
+
 
     @classmethod
     # @app.route(UrlpathTool.filepath_pair2url(FILE_DIR, FRONT_DIR))
@@ -48,6 +74,8 @@ class KakaotalkUWOHandler:
                   }
 
         text_response = HenriqueKhala.packet2response(packet)
+        if cls.packet2skip_response(packet):  # run packet but do not respond
+            return
 
         text_out = newline.join(text_response.splitlines()) if newline else text_response
 

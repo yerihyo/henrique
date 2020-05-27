@@ -17,7 +17,7 @@ function msg2response(msg, sender){
 
     if(!content){ return; }
 
-    var text_out = content.replace(newline,"\n");
+    var text_out = content.split(newline).join("\n");
     Log.d("[msg2response] text_out: "+text_out);
     return text_out;
 }

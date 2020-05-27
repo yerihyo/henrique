@@ -15,10 +15,7 @@ class TradegoodSkillDescription:
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def dict_lang2text(cls, ):
         from henrique.main.skill.help.help_skill import HelpSkill
-
-        credentials = HenriqueGoogleapi.credentials()
-        spreadsheet_id = HelpSkill.spreadsheet_id()
-        data_ll = GooglesheetsTool.cred_id_name2data_ll(credentials, spreadsheet_id, cls.sheetname())
+        data_ll = HelpSkill.sheetname2data_ll(HelpSkill.Sheetname.TRADEGOOD)
 
         h_lang2text = merge_dicts([{row[0]: row[1]} for row in data_ll[1:]],
                                   vwrite=vwrite_no_duplicate_key)

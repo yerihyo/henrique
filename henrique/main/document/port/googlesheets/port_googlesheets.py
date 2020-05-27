@@ -6,7 +6,7 @@ from itertools import chain
 
 from functools import lru_cache
 
-from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, DictTool, luniq
+from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, DictTool, luniq, zip_strict
 from foxylib.tools.collections.groupby_tool import dict_groupby_tree, gb_tree_global
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
@@ -86,10 +86,17 @@ class PortGooglesheets:
         return "1DxaBuSsOvAf4nsy4n2XNwcmPVqBLRvWgCbs5Y8AHFtE"
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=10))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def dict_sheetname2data_ll(cls,):
+        sheetname_list = [NameskoSheet.NAME, NamesenSheet.NAME, CultureSheet.NAME, ProductSheet.NAME]
+        return GooglesheetsTool.sheet_ranges2dict_range2data_ll(HenriqueGoogleapi.credentials(),
+                                                                cls.spreadsheetId(),
+                                                                sheetname_list,
+                                                                )
+
+    @classmethod
     def sheetname2data_ll(cls, sheetname):
-        data_ll = GooglesheetsTool.cred_id_name2data_ll(HenriqueGoogleapi.credentials(), cls.spreadsheetId(), sheetname)
-        return data_ll
+        return cls.dict_sheetname2data_ll()[sheetname]
 
     @classmethod
     @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
