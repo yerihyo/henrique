@@ -36,10 +36,17 @@ class HenriqueConfigGooglesheets:
         return "11XXks43hhrBJX5q0MRU4dQobTiIMsYJ8qtIQdfkLljQ"
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=10))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def dict_sheetname2data_ll(cls, ):
+        sheetname_list = [HenriqueSheet.NAME,]
+        return GooglesheetsTool.sheet_ranges2dict_range2data_ll(HenriqueGoogleapi.credentials(),
+                                                                cls.spreadsheetId(),
+                                                                sheetname_list,
+                                                                )
+
+    @classmethod
     def sheetname2data_ll(cls, sheetname):
-        data_ll = GooglesheetsTool.cred_id_name2data_ll(HenriqueGoogleapi.credentials(), cls.spreadsheetId(), sheetname)
-        return data_ll
+        return cls.dict_sheetname2data_ll()[sheetname]
 
     @classmethod
     def config_list(cls):

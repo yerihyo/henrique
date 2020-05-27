@@ -57,10 +57,17 @@ class TradegoodtypeGooglesheets:
         return "1tCXSXrjzOdR8URx8SavC9feUrgSELuB87V5IvzdFsPE"
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=10))
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def dict_sheetname2data_ll(cls, ):
+        sheetname_list = [NameskoSheet.NAME, NamesenSheet.NAME, CategorySheet.NAME]
+        return GooglesheetsTool.sheet_ranges2dict_range2data_ll(HenriqueGoogleapi.credentials(),
+                                                                cls.spreadsheetId(),
+                                                                sheetname_list,
+                                                                )
+
+    @classmethod
     def sheetname2data_ll(cls, sheetname):
-        data_ll = GooglesheetsTool.cred_id_name2data_ll(HenriqueGoogleapi.credentials(), cls.spreadsheetId(), sheetname)
-        return data_ll
+        return cls.dict_sheetname2data_ll()[sheetname]
 
     @classmethod
     @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())

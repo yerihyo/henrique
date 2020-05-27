@@ -8,7 +8,7 @@ from future.utils import lmap
 from foxylib.tools.collections.collections_tool import smap
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.json.json_tool import JsonTool
-from henrique.main.document.port.mongodb.port_doc import PortDoc
+from henrique.main.document.port.deprecated.mongodb.port_doc import PortDoc
 from henrique.main.document.price.mongodb.marketprice_doc import MarketpriceDoc
 from henrique.main.document.price.trend.trend_entity import Trend
 from henrique.main.document.tradegood.deprecated.mongodb.tradegood_doc import TradegoodDoc
