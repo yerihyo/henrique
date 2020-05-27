@@ -32,6 +32,8 @@ class KakaotalkUWOHandler:
 
     @classmethod
     def packet2skip_response(cls, packet):
+        return False
+
         skill_code = HenriqueCommand.packet2skill_code(packet)
 
         if skill_code == HenriqueSkill.Codename.PRICE:
