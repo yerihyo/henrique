@@ -3,12 +3,10 @@ const scriptName="uwo.js";
 function msg2response(msg, sender){
     Log.d("[msg2response] msg "+msg);
     var newline="_=_=_";
-
-    var host = "6abc8164.ngrok.io";
-    //var host="henrique.way2gosu.com";
-
+    //var host = "6abc8164.ngrok.io";
+    var host="henrique.way2gosu.com";
     var endpoint = "http://"+host+"/khala/kakaotalk/query";
-    var url = endpoint+"?sender_name="+sender+"&text="+msg+"&newline="+newline;
+    var url = endpoint+"?sender_name="+encodeURI(sender)+"&text="+msg+"&newline="+newline;
     var html = Utils.getWebText(url);
 
     Log.d("html "+html);

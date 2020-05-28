@@ -80,6 +80,26 @@ paths:
         404:
           description: Not Found
 
+  /henrique/entity/port/googlesheet/checkerror:
+    post:
+      tags: [port]
+      operationId: henrique.main.document.port.googlesheets.port_googlesheets.Endpoint.checkerror
+      summary: Return a 200 status ask is valid
+#      parameters:
+#      - name: packet
+#        in: body
+#        required: true
+#        description: packet json
+#        schema:
+#          $ref: "#/definitions/packet"
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad Request
+        404:
+          description: Not Found
+
 #  /khala/actions:
 #  /khala/contract/create:
 
