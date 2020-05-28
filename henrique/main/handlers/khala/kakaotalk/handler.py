@@ -8,6 +8,7 @@ from henrique.main.document.henrique_entity import Entity
 from henrique.main.document.port.port_entity import PortEntity
 from henrique.main.document.skill.skill_entity import HenriqueSkill
 from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
+from henrique.main.singleton.error.henrique_error import ErrorhandlerKakaotalk
 from henrique.main.singleton.flask.henrique_urlpath import HenriqueUrlpath
 from henrique.main.singleton.khala.henrique_khala import HenriqueKhala, HenriqueCommand
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
@@ -55,9 +56,8 @@ class KakaotalkUWOHandler:
 
         return False
 
-
     @classmethod
-    @ErrorTool.default_if_error(default=("미안해요. 오류가 났어요.",200))
+    @ErrorhandlerKakaotalk.decorator_unknown_error_handler
     def get(cls):
         logger = HenriqueLogger.func_level2logger(cls.get, logging.DEBUG)
 

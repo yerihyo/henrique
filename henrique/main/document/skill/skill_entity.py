@@ -30,6 +30,7 @@ class HenriqueSkill:
         CULTURE = "culture"
         PRICE = "price"
         HELP = "help"
+        ERROR = "error"
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
@@ -39,12 +40,14 @@ class HenriqueSkill:
         from henrique.main.skill.culture.culture_skill import CultureSkill
         from henrique.main.skill.price.price_skill import PriceSkill
         from henrique.main.skill.help.help_skill import HelpSkill
+        from henrique.main.skill.error.error_skill import ErrorSkill
 
         h = {cls.Codename.PORT: PortSkill,
              cls.Codename.TRADEGOOD: TradegoodSkill,
              cls.Codename.CULTURE: CultureSkill,
              cls.Codename.PRICE: PriceSkill,
              cls.Codename.HELP: HelpSkill,
+             cls.Codename.ERROR: ErrorSkill,
              }
         return h
 
@@ -67,7 +70,6 @@ class SkillEntity:
     def text2norm(cls, text): return str2lower(text)
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def dict_lang2codename2aliases(cls):
         from henrique.main.document.skill.googlesheets.skill_googlesheets import SkillGooglesheets
         return SkillGooglesheets.dict_lang2codename2aliases()
