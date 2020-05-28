@@ -5,7 +5,7 @@ from unittest import TestCase
 import requests
 
 from foxylib.tools.json.json_tool import JsonTool
-from foxylib.tools.log.foxylib_logger import FoxylibLogger
+from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.singleton.socialmedia.slack.foxytrixy_server import ErrorsChannel
 
 FILE_PATH = os.path.realpath(__file__)
@@ -15,10 +15,10 @@ FILE_DIR = os.path.dirname(FILE_PATH)
 class TestErrorsChannel(TestCase):
     @classmethod
     def setUpClass(cls):
-        FoxylibLogger.attach_stderr2loggers(logging.DEBUG)
+        HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
 
     def test_01(self):
-        logger = FoxylibLogger.func_level2logger(self.test_01, logging.DEBUG)
+        logger = HenriqueLogger.func_level2logger(self.test_01, logging.DEBUG)
 
         response1 = ErrorsChannel.post("testing...")
         self.assertEqual(response1.status_code, requests.codes.ok, response1)

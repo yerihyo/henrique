@@ -9,6 +9,7 @@ class HenriqueSlackbot:
     def xoxb_token(cls):
         logger = HenriqueLogger.func_level2logger(cls.xoxb_token, logging.DEBUG)
 
-        token = HenriqueEnv.key2value("SLACK_HENRIQUE_BOT_USER_OAUTH_ACCESS_TOKEN")
-        logger.debug({"bool(token)": bool(token)})
+        key = "SLACK_HENRIQUE_BOT_USER_OAUTH_ACCESS_TOKEN"
+        token = HenriqueEnv.key2value(key)
+        logger.debug({"key":key, "bool(token)": bool(token),})
         return token
