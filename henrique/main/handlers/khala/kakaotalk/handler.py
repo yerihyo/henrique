@@ -3,6 +3,7 @@ import os
 
 from flask import request
 
+from foxylib.tools.error.error_tool import ErrorTool
 from henrique.main.document.henrique_entity import Entity
 from henrique.main.document.port.port_entity import PortEntity
 from henrique.main.document.skill.skill_entity import HenriqueSkill
@@ -56,7 +57,7 @@ class KakaotalkUWOHandler:
 
 
     @classmethod
-    # @app.route(UrlpathTool.filepath_pair2url(FILE_DIR, FRONT_DIR))
+    @ErrorTool.default_if_error(default=("미안해요. 오류가 났어요.",200))
     def get(cls):
         logger = HenriqueLogger.func_level2logger(cls.get, logging.DEBUG)
 
