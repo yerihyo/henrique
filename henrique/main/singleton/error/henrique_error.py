@@ -1,4 +1,7 @@
+from flask import request
 from functools import wraps
+
+from henrique.main.singleton.socialmedia.slack.foxytrixy_server import ErrorsChannel
 
 
 class ErrorhandlerKakaotalk:
@@ -13,6 +16,8 @@ class ErrorhandlerKakaotalk:
                 try:
                     return f(*args,**kwargs)
                 except exception_tuple:
+                    message = str({"request.args": request.args})
+                    ErrorsChannel.post(message)
                     return default
             return wrapped
 
