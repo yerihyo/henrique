@@ -2,6 +2,7 @@ import logging
 from pprint import pprint
 from unittest import TestCase
 
+import pytest
 import pytz
 from datetime import datetime, timedelta
 from future.utils import lmap
@@ -42,7 +43,7 @@ class TestPriceSkill(TestCase):
         hyp = NORM_LIST(PriceSkill.packet2rowsblocks(packet))
         ref = [('[리스본] 시세', ['육두구'])]
 
-        pprint(hyp)
+        # pprint(hyp)
         self.assertEqual(hyp, ref)
 
     def test_02(self):
@@ -212,3 +213,25 @@ class TestPriceSkill(TestCase):
         # pprint(hyp_01)
         self.assertEqual(hyp_01, ref_01)
 
+    @pytest.mark.skip(reason="not implemented yet")
+    def test_07(self):
+        Chatroom.chatrooms2upsert([ChatroomKakaotalk.chatroom()])
+
+        sender_name = "iris"
+        channel_user_codename = ChannelUserKakaotalk.sender_name2codename(sender_name)
+        ChannelUser.channel_users2upsert([ChannelUserKakaotalk.sender_name2channel_user(sender_name)])
+
+        packet = {KhalaPacket.Field.CHANNEL_USER: channel_user_codename,
+                  KhalaPacket.Field.SENDER_NAME: sender_name,
+                  KhalaPacket.Field.TEXT: "?price 리스본 육두구",
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
+                  }
+
+        hyp = PriceSkill.packet2response(packet)
+        ref = """[사탕무] 시세
+시라쿠사 130↗ @ 방금전 [by iris]
+마르세이유 80↘ @ 방금전 [by iris]
+사사리 75↘ @ 방금전 [by iris]"""
+
+        # pprint(hyp)
+        self.assertEqual(hyp, ref)
