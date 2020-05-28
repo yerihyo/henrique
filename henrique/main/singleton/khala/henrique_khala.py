@@ -26,6 +26,9 @@ class HenriqueKhala:
         from henrique.main.document.skill.skill_entity import HenriqueSkill
 
         skill_code = HenriqueCommand.packet2skill_code(packet)
+        if not skill_code:
+            return None
+
         skill_class = HenriqueSkill.codename2class(skill_code)
         response_raw = skill_class.packet2response(packet)
         return Rowsblock.text2norm(response_raw)

@@ -1,3 +1,4 @@
+import logging
 import os
 
 from flask import request
@@ -8,6 +9,7 @@ from henrique.main.document.skill.skill_entity import HenriqueSkill
 from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
 from henrique.main.singleton.flask.henrique_urlpath import HenriqueUrlpath
 from henrique.main.singleton.khala.henrique_khala import HenriqueKhala, HenriqueCommand
+from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.skill.port.port_skill import PortSkill
 from khala.document.channel_user.channel_user import ChannelUser
 from khala.document.chatroom.chatroom import Chatroom
@@ -56,12 +58,15 @@ class KakaotalkUWOHandler:
     @classmethod
     # @app.route(UrlpathTool.filepath_pair2url(FILE_DIR, FRONT_DIR))
     def get(cls):
+        logger = HenriqueLogger.func_level2logger(cls.get, logging.DEBUG)
+
         sender_name = request.args.get(cls.Data.Field.SENDER_NAME)
         text_in = request.args.get(cls.Data.Field.TEXT)
         newline = request.args.get(cls.Data.Field.NEWLINE)
+        logger.debug({"sender_name":sender_name, "text_in":text_in, "newline":newline})
 
         if not HenriqueCommand.text2is_query(text_in):
-            return
+            return None
 
         chatroom = ChatroomKakaotalk.chatroom()
         Chatroom.chatrooms2upsert([chatroom])
@@ -74,10 +79,14 @@ class KakaotalkUWOHandler:
                   KhalaPacket.Field.CHANNEL_USER: ChannelUser.channel_user2codename(channel_user),
                   KhalaPacket.Field.SENDER_NAME: sender_name,
                   }
+        logger.debug({"packet": packet,})
 
         text_response = HenriqueKhala.packet2response(packet)
+        if not text_response:
+            return None
+
         if cls.packet2skip_response(packet):  # run packet but do not respond
-            return
+            return None
 
         text_out = newline.join(text_response.splitlines()) if newline else text_response
 
