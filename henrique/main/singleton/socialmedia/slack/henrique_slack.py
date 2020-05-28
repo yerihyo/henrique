@@ -11,5 +11,5 @@ class HenriqueSlackbot:
 
         key = "SLACK_HENRIQUE_BOT_USER_OAUTH_ACCESS_TOKEN"
         token = HenriqueEnv.key2value(key)
-        logger.debug({"key":key, "bool(token)": bool(token),})
+        logger.debug({"key":key, "bool(token)": bool(token), "token is None":token is None})
         return token
