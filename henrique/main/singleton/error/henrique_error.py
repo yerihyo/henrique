@@ -1,6 +1,7 @@
 from flask import request
 from functools import wraps
 
+from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.singleton.socialmedia.slack.foxytrixy_server import ErrorsChannel
 
 
@@ -11,6 +12,9 @@ class ErrorhandlerKakaotalk:
             default = ("미안해요. 오류가 났어요.", 200)
 
         def wrapper(f):
+            if HenriqueEnv.key2nullboolean(HenriqueEnv.Key.DIE_ON_ERROR) is True:
+                return f
+
             @wraps(f)
             def wrapped(*args, **kwargs):
                 try:
