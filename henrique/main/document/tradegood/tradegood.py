@@ -26,7 +26,7 @@ class Tradegood:
 
     @classmethod
     def tradegood2tradegoodtype(cls, tradegood):
-        return tradegood[cls.Field.TRADEGOODTYPE]
+        return tradegood.get(cls.Field.TRADEGOODTYPE)
 
     @classmethod
     def tradegood_lang2aliases(cls, tradegood, lang):

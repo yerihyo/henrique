@@ -44,3 +44,10 @@ class Tradegoodtype:
     @classmethod
     def codename2tradegoodtype(cls, codename):
         return cls._dict_codename2tradegoodtype_all().get(codename)
+
+    @classmethod
+    def key(cls, tradegoodtype):
+        key = (cls.tradegoodtype2category(tradegoodtype),
+                cls.tradegoodtype2codename(tradegoodtype),
+                )
+        return key
