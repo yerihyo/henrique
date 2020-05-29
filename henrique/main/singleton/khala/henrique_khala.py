@@ -14,6 +14,7 @@ from foxylib.tools.string.string_tool import str2strip, StringTool
 from henrique.main.document.henrique_entity import Entity, HenriqueEntity
 from henrique.main.document.skill.skill_entity import SkillEntity
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
+from henrique.main.singleton.error.henrique_error import ErrorhandlerKakaotalk
 from khala.document.packet.packet import KhalaPacket
 
 MODULE = sys.modules[__name__]
@@ -22,6 +23,7 @@ WARMER = Warmer(MODULE)
 
 class HenriqueKhala:
     @classmethod
+    @ErrorhandlerKakaotalk.decorator_unknown_error_handler
     def packet2response(cls, packet):
         from henrique.main.document.skill.skill_entity import HenriqueSkill
 

@@ -27,6 +27,7 @@ REPO_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*4, FILE_DIR)
 class HenriqueEnv:
     class Key:
         SKIP_WARMUP = "SKIP_WARMUP"
+        DIE_ON_ERROR = "DIE_ON_ERROR"
     K = Key
 
     class Value:
