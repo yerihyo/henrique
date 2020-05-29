@@ -31,7 +31,8 @@ class TestHandler(TestCase):
 
         hyp = PacketHandler.post(packet)
         ref = ("""[리스본]
-- 문화권: 이베리아""", 200)
+- 문화권: 이베리아
+- 내성: 식료품, 가축, 조미료, 주류, 기호품, 광석, 무기류, 공예품, 총포류""", 200)
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)
@@ -45,7 +46,10 @@ class TestHandler(TestCase):
 
         hyp = PacketHandler.post(packet)
         ref = ("""[리스본]
-- 문화권: 이베리아""", 200)
+- 문화권: 이베리아
+- 내성: 식료품, 가축, 조미료, 주류, 기호품, 광석, 무기류, 공예품, 총포류""", 200)
+
+        # pprint(hyp)
         self.assertEqual(hyp, ref)
 
     def test_03(self):

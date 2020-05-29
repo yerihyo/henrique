@@ -31,7 +31,8 @@ class TestHenriqueKhala(TestCase):
                   }
         hyp = HenriqueKhala.packet2response(packet)
         ref = """[리스본]
-- 문화권: 이베리아"""
+- 문화권: 이베리아
+- 내성: 식료품, 가축, 조미료, 주류, 기호품, 광석, 무기류, 공예품, 총포류"""
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)
