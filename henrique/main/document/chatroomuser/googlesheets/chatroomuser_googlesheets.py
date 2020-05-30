@@ -43,6 +43,10 @@ class CommentsSheet:
 
 class ChatroomuserGooglesheets:
     @classmethod
+    def shorturl(cls):
+        return "https://bit.ly/2TRYkvi"
+
+    @classmethod
     def spreadsheetId(cls):
         return "1HcW7Im6SWy2T8g6POFDTOQXzH1jeTBjPxJn7KZ3RHB4"
 
