@@ -44,11 +44,15 @@ class Chatroomuser:
 
     @classmethod
     def chatroomuser2aliases(cls, chatroomuser):
-        return luniq(chatroomuser.get(cls.Field.ALIASES)) or []
+        return chatroomuser.get(cls.Field.ALIASES) or [cls.chatroomuser2codename(chatroomuser)]
 
     @classmethod
     def codename2chatroomuser(cls, codename):
-        return cls._dict_codename2chatroomuser_all().get(codename)
+        chatroomuser = cls._dict_codename2chatroomuser_all().get(codename)
+        if chatroomuser:
+            return chatroomuser
+
+        return {cls.Field.CODENAME: codename,}
 
 
 WARMER.warmup()

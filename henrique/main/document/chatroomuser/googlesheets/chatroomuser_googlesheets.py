@@ -5,7 +5,7 @@ from functools import lru_cache
 from future.utils import lmap
 
 from foxylib.tools.cache.cache_manager import CacheManager
-from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, DictTool
+from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, DictTool, luniq
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.googleapi.sheets.googlesheets_tool import GooglesheetsTool
@@ -24,7 +24,7 @@ class AliasesSheet:
     def dict_codename2aliases(cls):
         data_ll = ChatroomuserGooglesheets.sheetname2data_ll(cls.NAME)
 
-        h = merge_dicts([{row[0]: row} for row in data_ll[1:]],
+        h = merge_dicts([{row[0]: luniq(row)} for row in data_ll[1:]],
                         vwrite=vwrite_no_duplicate_key)
         return h
 
@@ -73,7 +73,6 @@ class ChatroomuserGooglesheets:
                         )
         return h
 
-
     @classmethod
     @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
@@ -85,13 +84,13 @@ class ChatroomuserGooglesheets:
         codename_list = list(h_codename2aliases.keys())
 
         def codename2chatroomuser(codename):
-            aliases = h_codename2aliases.get(codename)
+            aliases = h_codename2aliases.get(codename) or []
             comments = h_codename2comments.get(codename)
 
             chatroomuser = {Chatroomuser.Field.CODENAME: codename,
-                        Chatroomuser.Field.COMMENTS: comments,
-                        Chatroomuser.Field.ALIASES: aliases,
-                        }
+                            Chatroomuser.Field.COMMENTS: comments,
+                            Chatroomuser.Field.ALIASES: aliases,
+                            }
             return DictTool.filter(lambda k, v: v, chatroomuser)
 
         return lmap(codename2chatroomuser, codename_list)
