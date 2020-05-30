@@ -1,3 +1,4 @@
 [{{name}}]
 - 호칭: {{str_aliases}}
-- 한줄평: {{comment}}
+- 한줄평: {% if comment %}{{comment}}{% else %}없음{% endif %}
+- 편집: https://bit.ly/2TRYkvi

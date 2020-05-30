@@ -54,6 +54,6 @@ class TestWhoSkill(TestCase):
         # pprint(response)
 
         self.assertGreaterEqual(len(response.splitlines()), 3)
-        self.assertEqual(response.splitlines()[0], "[iris]")
+        self.assertEqual(response.splitlines()[0], "[iris(아리)]")
 
 
