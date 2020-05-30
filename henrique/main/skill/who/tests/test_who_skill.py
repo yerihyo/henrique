@@ -28,13 +28,13 @@ class TestWhoSkill(TestCase):
                   KhalaPacket.Field.CHANNEL_USER: channel_user_codename,
                   KhalaPacket.Field.SENDER_NAME: sender_name,
                   }
-    
+
         response = WhoSkill.packet2response(packet)
 
         # pprint(response)
 
         self.assertGreaterEqual(len(response.splitlines()), 3)
-        self.assertEqual(response.splitlines()[0], "[iris(아리)]")
+        self.assertEqual(response.splitlines()[0], "[iris]")
 
     def test_02(self):
         Chatroom.chatrooms2upsert([ChatroomKakaotalk.chatroom()])
