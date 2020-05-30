@@ -31,6 +31,7 @@ class HenriqueSkill:
         PRICE = "price"
         HELP = "help"
         ERROR = "error"
+        WHO = "who"
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
@@ -41,6 +42,7 @@ class HenriqueSkill:
         from henrique.main.skill.price.price_skill import PriceSkill
         from henrique.main.skill.help.help_skill import HelpSkill
         from henrique.main.skill.error.error_skill import ErrorSkill
+        from henrique.main.skill.who.who_skill import WhoSkill
 
         h = {cls.Codename.PORT: PortSkill,
              cls.Codename.TRADEGOOD: TradegoodSkill,
@@ -48,6 +50,7 @@ class HenriqueSkill:
              cls.Codename.PRICE: PriceSkill,
              cls.Codename.HELP: HelpSkill,
              cls.Codename.ERROR: ErrorSkill,
+             cls.Codename.WHO: WhoSkill,
              }
         return h
 
@@ -110,7 +113,7 @@ class SkillEntity:
     def text2entity_list(cls, text_in, config=None):
         lang = LocaleTool.locale2lang(Entity.Config.config2locale(config))
 
-        span_value_list = cls.lang2matcher(lang).text2span_value_list(text_in)
+        span_value_list = list(cls.lang2matcher(lang).text2span_value_iter(text_in))
 
         entity_list = [{Entity.Field.SPAN: span,
                         Entity.Field.TEXT: StringTool.str_span2substr(text_in, span),

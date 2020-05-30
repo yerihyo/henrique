@@ -1,7 +1,7 @@
 const scriptName="uwo.js";
 
 function msg2response(msg, sender){
-    Log.d("[msg2response] msg "+msg);
+    //Log.d("[msg2response] msg "+msg);
     var newline="_=_=_";
     //var host = "6abc8164.ngrok.io";
     var host="henrique.way2gosu.com";
@@ -9,19 +9,19 @@ function msg2response(msg, sender){
     var url = endpoint+"?sender_name="+encodeURI(sender)+"&text="+msg+"&newline="+newline;
     var html = Utils.getWebText(url);
 
-    Log.d("html "+html);
+    //Log.d("html "+html);
     var content = html.split("<body>")[1].split("</body>")[0].trim();
-    Log.d("content: "+content);
+    //Log.d("content: "+content);
 
     if(!content){ return; }
 
     var text_out = content.split(newline).join("\n");
-    Log.d("[msg2response] text_out: "+text_out);
+    //Log.d("[msg2response] text_out: "+text_out);
     return text_out;
 }
 
 function word2chunks(word, limit){
-    Log.d("[word2chunks] word: "+word);
+    //Log.d("[word2chunks] word: "+word);
     var i;
     var chunks = [];
     for(i=0; i*limit<msg.length; i++){
@@ -29,7 +29,7 @@ function word2chunks(word, limit){
         var end = Math.min((i+1)*limit, msg.length);
         chunks.push(word.substring(start,end));
     }
-    Log.d("[word2chunks] chunks: "+chunks);
+    //Log.d("[word2chunks] chunks: "+chunks);
     return chunks;
 }
 function extend(l1, l2){
@@ -41,7 +41,7 @@ function extend(l1, l2){
 }
 
 function msg2chunks(msg, limit){
-    Log.d("[msg2chunks] msg: "+msg);
+    //Log.d("[msg2chunks] msg: "+msg);
 
     var chunks = [];
     lines = msg.split(/\r?\n/);
@@ -73,7 +73,7 @@ function msg2chunks(msg, limit){
         chunks.push(current);
     }
 
-    Log.d("[msg2chunks] chunks: "+chunks);
+    //Log.d("[msg2chunks] chunks: "+chunks);
     return chunks;
 
 }

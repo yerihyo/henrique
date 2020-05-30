@@ -54,7 +54,7 @@ class PortEntity:
         lang = LocaleTool.locale2lang(locale) or LocaleTool.locale2lang(HenriqueLocale.DEFAULT)
 
         matcher = cls.lang2matcher(lang)
-        span_value_list = matcher.text2span_value_list(text_in)
+        span_value_list = list(matcher.text2span_value_iter(text_in))
 
         entity_list = [{Entity.Field.SPAN: span,
                         Entity.Field.TEXT: StringTool.str_span2substr(text_in, span),

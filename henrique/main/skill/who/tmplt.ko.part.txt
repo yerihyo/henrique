@@ -1,0 +1,3 @@
+[{{name}}]
+- 호칭: {{str_aliases}}
+- 한줄평: {{comment}}
