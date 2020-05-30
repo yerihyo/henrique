@@ -24,4 +24,4 @@ script:
 - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 - scripts/deploy/docker/test.bash
 notifications:
-  slack: foxytrixy:HZwjgEulu0umNtMJ1E9UhGPA#henrique
+  slack: foxytrixy:HZwjgEulu0umNtMJ1E9UhGPA#travis-henrique
