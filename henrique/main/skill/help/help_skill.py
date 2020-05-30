@@ -27,6 +27,7 @@ class HelpSkill:
         TRADEGOOD = "tradegood"
         CULTURE = "culture"
         HELP = "help"
+        WHO = "who"
 
         @classmethod
         def list(cls):
