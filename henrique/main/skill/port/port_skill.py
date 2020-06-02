@@ -31,7 +31,7 @@ class PortSkill:
         return {PortEntity, TradegoodEntity, CultureEntity}
 
     @classmethod
-    def _entity_lang2response_block(cls, entity, lang):
+    def entity_lang2response_block(cls, entity, lang):
         entity_type = Entity.entity2type(entity)
         codename = Entity.entity2value(entity)
 
@@ -65,7 +65,7 @@ class PortSkill:
 
         entity_list = sorted(entity_list_raw, key=Entity.entity2span)
 
-        blocks = [cls._entity_lang2response_block(entity, lang) for entity in entity_list]
+        blocks = [cls.entity_lang2response_block(entity, lang) for entity in entity_list]
 
         return Rowsblock.blocks2text(blocks)
 

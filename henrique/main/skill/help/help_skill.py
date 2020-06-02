@@ -28,6 +28,7 @@ class HelpSkill:
         CULTURE = "culture"
         HELP = "help"
         WHO = "who"
+        WHAT = "what"
 
         @classmethod
         def list(cls):

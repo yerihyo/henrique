@@ -28,6 +28,37 @@ class WhoSkill:
     def target_entity_classes(cls):
         return {ChatroomuserEntity,}
 
+    @classmethod
+    def entity2response_block(cls, packet, entity, ):
+        logger = HenriqueLogger.func_level2logger(cls.packet2response, logging.DEBUG)
+
+        chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))
+        if Chatroom.chatroom2codename(chatroom) != ChatroomKakaotalk.codename():
+            return
+
+        locale = Chatroom.chatroom2locale(chatroom)
+        lang = LocaleTool.locale2lang(locale)
+
+        v = Entity.entity2value(entity)
+        codename = ChatroomuserEntity.value_packet2codename(v, packet)
+        logger.debug({"codename": codename,
+                      "entity": entity,
+                      "v": v,
+                      })
+
+        chatroomuser = Chatroomuser.codename2chatroomuser(codename)
+
+        comments = Chatroomuser.chatroomuser2comments(chatroomuser)
+        comment = choice(comments) if comments else None
+
+        filepath = os.path.join(FILE_DIR, "tmplt.{}.part.txt".format(lang))
+        data = {"name": codename,
+                "comment": comment,
+                "str_aliases": ", ".join(Chatroomuser.chatroomuser2aliases(chatroomuser)),
+                }
+        text_out = str2strip(HenriqueJinja2.textfile2text(filepath, data))
+
+        return text_out
 
     @classmethod
     def packet2response(cls, packet):
@@ -39,9 +70,6 @@ class WhoSkill:
         if Chatroom.chatroom2codename(chatroom) != ChatroomKakaotalk.codename():
             return
 
-        locale = Chatroom.chatroom2locale(chatroom)
-        lang = LocaleTool.locale2lang(locale)
-
         text_in = KhalaPacket.packet2text(packet)
         # config = {Entity.Config.Field.LOCALE: locale}
 
@@ -49,30 +77,7 @@ class WhoSkill:
         # entity_list_raw = lchain(*[c.text2entity_list(text_in, config=config) for c in entity_classes])
         #
         entity_list_chatroomuser = sorted(ChatroomuserEntity.text2entity_list(text_in), key=Entity.entity2span)
-
-        def entity2response_block(entity_chatroomuser, ):
-            v = Entity.entity2value(entity_chatroomuser)
-            codename = ChatroomuserEntity.value_packet2codename(v, packet)
-            logger.debug({"codename":codename,
-                          "entity_chatroomuser":entity_chatroomuser,
-                          "v":v,
-                          })
-
-            chatroomuser = Chatroomuser.codename2chatroomuser(codename)
-
-            comments = Chatroomuser.chatroomuser2comments(chatroomuser)
-            comment = choice(comments) if comments else None
-
-            filepath = os.path.join(FILE_DIR, "tmplt.{}.part.txt".format(lang))
-            data = {"name": codename,
-                    "comment": comment,
-                    "str_aliases":", ".join(Chatroomuser.chatroomuser2aliases(chatroomuser)),
-                    }
-            text_out = str2strip(HenriqueJinja2.textfile2text(filepath, data))
-
-            return text_out
-
-        blocks = [entity2response_block(entity,) for entity in entity_list_chatroomuser]
+        blocks = [cls.entity2response_block(packet, entity) for entity in entity_list_chatroomuser]
 
         return Rowsblock.blocks2text(blocks)
 

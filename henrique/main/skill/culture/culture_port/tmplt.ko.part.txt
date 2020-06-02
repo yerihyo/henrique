@@ -1,1 +1,1 @@
-[{{port_name}}] 문화권 - {{culture_name}}
+[항구/{{port_name}}] 문화권 - {{culture_name}}

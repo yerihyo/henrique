@@ -32,6 +32,7 @@ class HenriqueSkill:
         HELP = "help"
         ERROR = "error"
         WHO = "who"
+        WHAT = "what"
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
@@ -43,7 +44,7 @@ class HenriqueSkill:
         from henrique.main.skill.help.help_skill import HelpSkill
         from henrique.main.skill.error.error_skill import ErrorSkill
         from henrique.main.skill.who.who_skill import WhoSkill
-
+        from henrique.main.skill.what.what_skill import WhatSkill
         h = {cls.Codename.PORT: PortSkill,
              cls.Codename.TRADEGOOD: TradegoodSkill,
              cls.Codename.CULTURE: CultureSkill,
@@ -51,6 +52,7 @@ class HenriqueSkill:
              cls.Codename.HELP: HelpSkill,
              cls.Codename.ERROR: ErrorSkill,
              cls.Codename.WHO: WhoSkill,
+             cls.Codename.WHAT: WhatSkill,
              }
         return h
 

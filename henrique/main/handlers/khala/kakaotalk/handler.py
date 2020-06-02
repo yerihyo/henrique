@@ -3,7 +3,6 @@ import os
 
 from flask import request
 
-from foxylib.tools.error.error_tool import ErrorTool
 from henrique.main.document.henrique_entity import Entity
 from henrique.main.document.port.port_entity import PortEntity
 from henrique.main.document.skill.skill_entity import HenriqueSkill
@@ -12,7 +11,6 @@ from henrique.main.singleton.error.henrique_error import ErrorhandlerKakaotalk
 from henrique.main.singleton.flask.henrique_urlpath import HenriqueUrlpath
 from henrique.main.singleton.khala.henrique_khala import HenriqueKhala, HenriqueCommand
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
-from henrique.main.skill.port.port_skill import PortSkill
 from khala.document.channel_user.channel_user import ChannelUser
 from khala.document.chatroom.chatroom import Chatroom
 from khala.document.packet.packet import KhalaPacket

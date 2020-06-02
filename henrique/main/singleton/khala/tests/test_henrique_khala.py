@@ -1,17 +1,11 @@
 import logging
-from pprint import pprint
 from unittest import TestCase
 
-import pytest
-
-from henrique.main.handlers.khala.packet_handler import PacketHandler
 from henrique.main.singleton.khala.henrique_khala import HenriqueKhala
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
-from henrique.main.skill.port.port_skill import PortSkill
-from khala.document.channel.channel import KakaotalkUWOChannel
 from khala.document.channel_user.channel_user import ChannelUser
 from khala.document.chatroom.chatroom import KakaotalkUWOChatroom, Chatroom
-from khala.document.packet.packet import KhalaPacket, KhalaPacket
+from khala.document.packet.packet import KhalaPacket
 from khala.singleton.messenger.kakaotalk.internal.channel_user_kakaotalk import ChannelUserKakaotalk
 from khala.singleton.messenger.kakaotalk.internal.chatroom_kakaotalk import ChatroomKakaotalk
 
