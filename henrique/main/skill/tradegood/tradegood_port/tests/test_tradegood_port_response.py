@@ -15,7 +15,7 @@ class TestTradegoodPortResponse(TestCase):
 
     def test_01(self):
         hyp = Rowsblock.text2norm(TradegoodPortResponse.codename_lang2text("Lisbon", "ko"))
-        ref = """[리스본] 상품
+        ref = """[교역품] 리스본 교역소
 - 아몬드
 - 아몬드유
 - 브랜디

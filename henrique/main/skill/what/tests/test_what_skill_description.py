@@ -4,7 +4,7 @@ from unittest import TestCase
 from henrique.main.skill.what.what_skill_description import WhatSkillDescription
 
 
-class TestPortSkillDescription(TestCase):
+class TestWhatSkillDescription(TestCase):
     def test_01(self):
 
         description = WhatSkillDescription.lang2text("ko")

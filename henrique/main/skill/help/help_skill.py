@@ -32,7 +32,7 @@ class HelpSkill:
 
         @classmethod
         def list(cls):
-            return [cls.PRICE, cls.PORT, cls.TRADEGOOD, cls.CULTURE, cls.HELP]
+            return [cls.PRICE, cls.PORT, cls.TRADEGOOD, cls.CULTURE, cls.HELP, cls.WHO, cls.WHAT]
 
     @classmethod
     def lang2description(cls, lang):

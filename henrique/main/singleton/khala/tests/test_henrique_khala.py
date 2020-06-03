@@ -24,7 +24,7 @@ class TestHenriqueKhala(TestCase):
                   KhalaPacket.Field.SENDER_NAME: "iris",
                   }
         hyp = HenriqueKhala.packet2response(packet)
-        ref = """[리스본]
+        ref = """[항구] 리스본
 - 문화권: 이베리아
 - 내성: 식료품, 가축, 조미료, 주류, 기호품, 광석, 무기류, 공예품, 총포류"""
 
@@ -44,7 +44,7 @@ class TestHenriqueKhala(TestCase):
                   'sender_name': 'yeri',
         }
         hyp = HenriqueKhala.packet2response(packet)
-        ref = "[육두구] 취급항 - 룬, 암보이나"
+        ref = """[항구] 육두구 취급항 - 룬, 암보이나"""
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)
