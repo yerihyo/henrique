@@ -39,7 +39,7 @@ class TestWhatSkill(TestCase):
         self.assertEqual(hyp, ref)
 
 
-    def test_02(self):
+    def test_03(self):
         Chatroom.chatrooms2upsert([ChatroomKakaotalk.chatroom()])
 
         packet = {KhalaPacket.Field.TEXT: "?무엇 폭시",

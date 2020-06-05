@@ -24,6 +24,7 @@ class Port:
         CULTURE = "culture"
         ALIASES = "aliases"
         PRODUCTS = "products"
+        COMMENTS = "comments"
 
     # @classmethod
     # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
@@ -73,6 +74,10 @@ class Port:
     @classmethod
     def port_lang2aliases(cls, port, lang):
         return JsonTool.down(port, [cls.Field.ALIASES, lang])
+
+    @classmethod
+    def port_lang2comments(cls, port, lang):
+        return JsonTool.down(port, [cls.Field.COMMENTS, lang])
 
     @classmethod
     def port_langs2aliases(cls, port, langs):

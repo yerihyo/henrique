@@ -2,7 +2,7 @@ import sys
 from operator import itemgetter as ig
 
 from cachetools import LRUCache
-from future.utils import lmap
+from future.utils import lmap, lfilter
 from itertools import chain
 
 from functools import lru_cache
@@ -82,6 +82,18 @@ class ProductSheet:
         return h
 
 
+class CommentsKoSheet:
+    NAME = "comments.ko"
+
+    @classmethod
+    def dict_codename2comments(cls):
+        data_ll = PortGooglesheets.sheetname2data_ll(cls.NAME)
+
+        h = merge_dicts([{row[0]: lfilter(bool,row[1:])} for row in data_ll[1:]],
+                        vwrite=vwrite_no_duplicate_key)
+        return DictTool.filter(lambda k,v:bool(v), h)
+
+
 class PortGooglesheets:
     @classmethod
     def spreadsheetId(cls):
@@ -89,7 +101,7 @@ class PortGooglesheets:
 
     @classmethod
     def _dict_sheetname2data_ll(cls, ):
-        sheetname_list = [NameskoSheet.NAME, NamesenSheet.NAME, CultureSheet.NAME, ProductSheet.NAME]
+        sheetname_list = [NameskoSheet.NAME, NamesenSheet.NAME, CultureSheet.NAME, ProductSheet.NAME, CommentsSheet.NAME]
         return GooglesheetsTool.sheet_ranges2dict_range2data_ll(HenriqueGoogleapi.credentials(),
                                                                 cls.spreadsheetId(),
                                                                 sheetname_list,
@@ -123,6 +135,7 @@ class PortGooglesheets:
         h_codename2aliases_ko = NameskoSheet.dict_codename2aliases()
         h_codename2culture = CultureSheet.dict_codename2culture()
         h_codename2product_list = ProductSheet.dict_codename2products()
+        h_codename2comments_ko = CommentsKoSheet.dict_codename2comments()
         # raise Exception({"h_codename2product_list":h_codename2product_list})
 
         codename_list = luniq(chain(h_codename2aliases_en.keys(),
@@ -135,13 +148,16 @@ class PortGooglesheets:
                                       {"en": h_codename2aliases_en.get(codename),
                                        "ko": h_codename2aliases_ko.get(codename),
                                        })
-            culture = h_codename2culture[codename]
-            product_list = h_codename2product_list.get(codename)
+
+            comments = DictTool.filter(lambda k, v: v,
+                                      {"ko": h_codename2comments_ko.get(codename),
+                                       })
 
             port = {Port.Field.CODENAME: codename,
-                    Port.Field.CULTURE: culture,
+                    Port.Field.CULTURE: h_codename2culture[codename],
                     Port.Field.ALIASES: aliases,
-                    Port.Field.PRODUCTS: product_list,
+                    Port.Field.PRODUCTS: h_codename2product_list.get(codename),
+                    Port.Field.COMMENTS: comments,
                     }
             return DictTool.filter(lambda k, v: v, port)
 
