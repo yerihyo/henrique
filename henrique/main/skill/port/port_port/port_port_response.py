@@ -1,5 +1,6 @@
 import logging
 import os
+from random import choice
 
 from foxylib.tools.collections.collections_tool import luniq
 from future.utils import lmap, lfilter
@@ -63,10 +64,14 @@ class PortPortResponse:
 
         tradegoodtypes_resistant = tgt_list2text_resistant(tradegoodtype_list)
 
+        comments = Port.port_lang2comments(port, lang)
+        comment = choice(comments) if comments else None
+
         filepath = os.path.join(FILE_DIR, "tmplt.{}.part.txt".format(lang))
         data = {"name": Port.port_lang2name(port, lang),
                 "culture": Culture.culture_lang2name(culture,lang),
                 "tradegoodtypes_resistant":tradegoodtypes_resistant,
+                "comment":comment,
                 }
         text_out = str2strip(HenriqueJinja2.textfile2text(filepath, data))
 

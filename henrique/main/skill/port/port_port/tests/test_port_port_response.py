@@ -20,3 +20,13 @@ class TestPortPortResponse(TestCase):
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)
+
+    def test_02(self):
+        hyp = Rowsblock.text2norm(PortPortResponse.codename_lang2text("Seville", "ko"))
+        ref = """[항구] 세비야
+- 문화권: 이베리아
+- 내성: 식료품, 의약품, 주류, 공업품, 공예품, 직물, 총포류
+- 한줄평: 대항온 글섭의 수도!"""
+
+        # pprint(hyp)
+        self.assertEqual(hyp, ref)
