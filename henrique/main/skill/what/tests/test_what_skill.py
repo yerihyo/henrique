@@ -39,3 +39,19 @@ class TestWhatSkill(TestCase):
         self.assertEqual(hyp, ref)
 
 
+    def test_02(self):
+        Chatroom.chatrooms2upsert([ChatroomKakaotalk.chatroom()])
+
+        packet = {KhalaPacket.Field.TEXT: "?무엇 폭시",
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
+                  }
+
+        hyp = WhatSkill.packet2response(packet)
+        # ref = ("[이베리아] 항구 - 세비야, 세우타, 카사블랑카, 라스팔마스, 마데이라, 파루, 리스본, 포르투, 비아나두카스텔루, 히혼, "
+        #        "빌바오, 말라가, 발렌시아, 팔마, 바르셀로나, 몽펠리에, 사그레스")
+        ref = "[유저] Foxytrixy"
+
+        # pprint(hyp)
+        self.assertTrue(hyp.startswith(ref))
+
+
