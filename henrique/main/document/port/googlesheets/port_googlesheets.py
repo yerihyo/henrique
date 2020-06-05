@@ -101,7 +101,10 @@ class PortGooglesheets:
 
     @classmethod
     def _dict_sheetname2data_ll(cls, ):
-        sheetname_list = [NameskoSheet.NAME, NamesenSheet.NAME, CultureSheet.NAME, ProductSheet.NAME, CommentsSheet.NAME]
+        sheetname_list = [NameskoSheet.NAME, NamesenSheet.NAME,
+                          CommentsKoSheet.NAME,
+                          CultureSheet.NAME, ProductSheet.NAME,
+                          ]
         return GooglesheetsTool.sheet_ranges2dict_range2data_ll(HenriqueGoogleapi.credentials(),
                                                                 cls.spreadsheetId(),
                                                                 sheetname_list,
