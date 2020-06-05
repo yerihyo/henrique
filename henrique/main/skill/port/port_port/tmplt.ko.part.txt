@@ -1,5 +1,5 @@
 [항구] {{name}}
 - 문화권: {{culture}}
 - 내성: {% if tradegoodtypes_resistant %}{{tradegoodtypes_resistant}}{% else %}없음{% endif %}
-- 한줄평: {% if comment %}{{comment}}{% else %}없음{% endif %}
+{% if comment %}- 한줄평: {{comment}}{% endif %}
 
