@@ -61,7 +61,7 @@ class TestHandler(TestCase):
 
         hyp = PacketHandler.post(packet)
         ref = ("""[교역품] 리스본 교역소
-- 아몬드품
+- 아몬드
 - 아몬드유
 - 브랜디
 - 포탄
@@ -73,5 +73,5 @@ class TestHandler(TestCase):
 - 서양 서적""",
  200)
 
-        pprint(hyp)
+        # pprint(hyp)
         self.assertEqual(hyp, ref)

@@ -10,5 +10,5 @@ class TestWhoSkillDescription(TestCase):
         description = WhoSkillDescription.lang2text("ko")
 
         pprint(description)
-        self.assertTrue(description.startswith("?무엇 명령어"))
+        self.assertTrue(description.startswith("?누구 명령어"))
 
