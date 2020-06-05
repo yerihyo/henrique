@@ -17,7 +17,7 @@ class TestTradegoodSkill(TestCase):
                   }
 
         hyp = TradegoodSkill.packet2response(packet)
-        ref = '[육두구]'
+        ref = '[교역품] 육두구'
 
         # pprint({"hyp":hyp})
         self.assertEqual(hyp, ref)
@@ -30,7 +30,7 @@ class TestTradegoodSkill(TestCase):
                   }
 
         hyp = TradegoodSkill.packet2response(packet)
-        ref = """[이베리아] 우대 교역품
+        ref = """[교역품] 이베리아 문화권 우대품
 - 타네가시마 총
 - 대만 목각
 - 유자

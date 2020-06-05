@@ -13,7 +13,7 @@ class TestTradegoodCultureResponse(TestCase):
 
     def test_01(self):
         hyp = Rowsblock.text2norm(TradegoodCultureResponse.codename_lang2text("Iberia", "ko"))
-        ref = """[이베리아] 우대 교역품
+        ref = """[교역품] 이베리아 문화권 우대품
 - 타네가시마 총
 - 대만 목각
 - 유자

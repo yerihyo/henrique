@@ -35,7 +35,7 @@ class TradegoodSkill:
         return {PortEntity, TradegoodEntity, CultureEntity}
 
     @classmethod
-    def _entity_lang2response(cls, entity, lang):
+    def entity_lang2response_block(cls, entity, lang):
         entity_type = Entity.entity2type(entity)
         codename = Entity.entity2value(entity)
 
@@ -71,7 +71,7 @@ class TradegoodSkill:
 
         entity_list = sorted(entity_list_raw, key=Entity.entity2span)
 
-        response = Rowsblock.blocks2text([cls._entity_lang2response(entity, lang) for entity in entity_list])
+        response = Rowsblock.blocks2text([cls.entity_lang2response_block(entity, lang) for entity in entity_list])
         return response
 
 

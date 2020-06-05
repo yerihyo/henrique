@@ -19,11 +19,10 @@ class TestRateEntity(TestCase):
         hyp = RateEntity.text2entity_list("120ㅅ", config=config)
         ref = [{'span': (0, 3),
                 'text': '120',
-                'type': RateEntity.entity_type(),
+                'type': 'henrique.main.document.price.rate.rate_entity.RateEntity',
                 'value': 120}]
 
-        # pprint({"hyp":hyp})
-
+        # pprint(hyp)
         self.assertEqual(hyp, ref)
 
     def test_02(self):

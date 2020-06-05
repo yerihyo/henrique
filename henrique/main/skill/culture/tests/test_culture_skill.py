@@ -16,7 +16,7 @@ class TestCultureSkill(TestCase):
                   }
 
         hyp = CultureSkill.packet2response(packet)
-        ref = '[이베리아]'
+        ref = '[문화권] 이베리아'
 
         # pprint({"hyp":hyp})
         self.assertEqual(hyp, ref)
@@ -29,7 +29,7 @@ class TestCultureSkill(TestCase):
                   }
 
         hyp = CultureSkill.packet2response(packet)
-        ref = '[리스본] 문화권 - 이베리아'
+        ref = '[문화권] 리스본: 이베리아 문화권'
 
         # pprint({"hyp":hyp})
         self.assertEqual(hyp, ref)
@@ -42,7 +42,7 @@ class TestCultureSkill(TestCase):
                   }
 
         hyp = CultureSkill.packet2response(packet)
-        ref = """[복분자] 우대 문화권
+        ref = """[문화권] 복분자 우대 문화권
 - 북유럽"""
 
         # pprint({"hyp":hyp})

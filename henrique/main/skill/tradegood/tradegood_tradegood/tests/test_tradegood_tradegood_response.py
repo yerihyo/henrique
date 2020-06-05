@@ -15,7 +15,7 @@ class TestTradegoodTradegoodResponse(TestCase):
 
     def test_01(self):
         hyp = Rowsblock.text2norm(TradegoodTradegoodResponse.codename_lang2text("Wheat", "ko"))
-        ref = '[밀]'
+        ref = '[교역품] 밀'
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)

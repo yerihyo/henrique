@@ -15,7 +15,7 @@ class TestCulturePortResponse(TestCase):
 
     def test_01(self):
         hyp = Rowsblock.text2norm(CulturePortResponse.codename_lang2text("Lisbon", "ko"))
-        ref = "[리스본] 문화권 - 이베리아"
+        ref = "[문화권] 리스본: 이베리아 문화권"
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)

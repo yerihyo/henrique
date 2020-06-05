@@ -1,1 +1,2 @@
-[{{culture_name}}] 항구 - {{port_names|join(", ")}}
+[항구] {{culture_name}} 문화권
+- {{port_names|join(", ")}}

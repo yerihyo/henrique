@@ -34,7 +34,7 @@ class TestWhoSkill(TestCase):
         # pprint(response)
 
         self.assertGreaterEqual(len(response.splitlines()), 3)
-        self.assertEqual(response.splitlines()[0], "[iris]")
+        self.assertEqual(response.splitlines()[0], "[유저] iris")
 
     def test_02(self):
         Chatroom.chatrooms2upsert([ChatroomKakaotalk.chatroom()])
@@ -54,6 +54,6 @@ class TestWhoSkill(TestCase):
         # pprint(response)
 
         self.assertGreaterEqual(len(response.splitlines()), 3)
-        self.assertEqual(response.splitlines()[0], "[iris(아리)]")
+        self.assertEqual(response.splitlines()[0], "[유저] iris(아리)")
 
 
