@@ -29,7 +29,7 @@ class WhoSkill:
         return {ChatroomuserEntity,}
 
     @classmethod
-    def entity2response_block(cls, packet, entity, ):
+    def entity2response_block(cls, entity, packet, ):
         logger = HenriqueLogger.func_level2logger(cls.packet2response, logging.DEBUG)
 
         chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))
@@ -77,7 +77,7 @@ class WhoSkill:
         # entity_list_raw = lchain(*[c.text2entity_list(text_in, config=config) for c in entity_classes])
         #
         entity_list_chatroomuser = sorted(ChatroomuserEntity.text2entity_list(text_in), key=Entity.entity2span)
-        blocks = [cls.entity2response_block(packet, entity) for entity in entity_list_chatroomuser]
+        blocks = [cls.entity2response_block(entity, packet,) for entity in entity_list_chatroomuser]
 
         return Rowsblock.blocks2text(blocks)
 

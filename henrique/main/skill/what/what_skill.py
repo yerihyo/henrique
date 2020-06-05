@@ -45,7 +45,7 @@ class WhatSkill:
         h_type2func = {PortEntity.entity_type(): partial(PortSkill.entity_lang2response_block, lang=lang),
                        TradegoodEntity.entity_type(): partial(TradegoodSkill.entity_lang2response_block, lang=lang),
                        CultureEntity.entity_type(): partial(CultureSkill.entity_lang2response_block, lang=lang),
-                       ChatroomuserEntity.entity_type(): partial(WhoSkill.entity2response_block, packet=packet, lang=lang),
+                       ChatroomuserEntity.entity_type(): partial(WhoSkill.entity2response_block, packet=packet,),
                        }
 
         assert_equals(set(h_type2func.keys()), smap(lambda c: c.entity_type(), cls.target_entity_classes()))
