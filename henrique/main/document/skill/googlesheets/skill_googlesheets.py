@@ -58,4 +58,4 @@ class SkillGooglesheets:
                 "ko": AliasesKo.dict_codename2aliases(),
                 }
 
-WARMER.warmup()
+# WARMER.warmup()

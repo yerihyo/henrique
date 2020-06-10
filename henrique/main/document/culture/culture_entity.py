@@ -76,6 +76,6 @@ class CultureEntity:
 
 
 
-WARMER.warmup()
+# WARMER.warmup()
 
 

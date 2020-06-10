@@ -121,4 +121,4 @@ class CultureGooglesheets:
                                           for culture in culture_list])
         return h_codename2culture
 
-WARMER.warmup()
+# WARMER.warmup()

@@ -223,6 +223,4 @@ class Product:
         return cls._dict_tradegoodtype2products().get(tradegoodtype_codename) or []
 
 
-
-
-WARMER.warmup()
+# WARMER.warmup()

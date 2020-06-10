@@ -295,4 +295,4 @@ class PriceSkill:
         return [(title, set(row_header_list))
                 for title, row_header_list in norm_list]
 
-WARMER.warmup()
+# WARMER.warmup()

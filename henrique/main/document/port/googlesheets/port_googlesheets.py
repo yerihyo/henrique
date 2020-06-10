@@ -21,6 +21,7 @@ from henrique.main.singleton.google.googledoc.henrique_googleapi import Henrique
 MODULE = sys.modules[__name__]
 WARMER = Warmer(MODULE)
 
+
 class NameskoSheet:
     NAME = "names.ko"
 
@@ -180,4 +181,4 @@ class Endpoint:
         return "\n".join(report_list)
 
 
-WARMER.warmup()
+# WARMER.warmup()
