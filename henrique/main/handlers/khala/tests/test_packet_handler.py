@@ -34,7 +34,7 @@ class TestHandler(TestCase):
 - 문화권: 이베리아
 - 내성: 식료품, 가축, 조미료, 주류, 기호품, 광석, 무기류, 공예품, 총포류""", 200)
 
-        pprint(hyp)
+        # pprint(hyp)
         self.assertEqual(hyp, ref)
 
     def test_02(self):
