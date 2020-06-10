@@ -40,4 +40,4 @@ class ChatroomDoc:
         mongo_result = MongoDBTool.j_pair_list2upsert(collection, pair_list)
         return mongo_result
 
-WARMER.warmup()
+# WARMER.warmup()

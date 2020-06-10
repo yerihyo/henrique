@@ -1,2 +1,7 @@
 [교역품] {{name}}
-
+- 종류: {% if tradegoodtype %}[{{category}}] {{tradegoodtype}}{% else %}미상{% endif %}
+- 판매항: {{ ports_selling|default("없음",true) }}{%
+if cultures_preferred %}
+- 우대 문화권: {{ cultures_preferred|default("없음",true) }}
+- 우대 내성항: {{ ports_preferred_resistant|default("없음",true) }}
+{% endif %}

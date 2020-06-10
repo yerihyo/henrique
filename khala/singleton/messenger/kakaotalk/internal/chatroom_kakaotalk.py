@@ -40,4 +40,4 @@ class ChatroomKakaotalk:
                       })
         return chatroom
 
-WARMER.warmup()
+# WARMER.warmup()

@@ -48,6 +48,12 @@ class Tradegoodtype:
     @classmethod
     def key(cls, tradegoodtype):
         key = (cls.tradegoodtype2category(tradegoodtype),
-                cls.tradegoodtype2codename(tradegoodtype),
-                )
+               cls.tradegoodtype2codename(tradegoodtype),
+               )
         return key
+
+
+class Tradegoodcategory:
+    @classmethod
+    def tradegoodcategory2str(cls, category):
+        return "☆{}".format(category)

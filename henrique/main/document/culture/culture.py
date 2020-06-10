@@ -88,6 +88,11 @@ class Prefer:
         return GroupbyTool.dict_groupby_tree(cls.list_all(), [cls.prefer2tradegood])
 
     @classmethod
+    def culture2prefers(cls, codename):
+        culture = Culture.codename2culture(codename)
+        return Culture.culture2prefers(culture) or []
+
+    @classmethod
     def tradegood2prefers(cls, tradegood_codename):
         return cls._dict_tradegood2prefers().get(tradegood_codename) or []
 
@@ -104,4 +109,4 @@ class Prefer:
 #     class Field:
 #         CODENAME = "codename"
 
-WARMER.warmup()
+# WARMER.warmup()

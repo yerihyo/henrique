@@ -100,4 +100,4 @@ class Rowsblock:
         text_out = StringTool.str2strip_eachline(StringTool.str2strip(text_in))
         return text_out
 
-WARMER.warmup()
+# WARMER.warmup()

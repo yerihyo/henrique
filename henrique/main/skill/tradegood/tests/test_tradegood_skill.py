@@ -17,9 +17,11 @@ class TestTradegoodSkill(TestCase):
                   }
 
         hyp = TradegoodSkill.packet2response(packet)
-        ref = '[교역품] 육두구'
+        ref = """[교역품] 육두구
+- 종류: [☆4] 향신료
+- 판매항: 룬, 암보이나"""
 
-        # pprint({"hyp":hyp})
+        pprint({"hyp":hyp})
         self.assertEqual(hyp, ref)
 
     def test_02(self):
