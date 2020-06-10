@@ -1,8 +1,12 @@
+import logging
+
+from future.utils import lfilter, lmap
 from itertools import chain
 
 from foxylib.tools.collections.collections_tool import luniq
 from foxylib.tools.collections.iter_tool import IterTool
 from foxylib.tools.json.json_tool import JsonTool
+from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 
 
 class Tradegood:
@@ -44,5 +48,22 @@ class Tradegood:
     @classmethod
     def codename2tradegood(cls, codename):
         return cls._dict_codename2tradegood_all().get(codename)
+
+    @classmethod
+    def tradegoods2types(cls, tradegoods):
+        logger = HenriqueLogger.func_level2logger(cls.tradegoods2types, logging.DEBUG)
+        from henrique.main.document.tradegoodtype.tradegoodtype import Tradegoodtype
+
+        tgt_codename = lfilter(bool, map(Tradegood.tradegood2tradegoodtype, tradegoods))
+        if not tgt_codename:
+            return []
+
+        tgt_list = lmap(Tradegoodtype.codename2tradegoodtype, tgt_codename)
+        logger.debug({"tgt_codename": tgt_codename,
+                      "tgt_list": tgt_list,
+                      })
+        return tgt_list
+
+
 
 
