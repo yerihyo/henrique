@@ -1,0 +1,27 @@
+year:
+  ko: ["년"]
+  en: ["years", "year","yrs", "y"]
+
+month:
+  ko: ["개월"]
+  en: ["months", "month", "mons"]
+
+week:
+  ko: ["주"]
+  en: ["weeks", "week", "w"]
+
+day:
+  ko: ["일"]
+  en: ["days", "day", "d"]
+
+hour:
+  ko: ["시간"]
+  en: ["hours", "hour","hrs", "h"]
+
+minute:
+  ko: ["분"]
+  en: ["minutes", "minute", "mins", "min"]
+
+second:
+  ko: ["초"]
+  en: ["seconds", "second", "secs", "sec", "s"]
