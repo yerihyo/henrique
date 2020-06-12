@@ -1,7 +1,7 @@
 # python 3.6.9
 
 setuptools==41.0.1
-git+https://github.com/foxytrixy-com/foxylib.git@v0.4.49#egg=foxylib
+git+https://github.com/foxytrixy-com/foxylib.git@v0.4.51#egg=foxylib
 Flask==1.1.2
 connexion[swagger-ui]==2.6.0
 argparse==1.4.0

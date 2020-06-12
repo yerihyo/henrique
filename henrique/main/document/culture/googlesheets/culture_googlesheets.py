@@ -1,3 +1,4 @@
+import logging
 import sys
 
 from functools import lru_cache
@@ -14,6 +15,7 @@ from foxylib.tools.googleapi.sheets.googlesheets_tool import GooglesheetsTool
 from henrique.main.document.culture.culture import Culture, Prefer
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.singleton.google.googledoc.henrique_googleapi import HenriqueGoogleapi
+from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 
 MODULE = sys.modules[__name__]
 WARMER = Warmer(MODULE)
@@ -86,6 +88,8 @@ class CultureGooglesheets:
 
     @classmethod
     def culture_list_all(cls):
+        logger = HenriqueLogger.func_level2logger(cls.culture_list_all, logging.DEBUG)
+
         h_codename2aliases_en = NamesenSheet.dict_codename2aliases()
         h_codename2aliases_ko = NameskoSheet.dict_codename2aliases()
         h_codename2prefers = PrefersSheet.dict_codename2prefers()
@@ -108,7 +112,10 @@ class CultureGooglesheets:
                        }
             return DictTool.filter(lambda k, v: v, culture)
 
-        return lmap(codename2culture, codename_list)
+        list_all = lmap(codename2culture, codename_list)
+        # logger.debug({"list_all":list_all})
+
+        return list_all
 
     @classmethod
     @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
