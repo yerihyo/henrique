@@ -57,5 +57,5 @@ class TestHenriqueEntity(TestCase):
                 'type': 'henrique.main.document.price.trend.trend_entity.TrendEntity',
                 'value': 'rise'}]
 
-        # pprint(hyp)
+        pprint(hyp)
         self.assertEqual(hyp, ref)
