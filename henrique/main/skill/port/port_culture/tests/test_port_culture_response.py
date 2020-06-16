@@ -2,7 +2,7 @@ import logging
 from pprint import pprint
 from unittest import TestCase
 
-from henrique.main.singleton.khala.henrique_khala import HenriqueKhala
+from henrique.main.singleton.khala.henrique_khala import HenriquePacket
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.skill.port.port_culture.port_culture_response import PortCultureResponse
 

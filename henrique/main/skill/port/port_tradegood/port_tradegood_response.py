@@ -5,7 +5,7 @@ from foxylib.tools.string.string_tool import str2strip
 from henrique.main.document.port.port_entity import Port
 from henrique.main.document.tradegood.tradegood import Tradegood
 from henrique.main.singleton.jinja2.henrique_jinja2 import HenriqueJinja2
-from henrique.main.singleton.khala.henrique_khala import HenriqueKhala
+from henrique.main.singleton.khala.henrique_khala import HenriquePacket
 from henrique.main.singleton.khala.henrique_khala import Rowsblock
 
 FILE_PATH = os.path.realpath(__file__)

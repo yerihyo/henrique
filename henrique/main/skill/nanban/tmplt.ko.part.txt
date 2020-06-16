@@ -1,3 +1,2 @@
-[유저] {{name}}
-- 호칭: {{str_aliases}}
-- 뒷이야기: {% if comment %}{{comment}}{% else %}없음{% endif %}
+[남만시각] {{server}}
+{{nanban_time}}전
