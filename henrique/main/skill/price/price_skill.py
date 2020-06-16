@@ -27,7 +27,7 @@ from henrique.main.document.price.trend.trend_entity import Trend, TrendEntity
 from henrique.main.document.server.server import Server
 from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
 from henrique.main.singleton.datetime.henrique_datetime import HenriqueDatetime
-from henrique.main.singleton.khala.henrique_khala import Rowsblock
+from henrique.main.singleton.khala.henrique_khala import Rowsblock, HenriquePacket
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from khala.document.channel_user.channel_user import ChannelUser
 from khala.document.chatroom.chatroom import Chatroom
@@ -172,7 +172,7 @@ class PriceSkill:
         Param = PriceSkillParameter
 
         text = KhalaPacket.packet2text(packet)
-        server_codename = Server.packet2codename(packet)
+        server_codename = HenriquePacket.packet2server(packet)
 
         chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))
         config = {Entity.Config.Field.LOCALE: Chatroom.chatroom2locale(chatroom)}

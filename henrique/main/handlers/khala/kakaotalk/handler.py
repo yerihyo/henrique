@@ -9,7 +9,7 @@ from henrique.main.document.skill.skill_entity import HenriqueSkill
 from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
 from henrique.main.singleton.error.henrique_error import ErrorhandlerKakaotalk
 from henrique.main.singleton.flask.henrique_urlpath import HenriqueUrlpath
-from henrique.main.singleton.khala.henrique_khala import HenriqueKhala, HenriqueCommand
+from henrique.main.singleton.khala.henrique_khala import HenriquePacket, HenriqueCommand
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from khala.document.channel_user.channel_user import ChannelUser
 from khala.document.chatroom.chatroom import Chatroom
@@ -80,7 +80,7 @@ class KakaotalkUWOHandler:
                   }
         logger.debug({"packet": packet,})
 
-        text_response = HenriqueKhala.packet2response(packet)
+        text_response = HenriquePacket.packet2response(packet)
         if not text_response:
             return None
 

@@ -1,7 +1,7 @@
 import logging
 from unittest import TestCase
 
-from henrique.main.singleton.khala.henrique_khala import HenriqueKhala
+from henrique.main.singleton.khala.henrique_khala import HenriquePacket
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from khala.document.channel_user.channel_user import ChannelUser
 from khala.document.chatroom.chatroom import KakaotalkUWOChatroom, Chatroom
@@ -10,7 +10,7 @@ from khala.singleton.messenger.kakaotalk.internal.channel_user_kakaotalk import 
 from khala.singleton.messenger.kakaotalk.internal.chatroom_kakaotalk import ChatroomKakaotalk
 
 
-class TestHenriqueKhala(TestCase):
+class TestHenriquePacket(TestCase):
     @classmethod
     def setUpClass(cls):
         HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
@@ -23,7 +23,7 @@ class TestHenriqueKhala(TestCase):
                   KhalaPacket.Field.CHANNEL_USER: ChannelUserKakaotalk.sender_name2codename("iris"),
                   KhalaPacket.Field.SENDER_NAME: "iris",
                   }
-        hyp = HenriqueKhala.packet2response(packet)
+        hyp = HenriquePacket.packet2response(packet)
         ref = """[항구] 리스본
 - 문화권: 이베리아
 - 내성: 식료품, 가축, 조미료, 주류, 기호품, 광석, 무기류, 공예품, 총포류"""
@@ -43,7 +43,7 @@ class TestHenriqueKhala(TestCase):
                   'channel_user': 'discord-340205035558535169',
                   'sender_name': 'yeri',
         }
-        hyp = HenriqueKhala.packet2response(packet)
+        hyp = HenriquePacket.packet2response(packet)
         ref = """[항구] 육두구 취급항 - 룬, 암보이나"""
 
         # pprint(hyp)

@@ -13,6 +13,7 @@ from foxylib.tools.nlp.contextfree.contextfree_tool import ContextfreeTool
 from foxylib.tools.string.string_tool import str2strip, StringTool
 from henrique.main.document.henrique_entity import Entity, HenriqueEntity
 from henrique.main.document.skill.skill_entity import SkillEntity
+from henrique.main.singleton.config.henrique_config import HenriqueConfig
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.singleton.error.henrique_error import ErrorhandlerKakaotalk
 from khala.document.packet.packet import KhalaPacket
@@ -21,7 +22,7 @@ MODULE = sys.modules[__name__]
 WARMER = Warmer(MODULE)
 
 
-class HenriqueKhala:
+class HenriquePacket:
     @classmethod
     @ErrorhandlerKakaotalk.decorator_unknown_error_handler
     def packet2response(cls, packet):
@@ -34,6 +35,15 @@ class HenriqueKhala:
         skill_class = HenriqueSkill.codename2class(skill_code)
         response_raw = skill_class.packet2response(packet)
         return Rowsblock.text2norm(response_raw)
+
+    @classmethod
+    def packet2server(cls, packet):
+        chatroom_codename = KhalaPacket.packet2chatroom(packet)
+        server_codename = HenriqueConfig.chatroom2server(chatroom_codename)
+        if not server_codename:
+            raise RuntimeError("Chatroom without config: {}".format(chatroom_codename))
+
+        return server_codename
 
 
 class HenriqueCommand:

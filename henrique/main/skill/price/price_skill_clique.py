@@ -21,6 +21,7 @@ from henrique.main.document.price.rate.rate_entity import RateEntity
 from henrique.main.document.price.trend.trend_entity import TrendEntity
 from henrique.main.document.server.server import Server
 from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
+from henrique.main.singleton.khala.henrique_khala import HenriquePacket
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.skill.price.price_skill import PriceSkillParameter, Portlike
 from khala.document.packet.packet import KhalaPacket
@@ -141,7 +142,8 @@ class PriceSkillClique:
 
         port_codename = l_singleton2obj(ports)
         tradegood_codename = l_singleton2obj(tradegoods)
-        server = Server.packet2codename(packet)
+
+        server_codename = HenriquePacket.packet2server(packet)
 
         channel_user = KhalaPacket.packet2channel_user(packet)
 
@@ -151,7 +153,7 @@ class PriceSkillClique:
                MarketpriceDoc.Field.RATE: rate,
                MarketpriceDoc.Field.TREND: trend,
 
-               MarketpriceDoc.Field.SERVER: server,
+               MarketpriceDoc.Field.SERVER: server_codename,
                MarketpriceDoc.Field.CHANNEL_USER: channel_user,
                }
 
