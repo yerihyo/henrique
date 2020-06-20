@@ -18,7 +18,8 @@ from foxylib.tools.locale.locale_tool import LocaleTool
 from foxylib.tools.regex.regex_tool import RegexTool, MatchTool
 from foxylib.tools.string.string_tool import str2strip, format_str
 from henrique.main.document.culture.culture_entity import CultureEntity
-from henrique.main.document.henrique_entity import Entity
+from foxylib.tools.entity.entity_tool import FoxylibEntity
+from henrique.main.document.henrique_entity import HenriqueEntity
 from henrique.main.document.port.port import Port
 from henrique.main.document.port.port_entity import PortEntity
 from henrique.main.document.price.mongodb.marketprice_doc import MarketpriceDict, MarketpriceDoc
@@ -52,12 +53,12 @@ class Portlike:
 
     @classmethod
     def entity_portlike2port_codenames(cls, entity_portlike):
-        entity_type = Entity.entity2type(entity_portlike)
+        entity_type = FoxylibEntity.entity2type(entity_portlike)
         if entity_type == PortEntity.entity_type():
-            return [Entity.entity2value(entity_portlike)]
+            return [FoxylibEntity.entity2value(entity_portlike)]
 
         if entity_type == CultureEntity.entity_type():
-            culture_codename = Entity.entity2value(entity_portlike)
+            culture_codename = FoxylibEntity.entity2value(entity_portlike)
             port_list = Port.culture2ports(culture_codename)
             return lmap(Port.port2codename, port_list)
 
@@ -87,7 +88,7 @@ class PriceSkillParameter:
 
         @classmethod
         def entity_group2parameter_type(cls, entity_list):
-            entity_types = map(Entity.entity2type, entity_list)
+            entity_types = map(FoxylibEntity.entity2type, entity_list)
             return iter2singleton(map(cls.entity_type2parameter_type, entity_types))
 
     @classmethod
@@ -175,8 +176,8 @@ class PriceSkill:
         server_codename = HenriquePacket.packet2server(packet)
 
         chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))
-        config = {Entity.Config.Field.LOCALE: Chatroom.chatroom2locale(chatroom)}
-        entity_list = Entity.text_extractors2entity_list(text, Clique.entity_classes(), config=config)
+        config = {HenriqueEntity.Config.Field.LOCALE: Chatroom.chatroom2locale(chatroom)}
+        entity_list = HenriqueEntity.text_extractors2entity_list(text, Clique.entity_classes(), config=config)
         clique_list = Clique.text_entity_list2clique_list(text, entity_list)
         clique_list_update = lfilter(lambda x: Clique.clique2type(x) == Clique.Type.UPDATE, clique_list)
 
@@ -191,8 +192,8 @@ class PriceSkill:
         h_tradegood2indexes = Clique.cliques2dict_tradegood2indexes(clique_list)
 
         def _groupby_paramter_type():
-            entity_list_portlike = lfilter(lambda x: Entity.entity2type(x) in Portlike.entity_types(), entity_list)
-            entity_list_tradegood = lfilter(lambda x: Entity.entity2type(x) == TradegoodEntity.entity_type(), entity_list)
+            entity_list_portlike = lfilter(lambda x: FoxylibEntity.entity2type(x) in Portlike.entity_types(), entity_list)
+            entity_list_tradegood = lfilter(lambda x: FoxylibEntity.entity2type(x) == TradegoodEntity.entity_type(), entity_list)
 
             if not entity_list_portlike:
                 return Param.Type.TRADEGOOD
@@ -206,8 +207,8 @@ class PriceSkill:
             if len(h_tradegood2indexes) > 1:
                 return Param.Type.PORTLIKE
 
-            span_portlike = Entity.entity2span(entity_list_portlike[0])
-            span_tradegood = Entity.entity2span(entity_list_tradegood[0])
+            span_portlike = FoxylibEntity.entity2span(entity_list_portlike[0])
+            span_tradegood = FoxylibEntity.entity2span(entity_list_tradegood[0])
 
             if span_portlike[0] < span_tradegood[0]:
                 return Param.Type.PORTLIKE

@@ -1,2 +1,2 @@
 [남만시각] {{server}}
-{{nanban_time}}전
+{{str_timedelta}}전

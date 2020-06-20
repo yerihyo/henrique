@@ -8,13 +8,14 @@ import yaml
 from foxylib.tools.arithmetic.arithmetic_tool import ArithmeticTool
 from foxylib.tools.collections.collections_tool import zip_strict
 
-from foxylib.tools.date.date_tools import TimedeltaTool
+from foxylib.tools.datetime.date_tools import TimedeltaTool
 from functools import lru_cache
 
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.json.json_tool import JsonTool
 from foxylib.tools.json.yaml_tool import YAMLTool
+from foxylib.tools.version.version_tool import VersionTool
 from henrique.main.document.server.mongodb.server_doc import ServerDoc
 from henrique.main.document.server.server import Server
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
@@ -41,9 +42,10 @@ class NanbanTimedeltaSuffix:
         return j_yaml
 
     @classmethod
-    def str_lang2suffixed(cls, str_in, lang):
+    @VersionTool.inactive
+    def str_timedelta2relativetimedelta(cls, str_timedelta, lang):
         suffix_format = JsonTool.down(cls.yaml(), [cls.Key.SUFFIX, lang])
-        return suffix_format.format(str_in)
+        return suffix_format.format(str_timedelta)
 
     @classmethod
     def lang2str_idk(cls, lang):
@@ -71,12 +73,12 @@ class NanbanTimedelta:
         str_timedelta = " ".join([TimedeltaUnit.v_unit_lang2str(v, unit, lang)
                                   for v, unit in zip_strict(quotient_list, unit_list) if v])
 
-        return NanbanTimedeltaSuffix.str_lang2suffixed(str_timedelta, lang)
-
+        return str_timedelta
+        # return NanbanTimedeltaSuffix.str_timedelta2relativetimedelta(str_timedelta, lang)
 
     @classmethod
-    def server_lang2str(cls, server, lang):
-        server_doc = ServerDoc.codename2doc(Server.server2codename(server))
+    def server_lang2str(cls, server_codename, lang):
+        server_doc = ServerDoc.codename2doc(server_codename)
         if not server_doc:
             return NanbanTimedeltaSuffix.lang2str_idk(lang)
 
@@ -88,10 +90,10 @@ class NanbanTimedelta:
         nanban_time = nanban_time_raw + q * cls.period()
 
         if q:
-            doc = {ServerDoc.Field.CODENAME: Server.server2codename(server),
+            doc = {ServerDoc.Field.CODENAME: server_codename,
                    ServerDoc.Field.NANBAN_TIME: nanban_time,
                    }
-            ServerDoc.update([doc])
+            ServerDoc.docs2upsert([doc])
 
         td = nanban_time - utc_now
 

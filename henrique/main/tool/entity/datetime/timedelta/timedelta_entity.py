@@ -25,7 +25,8 @@ from foxylib.tools.nlp.contextfree.contextfree_tool import ContextfreeTool
 from foxylib.tools.nlp.gazetteer.gazetteer_matcher import GazetteerMatcher
 from foxylib.tools.regex.regex_tool import RegexTool
 from foxylib.tools.string.string_tool import format_str, str2lower, StringTool
-from henrique.main.document.henrique_entity import Entity, HenriqueEntity
+from foxylib.tools.entity.entity_tool import FoxylibEntity
+from henrique.main.document.henrique_entity import HenriqueEntity
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.singleton.locale.henrique_locale import HenriqueLocale
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
@@ -189,7 +190,7 @@ class TimedeltaEntity:
 
     @classmethod
     def text2entity_list(cls, text_in, config=None):
-        locale = Entity.Config.config2locale(config) or HenriqueLocale.DEFAULT
+        locale = HenriqueEntity.Config.config2locale(config) or HenriqueLocale.DEFAULT
         lang = LocaleTool.locale2lang(locale) or LocaleTool.locale2lang(HenriqueLocale.DEFAULT)
 
         return cls._text2entity_list(text_in, lang)
@@ -234,10 +235,10 @@ class TimedeltaEntity:
 
             value = ListTool.indexes2filtered(element_list, indexes)
 
-            entity = {Entity.Field.SPAN: span,
-                      Entity.Field.TEXT: StringTool.str_span2substr(text_in, span),
-                      Entity.Field.VALUE: value,
-                      Entity.Field.TYPE: cls.entity_type(),
+            entity = {FoxylibEntity.Field.SPAN: span,
+                      FoxylibEntity.Field.TEXT: StringTool.str_span2substr(text_in, span),
+                      FoxylibEntity.Field.VALUE: value,
+                      FoxylibEntity.Field.TYPE: cls.entity_type(),
                       }
             return entity
 
@@ -248,7 +249,7 @@ class TimedeltaEntity:
     def entity2relativedelta(cls, entity):
         logger = HenriqueLogger.func_level2logger(cls.entity2relativedelta, logging.DEBUG)
 
-        element_list = Entity.entity2value(entity)
+        element_list = FoxylibEntity.entity2value(entity)
         relativedelta_list = lmap(TimedeltaElement.element2relativedelta, element_list)
         logger.debug({"relativedelta_list":relativedelta_list})
 
@@ -301,7 +302,7 @@ class RelativeTimedeltaEntity:
 
     @classmethod
     def text2entity_list(cls, text_in, config=None):
-        locale = Entity.Config.config2locale(config) or HenriqueLocale.DEFAULT
+        locale = HenriqueEntity.Config.config2locale(config) or HenriqueLocale.DEFAULT
         lang = LocaleTool.locale2lang(locale) or LocaleTool.locale2lang(HenriqueLocale.DEFAULT)
 
         return cls._text2entity_list(text_in, lang)
@@ -313,7 +314,7 @@ class RelativeTimedeltaEntity:
         span_list_sign = lmap(lambda m: m.span(), match_list_sign)
 
         entity_list_timedelta = TimedeltaEntity._text2entity_list(text_in, lang)
-        span_list_timedelta = lmap(Entity.entity2span, entity_list_timedelta)
+        span_list_timedelta = lmap(FoxylibEntity.entity2span, entity_list_timedelta)
 
         span_lists = [span_list_sign, span_list_timedelta,]
         gap2is_valid = partial(StringTool.str_span2match_blank_or_nullstr, text_in)
@@ -336,10 +337,10 @@ class RelativeTimedeltaEntity:
             span = (span_sign[0],
                     span_timedelta[1],
                     )
-            entity = {Entity.Field.SPAN: span,
-                      Entity.Field.TEXT: StringTool.str_span2substr(text_in, span),
-                      Entity.Field.VALUE: value,
-                      Entity.Field.TYPE: cls.entity_type(),
+            entity = {FoxylibEntity.Field.SPAN: span,
+                      FoxylibEntity.Field.TEXT: StringTool.str_span2substr(text_in, span),
+                      FoxylibEntity.Field.VALUE: value,
+                      FoxylibEntity.Field.TYPE: cls.entity_type(),
                       }
             return entity
 
@@ -348,7 +349,7 @@ class RelativeTimedeltaEntity:
 
     @classmethod
     def entity2relativedelta(cls, entity):
-        return cls.Value.value2relativedelta(Entity.entity2value(entity))
+        return cls.Value.value2relativedelta(FoxylibEntity.entity2value(entity))
 
 
 WARMER.warmup()

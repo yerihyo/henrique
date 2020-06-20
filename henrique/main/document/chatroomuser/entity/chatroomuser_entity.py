@@ -17,7 +17,8 @@ from foxylib.tools.nlp.gazetteer.gazetteer_matcher import GazetteerMatcher
 from foxylib.tools.regex.regex_tool import RegexTool
 from foxylib.tools.string.string_tool import str2lower, StringTool
 from henrique.main.document.chatroomuser.chatroomuser import Chatroomuser
-from henrique.main.document.henrique_entity import Entity, HenriqueEntity
+from foxylib.tools.entity.entity_tool import FoxylibEntity
+from henrique.main.document.henrique_entity import HenriqueEntity
 from henrique.main.singleton.locale.henrique_locale import HenriqueLocale
 from khala.document.chatroom.chatroom import Chatroom, KakaotalkUWOChatroom
 from khala.document.packet.packet import KhalaPacket
@@ -74,7 +75,7 @@ class ChatroomuserEntity:
 
     @classmethod
     def text2entity_list(cls, text_in, config=None):
-        locale = Entity.Config.config2locale(config) or HenriqueLocale.DEFAULT
+        locale = HenriqueEntity.Config.config2locale(config) or HenriqueLocale.DEFAULT
         lang = LocaleTool.locale2lang(locale) or LocaleTool.locale2lang(HenriqueLocale.DEFAULT)
 
         return cls._text2entity_list(text_in, lang)
@@ -92,10 +93,10 @@ class ChatroomuserEntity:
         matcher_names = cls.matcher_names()
         span_value_list = list(matcher_names.text2span_value_iter(text_in),)
 
-        entity_list = [{Entity.Field.SPAN: span,
-                        Entity.Field.TEXT: StringTool.str_span2substr(text_in, span),
-                        Entity.Field.VALUE: value,
-                        Entity.Field.TYPE: cls.entity_type(),
+        entity_list = [{FoxylibEntity.Field.SPAN: span,
+                        FoxylibEntity.Field.TEXT: StringTool.str_span2substr(text_in, span),
+                        FoxylibEntity.Field.VALUE: value,
+                        FoxylibEntity.Field.TYPE: cls.entity_type(),
                         }
                        for span, value in span_value_list]
 
@@ -108,10 +109,10 @@ class ChatroomuserEntity:
 
         def match2entity(m):
             span = m.span()
-            entity = {Entity.Field.SPAN: span,
-                      Entity.Field.TEXT: StringTool.str_span2substr(text_in, span),
-                      Entity.Field.VALUE: cls.Constant.ME,
-                      Entity.Field.TYPE: cls.entity_type(),
+            entity = {FoxylibEntity.Field.SPAN: span,
+                      FoxylibEntity.Field.TEXT: StringTool.str_span2substr(text_in, span),
+                      FoxylibEntity.Field.VALUE: cls.Constant.ME,
+                      FoxylibEntity.Field.TYPE: cls.entity_type(),
                       }
             return entity
 
@@ -120,7 +121,7 @@ class ChatroomuserEntity:
 
     @classmethod
     def entity2is_me(cls, entity):
-        value = Entity.entity2value(entity)
+        value = FoxylibEntity.entity2value(entity)
         return value == cls.Constant.ME
 
     @classmethod

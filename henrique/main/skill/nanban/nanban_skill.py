@@ -7,14 +7,14 @@ import yaml
 
 from foxylib.tools.function.warmer import Warmer
 
-from foxylib.tools.date.date_tools import DatetimeTool, TimedeltaTool
+from foxylib.tools.datetime.date_tools import DatetimeTool, TimedeltaTool
 from functools import lru_cache
 
 from datetime import timedelta, datetime
 from random import choice
 
 from foxylib.tools.arithmetic.arithmetic_tool import ArithmeticTool
-from foxylib.tools.collections.collections_tool import lchain, zip_strict
+from foxylib.tools.collections.collections_tool import lchain, zip_strict, l_singleton2obj
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.json.yaml_tool import YAMLTool
 
@@ -22,7 +22,8 @@ from foxylib.tools.locale.locale_tool import LocaleTool
 from foxylib.tools.string.string_tool import str2strip
 from henrique.main.document.chatroomuser.chatroomuser import Chatroomuser
 from henrique.main.document.chatroomuser.entity.chatroomuser_entity import ChatroomuserEntity
-from henrique.main.document.henrique_entity import Entity
+from foxylib.tools.entity.entity_tool import FoxylibEntity
+from henrique.main.document.henrique_entity import HenriqueEntity
 from henrique.main.document.server.mongodb.server_doc import ServerDoc
 from henrique.main.document.server.server import Server
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
@@ -60,7 +61,7 @@ class NanbanSkill:
         locale = Chatroom.chatroom2locale(chatroom)
         lang = LocaleTool.locale2lang(locale)
 
-        v = Entity.entity2value(entity)
+        v = FoxylibEntity.entity2value(entity)
         codename = ChatroomuserEntity.value_packet2codename(v, packet)
         logger.debug({"codename": codename,
                       "entity": entity,
@@ -81,46 +82,78 @@ class NanbanSkill:
 
         return text_out
 
-
     @classmethod
-    def response_lookup(cls, server, lang):
+    def server_lang2lookup(cls, server_codename, lang):
         from henrique.main.skill.nanban.timedelta.nanban_timedelta import NanbanTimedelta
 
-
-
-        filepath = os.path.join(FILE_DIR, "tmplt.ko.part.txt")
+        server = Server.codename2server(server_codename)
+        str_timedelta = NanbanTimedelta.server_lang2str(server_codename, lang)
+        filepath = os.path.join(FILE_DIR, "tmplt.{}.part.txt".format(lang))
         data = {"server": Server.server_lang2name(server, lang),
-                "nanban_time": NanbanTimedelta.server_lang2str(server, lang),
+                "str_timedelta": str_timedelta,
                 }
         str_out = HenriqueJinja2.textfile2text(filepath, data)
         return str_out
 
     @classmethod
-    def response_update(cls, reldelta, lang):
-        pass
+    def server_datetime_lang2update(cls, server_codename, dt_this, lang):
+        # server = Server.codename2server(server_codename)
+        doc_this = {ServerDoc.Field.CODENAME: server_codename,
+                    ServerDoc.Field.NANBAN_TIME: dt_this,
+                    }
+        ServerDoc.docs2upsert([doc_this])
+        # doc_post = ServerDoc.codename2doc(server_codename)
+        # return doc_post
 
+    @classmethod
+    def server_relativedelta_lang2update(cls, server_codename, reldelta, lang):
+        # server = Server.codename2server(server_codename)
+        doc_prev = ServerDoc.codename2doc(server_codename)
+        nanban_time_prev = ServerDoc.doc2nanban_time(doc_prev)
+        nanban_time_this = nanban_time_prev + reldelta
 
+        doc_this = {ServerDoc.Field.CODENAME: server_codename,
+                    ServerDoc.Field.NANBAN_TIME: nanban_time_this,
+                    }
+        ServerDoc.docs2upsert([doc_this])
+        # doc_post = ServerDoc.codename2doc(server_codename)
+        # return doc_post
+
+    @classmethod
+    def entity_classes(cls):
+        return {RelativeTimedeltaEntity, DatetimeEntity, }
 
     @classmethod
     def packet2response(cls, packet):
         logger = HenriqueLogger.func_level2logger(cls.packet2response, logging.DEBUG)
         logger.debug({"packet":packet})
 
+        server_codename = HenriquePacket.packet2server(packet)
         chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))
         locale = Chatroom.chatroom2locale(chatroom) or HenriqueLocale.DEFAULT
         lang = LocaleTool.locale2lang(locale)
 
         text_in = KhalaPacket.packet2text(packet)
-        config = {Entity.Config.Field.LOCALE: locale}
-        entity_list = RelativeTimedeltaEntity.text2entity_list(text_in, config=config)
+        config = {HenriqueEntity.Config.Field.LOCALE: locale}
+        # entity_list = RelativeTimedeltaEntity.text2entity_list(text_in, config=config)
 
-        server = Server.codename2server(HenriquePacket.packet2server(packet))
+        entity_list = HenriqueEntity.text_extractors2entity_list(text_in, cls.entity_classes(), config=config)
 
         if not entity_list:
-            return cls.response_lookup(server, lang)
+            return cls.server_lang2lookup(server_codename, lang)
 
-        if len(entity_list) == 1:
-            entity = entity_list
+        if len(entity_list) != 1:
+            return  # Invalid request
+
+        entity = l_singleton2obj(entity_list)
+
+        if FoxylibEntity.entity2type(entity) == RelativeTimedeltaEntity.entity_type():
             reldelta = RelativeTimedeltaEntity.entity2relativedelta(entity)
-            return cls.response_update(server, reldelta, lang)
+            cls.server_relativedelta_lang2update(server_codename, reldelta, lang)
+
+        if FoxylibEntity.entity2type(entity) == DatetimeEntity.entity_type():
+            dt = DatetimeEntity.entity2datetime(entity)
+            cls.server_datetime_lang2update(server_codename, dt, lang)
+
+
 

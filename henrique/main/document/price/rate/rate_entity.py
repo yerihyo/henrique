@@ -12,7 +12,7 @@ from foxylib.tools.native.module.module_tool import ModuleTool
 from foxylib.tools.nlp.gazetteer.gazetteer_matcher import GazetteerMatcher
 from foxylib.tools.regex.regex_tool import RegexTool
 from foxylib.tools.string.string_tool import str2lower, StringTool, format_str
-from henrique.main.document.henrique_entity import HenriqueEntity, Entity
+from henrique.main.document.henrique_entity import HenriqueEntity, FoxylibEntity
 from henrique.main.singleton.locale.henrique_locale import HenriqueLocale
 
 class Metricprefix:
@@ -90,7 +90,7 @@ class RateEntity:
     @CacheTool.cache2hashable(cache=lru_cache(maxsize=HenriqueEntity.Cache.DEFAULT_SIZE),
                               f_pair=CacheTool.JSON.func_pair(), )
     def text2entity_list(cls, text_in, config=None):
-        locale = Entity.Config.config2locale(config) or HenriqueLocale.DEFAULT
+        locale = HenriqueEntity.Config.config2locale(config) or HenriqueLocale.DEFAULT
         lang = LocaleTool.locale2lang(locale) or LocaleTool.locale2lang(HenriqueLocale.DEFAULT)
 
         pattern = cls.lang2pattern(lang)
@@ -98,10 +98,10 @@ class RateEntity:
 
         def match2entity(m):
             span = m.span()
-            entity = {Entity.Field.SPAN: span,
-                      Entity.Field.TEXT: StringTool.str_span2substr(text_in, span),
-                      Entity.Field.VALUE: cls.match2value(m),
-                      Entity.Field.TYPE: cls.entity_type(),
+            entity = {FoxylibEntity.Field.SPAN: span,
+                      FoxylibEntity.Field.TEXT: StringTool.str_span2substr(text_in, span),
+                      FoxylibEntity.Field.VALUE: cls.match2value(m),
+                      FoxylibEntity.Field.TYPE: cls.entity_type(),
                       }
             return entity
 

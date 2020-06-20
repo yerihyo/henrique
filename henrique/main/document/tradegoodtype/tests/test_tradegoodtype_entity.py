@@ -2,7 +2,7 @@ import logging
 from pprint import pprint
 from unittest import TestCase
 
-from henrique.main.document.henrique_entity import Entity
+from foxylib.tools.entity.entity_tool import FoxylibEntity
 from henrique.main.document.tradegoodtype.tradegoodtype_entity import TradegoodtypeEntity
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 
@@ -13,7 +13,7 @@ class TestTradegoodtypeEntity(TestCase):
         HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
 
     def test_01(self):
-        config = {Entity.Config.Field.LOCALE: "ko-KR"}
+        config = {HenriqueEntity.Config.Field.LOCALE: "ko-KR"}
         hyp = TradegoodtypeEntity.text2entity_list("식료품 조미", config=config)
 
         ref = [{'span': (0, 3),

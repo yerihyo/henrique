@@ -74,7 +74,7 @@ class ServerDoc:
         return l_singleton2obj(cls.codenames2docs([codename]))
 
     @classmethod
-    def update(cls, docs):
+    def docs2upsert(cls, docs):
         def doc2pair(doc):
             doc_filter = DictTool.keys2filtered(doc, [cls.Field.CODENAME])
             return doc_filter, doc

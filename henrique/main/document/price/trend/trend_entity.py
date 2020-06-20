@@ -18,7 +18,8 @@ from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.nlp.gazetteer.gazetteer_matcher import GazetteerMatcher
 from foxylib.tools.regex.regex_tool import RegexTool
 from foxylib.tools.string.string_tool import str2lower, StringTool, format_str
-from henrique.main.document.henrique_entity import Entity, HenriqueEntity
+from foxylib.tools.entity.entity_tool import FoxylibEntity
+from henrique.main.document.henrique_entity import HenriqueEntity
 from henrique.main.singleton.locale.henrique_locale import HenriqueLocale
 
 
@@ -129,7 +130,7 @@ class TrendEntity:
     @CacheTool.cache2hashable(cache=lru_cache(maxsize=HenriqueEntity.Cache.DEFAULT_SIZE),
                               f_pair=CacheTool.JSON.func_pair(), )
     def text2entity_list(cls, text_in, config=None):
-        locale = Entity.Config.config2locale(config) or HenriqueLocale.DEFAULT
+        locale = HenriqueEntity.Config.config2locale(config) or HenriqueLocale.DEFAULT
         lang = LocaleTool.locale2lang(locale)
 
         pattern = cls.lang2pattern(lang)
@@ -141,10 +142,10 @@ class TrendEntity:
             text = StringTool.str_span2substr(text_in, span)
             codename = cls.lang_alias2codename(lang, text)
 
-            entity = {Entity.Field.VALUE: codename,
-                      Entity.Field.TEXT: text,
-                      Entity.Field.SPAN: span,
-                      Entity.Field.TYPE: cls.entity_type(),
+            entity = {FoxylibEntity.Field.VALUE: codename,
+                      FoxylibEntity.Field.TEXT: text,
+                      FoxylibEntity.Field.SPAN: span,
+                      FoxylibEntity.Field.TYPE: cls.entity_type(),
                       }
             return entity
 

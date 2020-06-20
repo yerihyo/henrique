@@ -1,20 +1,19 @@
 import logging
-from pprint import pprint
 from unittest import TestCase
 
 from dateutil import relativedelta
+
 from foxylib.tools.collections.collections_tool import l_singleton2obj
+from henrique.main.document.henrique_entity import HenriqueEntity
+from henrique.main.tool.entity.datetime.timedelta.timedelta_entity import RelativeTimedeltaEntity
 
-from henrique.main.document.henrique_entity import Entity
-from henrique.main.tool.entity.time.timedelta.timedelta_entity import RelativeTimedeltaEntity
 
-
-class TestRelativeTimedeltaEntity(TestCase):
+class TestDatetimeEntity(TestCase):
     def setUp(self):
         logging.basicConfig(level=logging.DEBUG)
 
     def test_01(self):
-        config = {Entity.Config.Field.LOCALE:"ko"}
+        config = {HenriqueEntity.Config.Field.LOCALE:"ko"}
         entity_list = RelativeTimedeltaEntity.text2entity_list("+3일", config=config)
         ref = [{'span': (0, 3),
                 'text': '+3일',
@@ -34,7 +33,7 @@ class TestRelativeTimedeltaEntity(TestCase):
                          )
 
     def test_02(self):
-        config = {Entity.Config.Field.LOCALE: "ko"}
+        config = {HenriqueEntity.Config.Field.LOCALE: "ko"}
         entity_list = RelativeTimedeltaEntity.text2entity_list("+20 초", config=config)
         # pprint(entity_list)
 
@@ -43,7 +42,7 @@ class TestRelativeTimedeltaEntity(TestCase):
         self.assertEqual(hyp, ref)
 
     def test_03(self):
-        config = {Entity.Config.Field.LOCALE: "ko"}
+        config = {HenriqueEntity.Config.Field.LOCALE: "ko"}
         entity_list = RelativeTimedeltaEntity.text2entity_list("-1개월 6일", config=config)
         # pprint(entity_list)
 
@@ -67,7 +66,7 @@ class TestRelativeTimedeltaEntity(TestCase):
         self.assertEqual(reldelta, reldelta_ref)
 
     def test_04(self):
-        config = {Entity.Config.Field.LOCALE: "ko"}
+        config = {HenriqueEntity.Config.Field.LOCALE: "ko"}
         entity_list = RelativeTimedeltaEntity.text2entity_list("-10 mins", config=config)
         # pprint(entity_list)
 
@@ -76,7 +75,7 @@ class TestRelativeTimedeltaEntity(TestCase):
         self.assertEqual(hyp, ref)
 
     def test_05(self):
-        config = {Entity.Config.Field.LOCALE: "en"}
+        config = {HenriqueEntity.Config.Field.LOCALE: "en"}
         entity_list = RelativeTimedeltaEntity.text2entity_list("-10 mins", config=config)
         # pprint(entity_list)
 
@@ -85,6 +84,6 @@ class TestRelativeTimedeltaEntity(TestCase):
         self.assertEqual(hyp, ref)
 
     def test_06(self):
-        config = {Entity.Config.Field.LOCALE: "en"}
+        config = {HenriqueEntity.Config.Field.LOCALE: "en"}
         entity_list = RelativeTimedeltaEntity.text2entity_list("-10분", config=config)
         self.assertFalse(entity_list,)

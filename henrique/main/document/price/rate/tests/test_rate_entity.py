@@ -2,7 +2,8 @@ import logging
 from pprint import pprint
 from unittest import TestCase
 
-from henrique.main.document.henrique_entity import Entity
+from foxylib.tools.entity.entity_tool import FoxylibEntity
+from henrique.main.document.henrique_entity import HenriqueEntity
 from henrique.main.document.price.rate.rate_entity import RateEntity
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 
@@ -15,7 +16,7 @@ class TestRateEntity(TestCase):
     def test_01(self):
         logger = HenriqueLogger.func_level2logger(self.test_01, logging.DEBUG)
 
-        config = {Entity.Config.Field.LOCALE: "ko-KR"}
+        config = {HenriqueEntity.Config.Field.LOCALE: "ko-KR"}
         hyp = RateEntity.text2entity_list("120ㅅ", config=config)
         ref = [{'span': (0, 3),
                 'text': '120',
@@ -28,7 +29,7 @@ class TestRateEntity(TestCase):
     def test_02(self):
         logger = HenriqueLogger.func_level2logger(self.test_02, logging.DEBUG)
 
-        config = {Entity.Config.Field.LOCALE: "ko-KR"}
+        config = {HenriqueEntity.Config.Field.LOCALE: "ko-KR"}
         hyp = RateEntity.text2entity_list("200", config=config)
         ref = [{'span': (0, 3),
                 'text': '200',
@@ -42,7 +43,7 @@ class TestRateEntity(TestCase):
     def test_03(self):
         logger = HenriqueLogger.func_level2logger(self.test_03, logging.DEBUG)
 
-        config = {Entity.Config.Field.LOCALE: "en-US"}
+        config = {HenriqueEntity.Config.Field.LOCALE: "en-US"}
         hyp = RateEntity.text2entity_list("95하", config=config)
         ref = []
 
@@ -53,7 +54,7 @@ class TestRateEntity(TestCase):
     def test_04(self):
         logger = HenriqueLogger.func_level2logger(self.test_03, logging.DEBUG)
 
-        config = {Entity.Config.Field.LOCALE: "ko-KR"}
+        config = {HenriqueEntity.Config.Field.LOCALE: "ko-KR"}
         hyp = RateEntity.text2entity_list("95down", config=config)
         ref = [{'span': (0, 2),
                 'text': '95',

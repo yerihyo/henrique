@@ -5,6 +5,7 @@ from functools import lru_cache
 
 from foxylib.tools.cache.cache_tool import CacheTool
 from foxylib.tools.collections.iter_tool import iter2singleton
+from foxylib.tools.entity.entity_tool import FoxylibEntity
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.json.json_tool import JsonTool
@@ -12,7 +13,7 @@ from foxylib.tools.locale.locale_tool import LocaleTool
 from foxylib.tools.native.clazz.class_tool import ClassTool
 from foxylib.tools.nlp.gazetteer.gazetteer_matcher import GazetteerMatcher
 from foxylib.tools.string.string_tool import StringTool, str2lower
-from henrique.main.document.henrique_entity import HenriqueEntity, Entity
+from henrique.main.document.henrique_entity import HenriqueEntity
 from henrique.main.singleton.locale.henrique_locale import HenriqueLocale
 
 FILE_PATH = os.path.realpath(__file__)
@@ -69,7 +70,7 @@ class SkillEntity:
 
     @classmethod
     def entity2skill_codename(cls, entity):
-        return Entity.entity2value(entity)
+        return FoxylibEntity.entity2value(entity)
 
     @classmethod
     def text2norm(cls, text): return str2lower(text)
@@ -113,14 +114,14 @@ class SkillEntity:
     @CacheTool.cache2hashable(cache=lru_cache(maxsize=HenriqueEntity.Cache.DEFAULT_SIZE),
                               f_pair=CacheTool.JSON.func_pair(), )
     def text2entity_list(cls, text_in, config=None):
-        lang = LocaleTool.locale2lang(Entity.Config.config2locale(config))
+        lang = LocaleTool.locale2lang(HenriqueEntity.Config.config2locale(config))
 
         span_value_list = list(cls.lang2matcher(lang).text2span_value_iter(text_in))
 
-        entity_list = [{Entity.Field.SPAN: span,
-                        Entity.Field.TEXT: StringTool.str_span2substr(text_in, span),
-                        Entity.Field.VALUE: value,
-                        Entity.Field.TYPE: cls.entity_type(),
+        entity_list = [{FoxylibEntity.Field.SPAN: span,
+                        FoxylibEntity.Field.TEXT: StringTool.str_span2substr(text_in, span),
+                        FoxylibEntity.Field.VALUE: value,
+                        FoxylibEntity.Field.TYPE: cls.entity_type(),
                         }
                        for span, value in span_value_list]
         return entity_list
