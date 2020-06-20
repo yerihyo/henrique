@@ -4,7 +4,7 @@ import sys
 
 from datetime import time, timedelta
 
-from foxylib.tools.datetime.date_tools import TimeTool
+from foxylib.tools.datetime.datetime_tool import TimeTool
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from functools import lru_cache

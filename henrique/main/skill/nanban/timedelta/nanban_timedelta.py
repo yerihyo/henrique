@@ -8,7 +8,7 @@ import yaml
 from foxylib.tools.arithmetic.arithmetic_tool import ArithmeticTool
 from foxylib.tools.collections.collections_tool import zip_strict
 
-from foxylib.tools.datetime.date_tools import TimedeltaTool
+from foxylib.tools.datetime.datetime_tool import TimedeltaTool
 from functools import lru_cache
 
 from foxylib.tools.function.function_tool import FunctionTool
