@@ -27,7 +27,7 @@ class TestHandler(TestCase):
             KhalaPacket.Field.SENDER_NAME: "iris",
         }
 
-        pprint(packet)
+        # pprint(packet)
 
         hyp = PacketHandler.post(packet)
         ref = ("""[항구] 리스본

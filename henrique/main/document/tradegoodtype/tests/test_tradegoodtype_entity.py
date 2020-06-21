@@ -3,6 +3,7 @@ from pprint import pprint
 from unittest import TestCase
 
 from foxylib.tools.entity.entity_tool import FoxylibEntity
+from henrique.main.document.henrique_entity import HenriqueEntity
 from henrique.main.document.tradegoodtype.tradegoodtype_entity import TradegoodtypeEntity
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 

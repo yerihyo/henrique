@@ -25,7 +25,7 @@ class HenriqueEntity:
 
         class Field:
             LOCALE = "locale"
-            STEP = "step"
+            # STEP = "step"
 
         @classmethod
         def config2locale(cls, j):
