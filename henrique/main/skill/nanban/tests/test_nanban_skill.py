@@ -1,15 +1,10 @@
 import logging
-from pprint import pprint
 from unittest import TestCase
 
 from henrique.main.document.server.server import Server
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.skill.nanban.nanban_skill import NanbanSkill
-from henrique.main.skill.who.who_skill import WhoSkill
-from khala.document.channel_user.channel_user import ChannelUser
-from khala.document.chatroom.chatroom import KakaotalkUWOChatroom, Chatroom
-from khala.document.packet.packet import KhalaPacket
-from khala.singleton.messenger.kakaotalk.internal.channel_user_kakaotalk import ChannelUserKakaotalk
+from khala.document.chatroom.chatroom import Chatroom
 from khala.singleton.messenger.kakaotalk.internal.chatroom_kakaotalk import ChatroomKakaotalk
 
 
