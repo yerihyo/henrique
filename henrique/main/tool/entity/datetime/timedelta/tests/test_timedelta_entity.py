@@ -6,7 +6,7 @@ from dateutil import relativedelta
 from foxylib.tools.collections.collections_tool import l_singleton2obj
 
 from foxylib.tools.entity.entity_tool import FoxylibEntity
-from henrique.main.tool.entity.time.timedelta.timedelta_entity import RelativeTimedeltaEntity
+from henrique.main.tool.entity.datetime.timedelta.timedelta_entity import RelativeTimedeltaEntity
 
 from henrique.main.document.henrique_entity import HenriqueEntity
 
@@ -20,11 +20,11 @@ class TestRelativeTimedeltaEntity(TestCase):
         entity_list = RelativeTimedeltaEntity.text2entity_list("+3일", config=config)
         ref = [{'span': (0, 3),
                 'text': '+3일',
-                'type': 'henrique.main.tool.entity.time.timedelta.timedelta_entity.RelativeTimedeltaEntity',
+                'type': 'henrique.main.tool.entity.datetime.timedelta.timedelta_entity.RelativeTimedeltaEntity',
                 'value': {'sign': '+',
                           'timedelta': {'span': (1, 3),
                                         'text': '3일',
-                                        'type': 'henrique.main.tool.entity.time.timedelta.timedelta_entity.TimedeltaEntity',
+                                        'type': 'henrique.main.tool.entity.datetime.timedelta.timedelta_entity.TimedeltaEntity',
                                         'value': [{'quantity': 3,
                                                    'span': (1, 3),
                                                    'unit': 'day'}]}}}]
@@ -51,11 +51,11 @@ class TestRelativeTimedeltaEntity(TestCase):
 
         ref = [{'span': (0, 7),
                 'text': '-1개월 6일',
-                'type': 'henrique.main.tool.entity.time.timedelta.timedelta_entity.RelativeTimedeltaEntity',
+                'type': 'henrique.main.tool.entity.datetime.timedelta.timedelta_entity.RelativeTimedeltaEntity',
                 'value': {'sign': '-',
                           'timedelta': {'span': (1, 7),
                                         'text': '1개월 6일',
-                                        'type': 'henrique.main.tool.entity.time.timedelta.timedelta_entity.TimedeltaEntity',
+                                        'type': 'henrique.main.tool.entity.datetime.timedelta.timedelta_entity.TimedeltaEntity',
                                         'value': [{'quantity': 1,
                                                    'span': (1, 4),
                                                    'unit': 'month'},

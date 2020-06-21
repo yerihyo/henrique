@@ -76,8 +76,8 @@ class HenriqueWarmer:
         import khala.document.channel_user.channel_user
         yield khala.document.channel_user.channel_user.WARMER
 
-        import henrique.main.tool.entity.time.timedelta.timedelta_entity
-        yield henrique.main.tool.entity.time.timedelta.timedelta_entity.WARMER
+        import henrique.main.tool.entity.datetime.timedelta.timedelta_entity
+        yield henrique.main.tool.entity.datetime.timedelta.timedelta_entity.WARMER
 
         import henrique.main.skill.nanban.timedelta.nanban_timedelta
         yield henrique.main.skill.nanban.timedelta.nanban_timedelta.WARMER

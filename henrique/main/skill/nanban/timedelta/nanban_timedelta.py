@@ -19,7 +19,7 @@ from foxylib.tools.version.version_tool import VersionTool
 from henrique.main.document.server.mongodb.server_doc import ServerDoc
 from henrique.main.document.server.server import Server
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
-from henrique.main.tool.entity.time.timedelta.timedelta_entity import TimedeltaUnit
+from henrique.main.tool.entity.datetime.timedelta.timedelta_entity import TimedeltaUnit
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
