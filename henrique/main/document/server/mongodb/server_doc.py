@@ -100,7 +100,7 @@ class ServerDoc:
 
         pair_list = lmap(doc2pair, docs)
         value_args_kwargs_list = [(doc, [[cls.doc2codename(doc)]], {}) for doc in docs]
-        with CacheManager.update_cache(cls.codenames2docs, value_args_kwargs_list):
+        with CacheManager.update_cache_each(cls.codenames2docs, value_args_kwargs_list):
             collection = ServerCollection.collection()
             mongo_result = MongoDBTool.j_pair_list2upsert(collection, pair_list)
 
@@ -110,5 +110,9 @@ class ServerDoc:
 
         return mongo_result
 
+    @classmethod
+    def codenames2delete(cls, codenames):
+        for codename in codenames:
+            CacheManager.delete_key(cls.codenames2docs, codename)
 
-
+        ServerCollection.collection().delete_many({ServerDoc.Field.CODENAME: {"$in": codenames}})

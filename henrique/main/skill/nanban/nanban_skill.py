@@ -210,7 +210,6 @@ class NanbanSkill:
         logger = HenriqueLogger.func_level2logger(cls.packet2response, logging.DEBUG)
         logger.debug({"packet":packet})
 
-
         server_codename = HenriquePacket.packet2server(packet)
         chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))
         locale = Chatroom.chatroom2locale(chatroom) or HenriqueLocale.DEFAULT

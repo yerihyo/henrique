@@ -9,7 +9,7 @@ from unittest import TestCase
 from foxylib.tools.collections.collections_tool import ListTool
 from foxylib.tools.datetime.datetime_tool import DatetimeTool
 from foxylib.tools.span.span_tool import SpanTool
-from henrique.main.document.server.mongodb.server_doc import ServerCollection
+from henrique.main.document.server.mongodb.server_doc import ServerCollection, ServerDoc
 from henrique.main.document.server.server import Server
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.singleton.error.command_error import HenriqueCommandError
@@ -188,10 +188,8 @@ class TestNanbanSkill(TestCase):
         self.assertEqual(hyp, ref)
 
     def test_05(self):
-        cls = self.__class__
-
         Chatroom.chatrooms2upsert([ChatroomKakaotalk.chatroom()])
-        ServerCollection.collection().delete_many({})
+        ServerDoc.codenames2delete([Server.Codename.MARIS])
 
         sender_name = "iris"
         channel_user_codename = ChannelUserKakaotalk.sender_name2codename(sender_name)
