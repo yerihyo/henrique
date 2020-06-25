@@ -1,4 +1,5 @@
 import logging
+import os
 from pprint import pprint
 
 import pytz
@@ -8,7 +9,11 @@ from unittest import TestCase
 from foxylib.tools.collections.collections_tool import ListTool
 from foxylib.tools.datetime.datetime_tool import DatetimeTool
 from foxylib.tools.span.span_tool import SpanTool
+from henrique.main.document.server.mongodb.server_doc import ServerCollection
 from henrique.main.document.server.server import Server
+from henrique.main.singleton.env.henrique_env import HenriqueEnv
+from henrique.main.singleton.error.command_error import HenriqueCommandError
+from henrique.main.singleton.khala.henrique_khala import HenriquePacket
 from henrique.main.singleton.locale.henrique_locale import HenriqueLocale
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.skill.nanban.nanban_skill import NanbanSkill
@@ -31,12 +36,17 @@ class TestNanbanSkill(TestCase):
         return "\n".join([l[0], l[2]])
 
     def test_01(self):
-        cls = self.__class__
-
         Chatroom.chatrooms2upsert([ChatroomKakaotalk.chatroom()])
 
         now_utc = datetime.now(pytz.utc)
-        NanbanSkill.server_datetime_lang2update(Server.Codename.MARIS, now_utc, "ko")
+        sender_name = "iris"
+        channel_user_codename = ChannelUserKakaotalk.sender_name2codename(sender_name)
+        packet = {KhalaPacket.Field.TEXT: "?남만 지금",
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
+                  KhalaPacket.Field.CHANNEL_USER: channel_user_codename,
+                  KhalaPacket.Field.SENDER_NAME: sender_name,
+                  }
+        NanbanSkill.nanban_datetime2upsert_mongo(packet, now_utc,)
 
         response = NanbanSkill.server_lang2lookup(Server.Codename.MARIS, "ko")
         hyp = "\n".join(ListTool.indexes2filtered(response.splitlines(), [0, 2]))
@@ -101,6 +111,54 @@ class TestNanbanSkill(TestCase):
         # self.assertEqual(hyp, ref)
 
     def test_03(self):
+        logger = HenriqueLogger.func_level2logger(self.test_02, logging.DEBUG)
+
+        Chatroom.chatrooms2upsert([ChatroomKakaotalk.chatroom()])
+
+        sender_name = "iris"
+        channel_user_codename = ChannelUserKakaotalk.sender_name2codename(sender_name)
+        ChannelUser.channel_users2upsert([ChannelUserKakaotalk.sender_name2channel_user(sender_name)])
+
+        now_seoul = datetime.now(tz=pytz.timezone(HenriqueLocale.lang2tzdb("ko")))
+        dt_target = now_seoul - timedelta(seconds=3 * 60)
+        text = "?남만 {}".format(dt_target.strftime("%I:%M %p").lstrip("0"))
+        logger.debug({"text": text, "now_seoul": now_seoul, })
+
+        packet = {KhalaPacket.Field.TEXT: text,
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
+                  KhalaPacket.Field.CHANNEL_USER: channel_user_codename,
+                  KhalaPacket.Field.SENDER_NAME: sender_name,
+                  }
+        response = NanbanSkill.packet2response(packet)
+
+        # pprint(text)
+        # pprint(response)
+
+        response_lines = response.splitlines()
+
+        span = (len("다음 남만 시각: "),
+                len("다음 남만 시각: 3:58:00 PM (KST) "),
+                )
+
+        hyp = SpanTool.list_span2sublist(response_lines[2], span).strip()
+        dt_nanban = dt_target + NanbanTimedelta.period()
+        ref = dt_nanban.strftime("%I:%M:00 %p (KST)").lstrip("0")
+        self.assertEqual(hyp, ref, )
+
+        # hyp = response.splitlines()[0]
+
+        # utc_nanban = now_utc + NanbanTimedelta.period()
+        # tz = pytz.timezone("Asia/Seoul")
+
+        # now_tz = DatetimeTool.astimezone(now_utc, tz)
+        # now_nanban = DatetimeTool.astimezone(utc_nanban, tz)
+
+        # ref = """[남만시각] 글로벌서버"""
+        #
+        # pprint(response)
+        # self.assertEqual(hyp, ref)
+
+    def test_04(self):
         cls = self.__class__
 
         Chatroom.chatrooms2upsert([ChatroomKakaotalk.chatroom()])
@@ -126,8 +184,36 @@ class TestNanbanSkill(TestCase):
 
         ref = """[남만시각] 글로벌서버"""
 
-        pprint(response)
+        # pprint(response)
         self.assertEqual(hyp, ref)
 
+    def test_05(self):
+        cls = self.__class__
+
+        Chatroom.chatrooms2upsert([ChatroomKakaotalk.chatroom()])
+        ServerCollection.collection().delete_many({})
+
+        sender_name = "iris"
+        channel_user_codename = ChannelUserKakaotalk.sender_name2codename(sender_name)
+        ChannelUser.channel_users2upsert([ChannelUserKakaotalk.sender_name2channel_user(sender_name)])
+
+        # now_utc = datetime.now(pytz.utc)
+        packet = {KhalaPacket.Field.TEXT: "?남만 +2분",
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
+                  KhalaPacket.Field.CHANNEL_USER: channel_user_codename,
+                  KhalaPacket.Field.SENDER_NAME: sender_name,
+                  }
+
+        with self.assertRaises(HenriqueCommandError) as context:
+            NanbanSkill.packet2response(packet)
+
+            self.assertIn("""[남만시각] 이전에 설정된 남만 시각이 없어서 +/-로 남만 시각을 조정할 수 없어요.""", context.exception)
+
+        # os.environ[HenriqueEnv.Key.DIE_ON_ERROR] = "n"
+        hyp = HenriquePacket.packet2response(packet)
+        ref = "[남만시각] 이전에 설정된 남만 시각이 없어서 +/-로 남만 시각을 조정할 수 없어요."
+
+        # pprint(hyp)
+        self.assertEqual(hyp, ref)
 
 

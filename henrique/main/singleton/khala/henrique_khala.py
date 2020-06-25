@@ -25,7 +25,7 @@ WARMER = Warmer(MODULE)
 
 class HenriquePacket:
     @classmethod
-    @ErrorhandlerKakaotalk.decorator_unknown_error_handler
+    @ErrorhandlerKakaotalk.Decorator.error_handler
     def packet2response(cls, packet):
         from henrique.main.document.skill.skill_entity import HenriqueSkill
 

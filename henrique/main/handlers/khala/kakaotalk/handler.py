@@ -55,7 +55,7 @@ class KakaotalkUWOHandler:
         return False
 
     @classmethod
-    @ErrorhandlerKakaotalk.decorator_unknown_error_handler
+    @ErrorhandlerKakaotalk.Decorator.error_handler
     def get(cls):
         logger = HenriqueLogger.func_level2logger(cls.get, logging.DEBUG)
 

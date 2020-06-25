@@ -29,26 +29,41 @@ class ServerDocCache:
         MAXSIZE = 20
 
 
+class ServerNanban:
+    class Field:
+        DATETIME = "datetime"
+        COMMAND_IN = "command_in"
+
+    @classmethod
+    def nanban2datetime(cls, nanban):
+        return nanban[cls.Field.DATETIME]
+
+    @classmethod
+    def nanban2command_in(cls, nanban):
+        return nanban.get(cls.Field.COMMAND_IN)
+
+
 class ServerDoc:
     class Constant:
         SHELF_LIFE = timedelta(hours=4)
 
     class Field:
         CODENAME = "codename"
-        DATETIME_NANBAN = "datetime_nanban"
+        NANBAN = "nanban"
+        # COMMAND_TEXT = "command_text"
         # UPDATED_AT = "updated_at"
 
         @classmethod
         def set(cls):
-            return {cls.CODENAME, cls.DATETIME_NANBAN,}
+            return {cls.CODENAME, cls.NANBAN,}
 
     @classmethod
     def doc2codename(cls, doc):
         return doc[cls.Field.CODENAME]
 
     @classmethod
-    def doc2datetime_nanban(cls, doc):
-        return doc[cls.Field.DATETIME_NANBAN]
+    def doc2nanban(cls, doc):
+        return doc[cls.Field.NANBAN]
 
     @classmethod
     def dict_codename2doc(cls, codenames):
@@ -56,7 +71,6 @@ class ServerDoc:
         mongo_query = {cls.Field.CODENAME: {"$in": codenames},
                        }
         cursor = collection.find(mongo_query)
-
 
         h_codename2doc = merge_dicts([{cls.doc2codename(doc): doc}
                                       for doc in map(MongoDBTool.bson2json, cursor)],

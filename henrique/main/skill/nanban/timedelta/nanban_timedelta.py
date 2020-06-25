@@ -10,7 +10,7 @@ from foxylib.tools.native.native_tool import is_not_none
 from future.utils import lmap, lfilter
 
 from foxylib.tools.arithmetic.arithmetic_tool import ArithmeticTool
-from foxylib.tools.collections.collections_tool import zip_strict
+from foxylib.tools.collections.collections_tool import zip_strict, DictTool
 
 from foxylib.tools.datetime.datetime_tool import TimedeltaTool, DatetimeTool
 from functools import lru_cache
@@ -20,7 +20,7 @@ from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.json.json_tool import JsonTool
 from foxylib.tools.json.yaml_tool import YAMLTool
 from foxylib.tools.version.version_tool import VersionTool
-from henrique.main.document.server.mongodb.server_doc import ServerDoc
+from henrique.main.document.server.mongodb.server_doc import ServerDoc, ServerNanban
 from henrique.main.document.server.server import Server
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.tool.entity.datetime.timedelta.timedelta_entity import TimedeltaEntityUnit
@@ -105,18 +105,24 @@ class NanbanTimedelta:
         if not server_doc:
             return None
 
-        dt_nanban_raw = ServerDoc.doc2datetime_nanban(server_doc) if server_doc else None
+        nanban_prev = ServerDoc.doc2nanban(server_doc)
+        nanban_datetime_prev = ServerNanban.nanban2datetime(nanban_prev)
+        # dt_nanban_raw
         # utc_now = datetime.now(tz=pytz.utc)
 
-        dt_nanban = DatetimeTool.from_pivot_period2next(dt_nanban_raw, dt_pivot, NanbanTimedelta.period())
+        nanban_datetime_this = DatetimeTool.from_pivot_period2next(nanban_datetime_prev, dt_pivot, NanbanTimedelta.period())
 
-        if dt_nanban != dt_nanban_raw:
+        if nanban_datetime_this != nanban_datetime_prev:
+            nanban = DictTool.filter(lambda k, v: v is not None,
+                                     {ServerNanban.Field.DATETIME: nanban_datetime_this,
+                                      ServerNanban.Field.COMMAND_IN: ServerNanban.nanban2command_in(nanban_prev),
+                                      })
             doc = {ServerDoc.Field.CODENAME: server_codename,
-                   ServerDoc.Field.DATETIME_NANBAN: dt_nanban,
+                   ServerDoc.Field.NANBAN: nanban,
                    }
             ServerDoc.docs2upsert([doc])
 
-        return dt_nanban
+        return nanban_datetime_this
 
 
 

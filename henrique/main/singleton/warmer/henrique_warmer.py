@@ -82,6 +82,9 @@ class HenriqueWarmer:
         import henrique.main.skill.nanban.timedelta.nanban_timedelta
         yield henrique.main.skill.nanban.timedelta.nanban_timedelta.WARMER
 
+        import henrique.main.skill.nanban.nanban_skill
+        yield henrique.main.skill.nanban.nanban_skill.WARMER
+
         logger.debug("END")
 
 

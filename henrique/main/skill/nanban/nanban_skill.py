@@ -1,6 +1,9 @@
 import logging
 import os
-from functools import partial
+import sys
+
+from foxylib.tools.function.warmer import Warmer
+from functools import partial, lru_cache
 
 from datetime import datetime, timedelta
 from random import choice
@@ -14,13 +17,18 @@ from foxylib.tools.datetime.pytz_tool import PytzTool
 from foxylib.tools.datetime.timezone.timezone_tool import TimezoneTool
 from foxylib.tools.entity.calendar.time.time_entity import TimeEntity
 from foxylib.tools.entity.entity_tool import FoxylibEntity
+from foxylib.tools.function.function_tool import FunctionTool
+from foxylib.tools.json.json_tool import JsonTool
+from foxylib.tools.json.yaml_tool import YAMLTool
 from foxylib.tools.locale.locale_tool import LocaleTool
 from foxylib.tools.string.string_tool import str2strip
 from henrique.main.document.chatroomuser.chatroomuser import Chatroomuser
 from henrique.main.document.chatroomuser.entity.chatroomuser_entity import ChatroomuserEntity
 from henrique.main.document.henrique_entity import HenriqueEntity
-from henrique.main.document.server.mongodb.server_doc import ServerDoc
+from henrique.main.document.server.mongodb.server_doc import ServerDoc, ServerNanban
 from henrique.main.document.server.server import Server
+from henrique.main.singleton.env.henrique_env import HenriqueEnv
+from henrique.main.singleton.error.command_error import HenriqueCommandError
 from henrique.main.singleton.jinja2.henrique_jinja2 import HenriqueJinja2
 from henrique.main.singleton.khala.henrique_khala import HenriquePacket
 from henrique.main.singleton.locale.henrique_locale import HenriqueLocale
@@ -33,6 +41,26 @@ from khala.singleton.messenger.kakaotalk.internal.chatroom_kakaotalk import Chat
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
+
+MODULE = sys.modules[__name__]
+WARMER = Warmer(MODULE)
+
+
+class NanbanSkillError:
+    class Codename:
+        NO_PREV_NANBAN_ERROR = "NO_PREV_NANBAN_ERROR"
+
+    @classmethod
+    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
+    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    def yaml(cls):
+        filepath = os.path.join(FILE_DIR, "error.yaml")
+        j = YAMLTool.filepath2j(filepath)
+        return j
+
+    @classmethod
+    def codename_lang2text(cls, codename, lang):
+        return JsonTool.down(cls.yaml(), [codename, lang])
 
 
 class NanbanSkill:
@@ -120,32 +148,54 @@ class NanbanSkill:
         return datetime_nanban2str_out(datetime_nanban)
 
     @classmethod
-    def server_datetime_lang2update(cls, server_codename, datetime_in, lang):
-        logger = HenriqueLogger.func_level2logger(cls.server_datetime_lang2update, logging.DEBUG)
+    def relativedelta2nanban_datetime(cls, server_codename, reldelta):
+        doc_prev = ServerDoc.codename2doc(server_codename)
+        if not doc_prev:
+            return None
+
+        nanban_prev = ServerDoc.doc2nanban(doc_prev)
+        if not nanban_prev:
+            return None
+
+        nanban_datetime_prev = ServerNanban.nanban2datetime(nanban_prev)
+        nanban_datetime_new = nanban_datetime_prev + reldelta
+        return nanban_datetime_new
+
+    @classmethod
+    def nanban_datetime2upsert_mongo(cls, packet, datetime_nanban,):
+        logger = HenriqueLogger.func_level2logger(cls.nanban_datetime2upsert_mongo, logging.DEBUG)
+
+        server_codename = HenriquePacket.packet2server(packet)
+        text_in = KhalaPacket.packet2text(packet)
+
         # server = Server.codename2server(server_codename)
-        dt_utc = DatetimeTool.astimezone(datetime_in, pytz.utc)
+        dt_utc = DatetimeTool.astimezone(datetime_nanban, pytz.utc)
         # raise Exception({"datetime_in":datetime_in,"dt_utc":dt_utc})
+
+        nanban = {ServerNanban.Field.DATETIME: dt_utc,
+                  ServerNanban.Field.COMMAND_IN: text_in,
+                  }
         doc_this = {ServerDoc.Field.CODENAME: server_codename,
-                    ServerDoc.Field.DATETIME_NANBAN: dt_utc,
+                    ServerDoc.Field.NANBAN: nanban,
                     }
-        logger.debug({"datetime_in":datetime_in,
+        logger.debug({"datetime_nanban":datetime_nanban,
                       "doc_this":doc_this,
                       })
         ServerDoc.docs2upsert([doc_this])
         # doc_post = ServerDoc.codename2doc(server_codename)
         # return doc_post
 
-    @classmethod
-    def server_relativedelta_lang2update(cls, server_codename, reldelta, lang):
-        # server = Server.codename2server(server_codename)
-        doc_prev = ServerDoc.codename2doc(server_codename)
-        dt_nanban_prev = ServerDoc.doc2datetime_nanban(doc_prev)
-        dt_nanban_this = dt_nanban_prev + reldelta
-
-        doc_this = {ServerDoc.Field.CODENAME: server_codename,
-                    ServerDoc.Field.DATETIME_NANBAN: dt_nanban_this,
-                    }
-        ServerDoc.docs2upsert([doc_this])
+    # @classmethod
+    # def server_relativedelta_lang2update(cls, server_codename, reldelta, lang):
+    #     # server = Server.codename2server(server_codename)
+    #     doc_prev = ServerDoc.codename2doc(server_codename)
+    #     dt_nanban_prev = ServerDoc.doc2datetime_nanban(doc_prev)
+    #     dt_nanban_this = dt_nanban_prev + reldelta
+    #
+    #     doc_this = {ServerDoc.Field.CODENAME: server_codename,
+    #                 ServerDoc.Field.DATETIME_NANBAN: dt_nanban_this,
+    #                 }
+    #     ServerDoc.docs2upsert([doc_this])
         # doc_post = ServerDoc.codename2doc(server_codename)
         # return doc_post
 
@@ -165,6 +215,8 @@ class NanbanSkill:
         chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))
         locale = Chatroom.chatroom2locale(chatroom) or HenriqueLocale.DEFAULT
         lang = LocaleTool.locale2lang(locale)
+        tz = pytz.timezone(HenriqueLocale.lang2tzdb(lang))
+        dt_now = datetime.now(tz)
 
         text_in = KhalaPacket.packet2text(packet)
         config = {HenriqueEntity.Config.Field.LOCALE: locale}
@@ -182,30 +234,30 @@ class NanbanSkill:
             return  # Invalid request
 
         entity = l_singleton2obj(entity_list)
-
         if FoxylibEntity.entity2type(entity) == RelativeTimedeltaEntity.entity_type():
             reldelta = RelativeTimedeltaEntity.entity2relativedelta(entity)
-            cls.server_relativedelta_lang2update(server_codename, reldelta, lang)
+            dt_in = cls.relativedelta2nanban_datetime(server_codename, reldelta, )
+
+            if dt_in is None:
+                msg_error = NanbanSkillError.codename_lang2text(NanbanSkillError.Codename.NO_PREV_NANBAN_ERROR, lang)
+                raise HenriqueCommandError(msg_error)
+
+            logger.debug({"reldelta": reldelta,})
 
         elif FoxylibEntity.entity2type(entity) == TimeEntity.entity_type():
-            tz = pytz.timezone(HenriqueLocale.lang2tzdb(lang))
-            dt_now = datetime.now(tz)
-
             time_in = TimeEntity.value2datetime_time(FoxylibEntity.entity2value(entity))
             dt_in = PytzTool.localize(datetime.combine(dt_now.date(), time_in), tz)
+            logger.debug({"time_in": time_in, })
+        else:
+            raise RuntimeError({"Invalid entity type: {}".format(FoxylibEntity.entity2type(entity))})
 
-            dt_nearest = DatetimeTool.datetime2nearest(dt_in, dt_now, NanbanTimedelta.period(), Nearest.COMING)
+        dt_nearest = DatetimeTool.datetime2nearest(dt_in, dt_now, NanbanTimedelta.period(), Nearest.COMING)
 
-            logger.debug({"text_in": text_in,
-                          "dt_now": dt_now,
-                          "time_in": time_in,
-                          "dt_in":dt_in,
-                          "dt_nearest": dt_nearest,
-                          })
-            # raise Exception()
-            cls.server_datetime_lang2update(server_codename, dt_nearest, lang)
+        logger.debug({"text_in": text_in,
+                      "dt_now": dt_now,
+                      "dt_in":dt_in,
+                      "dt_nearest": dt_nearest,
+                      })
 
-        # raise Exception({"ServerDoc.codenames2docs([server_codename])": ServerDoc.codenames2docs([server_codename]),
-        #                  })
-
+        cls.nanban_datetime2upsert_mongo(packet, dt_nearest)
         return cls.server_lang2lookup(server_codename, lang)
