@@ -3,13 +3,14 @@ import os
 from pprint import pprint
 
 import pytz
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from unittest import TestCase
 
 from foxylib.tools.collections.collections_tool import ListTool
 from foxylib.tools.datetime.datetime_tool import DatetimeTool
+from foxylib.tools.datetime.pytz_tool import PytzTool
 from foxylib.tools.span.span_tool import SpanTool
-from henrique.main.document.server.mongodb.server_doc import ServerCollection, ServerDoc
+from henrique.main.document.server.mongodb.server_doc import ServerCollection, ServerDoc, ServerNanban
 from henrique.main.document.server.server import Server
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.singleton.error.command_error import HenriqueCommandError
@@ -214,4 +215,43 @@ class TestNanbanSkill(TestCase):
         # pprint(hyp)
         self.assertEqual(hyp, ref)
 
+    def test_06(self):
+        logger = HenriqueLogger.func_level2logger(self.test_06, logging.DEBUG)
 
+        Chatroom.chatrooms2upsert([ChatroomKakaotalk.chatroom()])
+        ServerDoc.codenames2delete([Server.Codename.MARIS])
+
+        sender_name = "iris"
+        channel_user_codename = ChannelUserKakaotalk.sender_name2codename(sender_name)
+        ChannelUser.channel_users2upsert([ChannelUserKakaotalk.sender_name2channel_user(sender_name)])
+
+        tz = pytz.timezone("Asia/Seoul")
+        now_tz = DatetimeTool.datetime2truncate_seconds(datetime.now(tz))
+        # hour = (now_tz + timedelta(seconds=3600)).hour
+
+        packet1 = {KhalaPacket.Field.TEXT: "?남만 {}".format(now_tz.strftime("%I:%M %p")),
+                  KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
+                  KhalaPacket.Field.CHANNEL_USER: channel_user_codename,
+                  KhalaPacket.Field.SENDER_NAME: sender_name,
+                  }
+
+        NanbanSkill.packet2response(packet1)
+
+        packet2 = {KhalaPacket.Field.TEXT: "?남만 +2분 1초",
+                   KhalaPacket.Field.CHATROOM: KakaotalkUWOChatroom.codename(),
+                   KhalaPacket.Field.CHANNEL_USER: channel_user_codename,
+                   KhalaPacket.Field.SENDER_NAME: sender_name,
+                   }
+
+        NanbanSkill.packet2response(packet2)
+
+        doc = ServerDoc.codename2doc(Server.Codename.MARIS)
+
+        dt_nanban = DatetimeTool.astimezone(ServerNanban.nanban2datetime(ServerDoc.doc2nanban(doc)), tz)
+
+        logger.debug({"now_tz":now_tz,
+                      "dt_nanban":dt_nanban,
+                      'now_tz.strftime("%I:%M %p")':now_tz.strftime("%I:%M %p"),
+                      })
+        ref = (now_tz + timedelta(seconds=2 * 60 + 1)).timetz()
+        self.assertEquals(dt_nanban.timetz(), ref)
