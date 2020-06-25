@@ -68,7 +68,7 @@ class ChatroomuserEntity:
                                          vwrite=vwrite_no_duplicate_key)
 
         config = {GazetteerMatcher.Config.Key.NORMALIZER: cls.text2norm,
-                  GazetteerMatcher.Config.Key.TEXTS2PATTERN: HenriqueEntity.texts2rstr_word_with_cardinal_suffix,
+                  # GazetteerMatcher.Config.Key.TEXTS2PATTERN: HenriqueEntity.texts2rstr_word_with_cardinal_suffix,
                   }
         matcher = GazetteerMatcher(h_codename2aliases, config)
         return matcher

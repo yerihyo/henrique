@@ -1,8 +1,18 @@
 import logging
 import os
+from functools import partial
+
+from datetime import datetime, timedelta
 from random import choice
 
+import pytz
+from future.utils import lmap
+
 from foxylib.tools.collections.collections_tool import l_singleton2obj
+from foxylib.tools.datetime.datetime_tool import DatetimeTool, TimeTool, Nearest
+from foxylib.tools.datetime.pytz_tool import PytzTool
+from foxylib.tools.datetime.timezone.timezone_tool import TimezoneTool
+from foxylib.tools.entity.calendar.time.time_entity import TimeEntity
 from foxylib.tools.entity.entity_tool import FoxylibEntity
 from foxylib.tools.locale.locale_tool import LocaleTool
 from foxylib.tools.string.string_tool import str2strip
@@ -15,6 +25,7 @@ from henrique.main.singleton.jinja2.henrique_jinja2 import HenriqueJinja2
 from henrique.main.singleton.khala.henrique_khala import HenriquePacket
 from henrique.main.singleton.locale.henrique_locale import HenriqueLocale
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
+from henrique.main.skill.nanban.timedelta.nanban_timedelta import NanbanTimedeltaSuffix, NanbanTimedelta
 from henrique.main.tool.entity.datetime.timedelta.timedelta_entity import RelativeTimedeltaEntity
 from khala.document.chatroom.chatroom import Chatroom
 from khala.document.packet.packet import KhalaPacket
@@ -69,22 +80,57 @@ class NanbanSkill:
     @classmethod
     def server_lang2lookup(cls, server_codename, lang):
         from henrique.main.skill.nanban.timedelta.nanban_timedelta import NanbanTimedelta
+        logger = HenriqueLogger.func_level2logger(cls.server_lang2lookup, logging.DEBUG)
 
         server = Server.codename2server(server_codename)
-        str_timedelta = NanbanTimedelta.server_lang2str(server_codename, lang)
-        filepath = os.path.join(FILE_DIR, "tmplt.{}.part.txt".format(lang))
-        data = {"server": Server.server_lang2name(server, lang),
-                "str_timedelta": str_timedelta,
-                }
-        str_out = HenriqueJinja2.textfile2text(filepath, data)
-        return str_out
+        utc_now = datetime.now(pytz.utc)
+        datetime_nanban = NanbanTimedelta.server2datetime_nanban(server_codename, utc_now)
+        logger.debug({"datetime_nanban":datetime_nanban})
+
+        def datetime_nanban2str_out(dt_nanban):
+            filepath = os.path.join(FILE_DIR, "tmplt.{}.part.txt".format(lang))
+            has_dt_nanban = (dt_nanban is not None)
+            if not has_dt_nanban:
+                data = {"server": Server.server_lang2name(server, lang),
+                        "has_dt_nanban": has_dt_nanban,
+                        }
+                str_out = HenriqueJinja2.textfile2text(filepath, data)
+                return str_out
+
+            td_nanban = dt_nanban - utc_now
+
+            tzdb = HenriqueLocale.lang2tzdb(lang)
+
+            str_timedelta_nanban = NanbanTimedelta.timedelta_lang2text(td_nanban, lang)
+
+            logger.debug({"server_codename": server_codename,
+                          "server": server,
+                          "dt_nanban": dt_nanban,
+                          })
+
+            data = {"server": Server.server_lang2name(server, lang),
+                    "dt_nanban": NanbanTimedelta.datetime2text(dt_nanban, tzdb),
+                    "dt_now": NanbanTimedelta.datetime2text(utc_now, tzdb),
+                    "timedelta_nanban": str_timedelta_nanban,
+                    "has_dt_nanban": has_dt_nanban,
+                    }
+            str_out = HenriqueJinja2.textfile2text(filepath, data)
+            return str_out
+
+        return datetime_nanban2str_out(datetime_nanban)
 
     @classmethod
-    def server_datetime_lang2update(cls, server_codename, dt_this, lang):
+    def server_datetime_lang2update(cls, server_codename, datetime_in, lang):
+        logger = HenriqueLogger.func_level2logger(cls.server_datetime_lang2update, logging.DEBUG)
         # server = Server.codename2server(server_codename)
+        dt_utc = DatetimeTool.astimezone(datetime_in, pytz.utc)
+        # raise Exception({"datetime_in":datetime_in,"dt_utc":dt_utc})
         doc_this = {ServerDoc.Field.CODENAME: server_codename,
-                    ServerDoc.Field.NANBAN_TIME: dt_this,
+                    ServerDoc.Field.DATETIME_NANBAN: dt_utc,
                     }
+        logger.debug({"datetime_in":datetime_in,
+                      "doc_this":doc_this,
+                      })
         ServerDoc.docs2upsert([doc_this])
         # doc_post = ServerDoc.codename2doc(server_codename)
         # return doc_post
@@ -93,24 +139,27 @@ class NanbanSkill:
     def server_relativedelta_lang2update(cls, server_codename, reldelta, lang):
         # server = Server.codename2server(server_codename)
         doc_prev = ServerDoc.codename2doc(server_codename)
-        nanban_time_prev = ServerDoc.doc2nanban_time(doc_prev)
-        nanban_time_this = nanban_time_prev + reldelta
+        dt_nanban_prev = ServerDoc.doc2datetime_nanban(doc_prev)
+        dt_nanban_this = dt_nanban_prev + reldelta
 
         doc_this = {ServerDoc.Field.CODENAME: server_codename,
-                    ServerDoc.Field.NANBAN_TIME: nanban_time_this,
+                    ServerDoc.Field.DATETIME_NANBAN: dt_nanban_this,
                     }
         ServerDoc.docs2upsert([doc_this])
         # doc_post = ServerDoc.codename2doc(server_codename)
         # return doc_post
 
     @classmethod
-    def entity_classes(cls):
-        return {RelativeTimedeltaEntity, DatetimeEntity, }
+    def config2extractors(cls, config):
+        return {partial(RelativeTimedeltaEntity.text2entity_list, config=config),
+                TimeEntity.text2entity_list,
+                }
 
     @classmethod
     def packet2response(cls, packet):
         logger = HenriqueLogger.func_level2logger(cls.packet2response, logging.DEBUG)
         logger.debug({"packet":packet})
+
 
         server_codename = HenriquePacket.packet2server(packet)
         chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))
@@ -121,7 +170,10 @@ class NanbanSkill:
         config = {HenriqueEntity.Config.Field.LOCALE: locale}
         # entity_list = RelativeTimedeltaEntity.text2entity_list(text_in, config=config)
 
-        entity_list = HenriqueEntity.text_extractors2entity_list(text_in, cls.entity_classes(), config=config)
+        entity_list = HenriqueEntity.text_extractors2entity_list(text_in, cls.config2extractors(config),)
+        logger.debug({"len(entity_list)": len(entity_list),
+                      "entity_list": entity_list,
+                      })
 
         if not entity_list:
             return cls.server_lang2lookup(server_codename, lang)
@@ -135,9 +187,25 @@ class NanbanSkill:
             reldelta = RelativeTimedeltaEntity.entity2relativedelta(entity)
             cls.server_relativedelta_lang2update(server_codename, reldelta, lang)
 
-        if FoxylibEntity.entity2type(entity) == DatetimeEntity.entity_type():
-            dt = DatetimeEntity.entity2datetime(entity)
-            cls.server_datetime_lang2update(server_codename, dt, lang)
+        elif FoxylibEntity.entity2type(entity) == TimeEntity.entity_type():
+            tz = pytz.timezone(HenriqueLocale.lang2tzdb(lang))
+            dt_now = datetime.now(tz)
 
+            time_in = TimeEntity.value2datetime_time(FoxylibEntity.entity2value(entity))
+            dt_in = PytzTool.localize(datetime.combine(dt_now.date(), time_in), tz)
 
+            dt_nearest = DatetimeTool.datetime2nearest(dt_in, dt_now, NanbanTimedelta.period(), Nearest.COMING)
 
+            logger.debug({"text_in": text_in,
+                          "dt_now": dt_now,
+                          "time_in": time_in,
+                          "dt_in":dt_in,
+                          "dt_nearest": dt_nearest,
+                          })
+            # raise Exception()
+            cls.server_datetime_lang2update(server_codename, dt_nearest, lang)
+
+        # raise Exception({"ServerDoc.codenames2docs([server_codename])": ServerDoc.codenames2docs([server_codename]),
+        #                  })
+
+        return cls.server_lang2lookup(server_codename, lang)

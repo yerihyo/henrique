@@ -17,4 +17,12 @@ class HenriqueLocale:
 
         return [lang, "en"]
 
+    @classmethod
+    def lang2tzdb(cls, lang):
+        if lang == "ko":
+            return "Asia/Seoul"
 
+        if lang == "en":
+            return "America/Los_Angeles"
+
+        raise NotImplementedError({"lang":lang})

@@ -218,7 +218,7 @@ class TestPriceSkillClique(TestCase):
     def test_15(self):
         text = "?시세 사탕무 : 말세80ㅎ; 사사리75ㅎ; 시라130ㅅ;"
         config = {HenriqueEntity.Config.Field.LOCALE: "ko-KR"}
-        entity_list = HenriqueEntity.text_extractors2entity_list(text, PriceSkillClique.entity_classes(), config=config)
+        entity_list = HenriqueEntity.text_extractors2entity_list(text, PriceSkillClique.config2extractors(config),)
         hyp = PriceSkillClique.text_entity_list2clique_list(text, entity_list)
         ref = [{'ports': ['Marseilles'],
                 'rate': 80,

@@ -1,4 +1,5 @@
 import logging
+from functools import partial
 
 import pytz
 from datetime import datetime
@@ -39,8 +40,13 @@ class PriceSkillClique:
         LOOKUP = "lookup"
 
     @classmethod
-    def entity_classes(cls):
-        return {PortEntity, TradegoodEntity, CultureEntity, RateEntity, TrendEntity, }
+    def config2extractors(cls, config):
+        return {partial(PortEntity.text2entity_list, config=config),
+                partial(TradegoodEntity.text2entity_list, config=config),
+                partial(CultureEntity.text2entity_list, config=config),
+                partial(RateEntity.text2entity_list, config=config),
+                partial(TrendEntity.text2entity_list, config=config),
+                }
 
     @classmethod
     def clique2type(cls, clique):

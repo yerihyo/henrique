@@ -6,7 +6,7 @@ from operator import itemgetter as ig
 import pytz
 import re
 from datetime import datetime
-from functools import lru_cache
+from functools import lru_cache, partial
 from future.utils import lmap, lfilter
 
 from foxylib.tools.collections.collections_tool import lchain, l_singleton2obj
@@ -177,7 +177,9 @@ class PriceSkill:
 
         chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))
         config = {HenriqueEntity.Config.Field.LOCALE: Chatroom.chatroom2locale(chatroom)}
-        entity_list = HenriqueEntity.text_extractors2entity_list(text, Clique.entity_classes(), config=config)
+
+        extractors = Clique.config2extractors(config)
+        entity_list = HenriqueEntity.text_extractors2entity_list(text, extractors)
         clique_list = Clique.text_entity_list2clique_list(text, entity_list)
         clique_list_update = lfilter(lambda x: Clique.clique2type(x) == Clique.Type.UPDATE, clique_list)
 
@@ -267,7 +269,7 @@ class PriceSkill:
         # rstr = r"{}\s*$".format(rstr_rate_trend)
 
         # raise Exception(rstr)
-        pattern = re.compile(RegexTool.rstr2rstr_words(rstr_rate_trend), re.I)
+        pattern = re.compile(RegexTool.rstr2wordbounded(rstr_rate_trend), re.I)
         return pattern
 
 

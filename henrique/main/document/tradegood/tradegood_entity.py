@@ -34,7 +34,7 @@ class TradegoodEntitySpecialcase:
     @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def pattern_ko(cls):
-        return re.compile(RegexTool.rstr2rstr_words(r"육메(?:크|클)?"))
+        return re.compile(RegexTool.rstr2wordbounded(r"육메(?:크|클)?"))
 
     @classmethod
     def text2entity_list(cls, text_in, config=None):
@@ -112,8 +112,9 @@ class TradegoodEntity:
         h_value2aliases = merge_dicts([{Tradegood.tradegood2codename(tg): list(tg2aliases(tg))} for tg in tg_list],
                                       vwrite=vwrite_no_duplicate_key)
 
+
         config = {GazetteerMatcher.Config.Key.NORMALIZER: cls.text2norm,
-                  GazetteerMatcher.Config.Key.TEXTS2PATTERN: HenriqueEntity.texts2rstr_word_with_cardinal_suffix,
+                  GazetteerMatcher.Config.Key.TEXTS2PATTERN: HenriqueEntity.texts2pattern_port_tradegood,
                   }
         matcher = GazetteerMatcher(h_value2aliases, config)
         return matcher

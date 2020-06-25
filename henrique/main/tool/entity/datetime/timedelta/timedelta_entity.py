@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+from datetime import timedelta
 from operator import itemgetter as ig
 
 import re
@@ -38,7 +39,7 @@ MODULE = sys.modules[__name__]
 WARMER = Warmer(MODULE)
 
 
-class TimedeltaUnit:
+class TimedeltaEntityUnit:
     class Value:
         YEAR = "year"
         MONTH = "month"
@@ -61,6 +62,16 @@ class TimedeltaUnit:
         return str2lower(text)
 
     @classmethod
+    def timedelta2unit(cls, td):
+        h = {timedelta(days=7): cls.Value.WEEK,
+             timedelta(days=1): cls.Value.DAY,
+             timedelta(seconds=3600): cls.Value.HOUR,
+             timedelta(seconds=60): cls.Value.MINUTE,
+             timedelta(seconds=1): cls.Value.SECOND,
+             }
+        return h[td]
+
+    @classmethod
     def v_unit_lang2str(cls, v, unit, lang):
         j_yaml = cls.yaml()
         str_unit = JsonTool.down(j_yaml, [unit, lang])[0]
@@ -79,6 +90,18 @@ class TimedeltaUnit:
         return "{}s".format(unit)
 
     @classmethod
+    def gazetteer_all(cls,):
+        gazetteer = {k: lchain(*j.values())
+                     for k, j in cls.yaml().items()}
+        return gazetteer
+
+    @classmethod
+    def langs2gazetteer(cls, langs):
+        gazetteer = {k: lchain(*[j.get(lang, []) for lang in langs])
+                     for k, j in cls.yaml().items()}
+        return gazetteer
+
+    @classmethod
     def langs2matcher(cls, langs):
         return cls._langs2matcher(frozenset(langs))
 
@@ -87,13 +110,21 @@ class TimedeltaUnit:
     def _langs2matcher(cls, langs):
         logger = HenriqueLogger.func_level2logger(cls._langs2matcher, logging.DEBUG)
 
-        gazetteer = {k: lchain(*[j.get(lang, []) for lang in langs])
-                     for k, j in cls.yaml().items()}
+        gazetteer = cls.langs2gazetteer(langs)
 
         def texts2pattern(texts):
-            rstr = GazetteerMatcher.texts2regex_default(texts)
-            logger.debug({"rstr":rstr})
-            return re.compile(RegexTool.rstr2rstr_words_suffixed(rstr), re.I)
+            rstr_raw = RegexTool.rstr_iter2or(map(re.escape, texts))
+
+            left_bounds = lchain(RegexTool.bounds2suffixed(RegexTool.left_wordbounds(), "\d"),
+                                 RegexTool.left_wordbounds(),
+                                 )
+            right_bounds = RegexTool.right_wordbounds()
+
+            rstr = RegexTool.rstr2bounded(rstr_raw, left_bounds, right_bounds)
+            logger.debug({"rstr":rstr,
+                          "rstr_raw": rstr_raw,
+                          })
+            return re.compile(rstr, re.I)
 
         config = {GazetteerMatcher.Config.Key.TEXTS2PATTERN: texts2pattern,
                   GazetteerMatcher.Config.Key.NORMALIZER: cls.normalize,
@@ -129,7 +160,13 @@ class TimedeltaElement:
     @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def pattern_number(cls):
-        return re.compile(RegexTool.rstr2rstr_words_prefixed("\d+"))
+        rstr_leftbound = RegexTool.rstr2left_bounded(r"\d{1,2}", RegexTool.left_wordbounds())
+
+        rstr_bound_right_list = lchain(RegexTool.right_wordbounds(),
+                                       lchain(*TimedeltaEntityUnit.gazetteer_all().values()),
+                                       )
+        rstr_bound = RegexTool.rstr2right_bounded(rstr_leftbound, rstr_bound_right_list)
+        return re.compile(rstr_bound, re.I)
 
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=HenriqueEntity.Cache.DEFAULT_SIZE))
@@ -142,7 +179,7 @@ class TimedeltaElement:
         match_list_number = list(cls.pattern_number().finditer(text_in))
         span_list_number = lmap(lambda m:m.span(), match_list_number)
 
-        matcher = TimedeltaUnit.langs2matcher(langs)
+        matcher = TimedeltaEntityUnit.langs2matcher(langs)
         span_value_list_timedelta_unit = list(matcher.text2span_value_iter(text_in))
 
         spans_list = [span_list_number,
@@ -178,7 +215,7 @@ class TimedeltaElement:
 
         unit = cls.element2unit(element)
         quantity = cls.element2quantity(element)
-        kwargs = {TimedeltaUnit.unit2plural(unit): quantity}
+        kwargs = {TimedeltaEntityUnit.unit2plural(unit): quantity}
         # logger.debug({"kwargs":kwargs})
         return relativedelta(**kwargs)
 
@@ -270,7 +307,7 @@ class RelativeTimedeltaEntity:
         @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
         @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
         def pattern(cls):
-            return re.compile(RegexTool.rstr2rstr_words("[+-]"))
+            return re.compile(RegexTool.rstr2wordbounded("[+-]"))
 
         @classmethod
         def sign2int(cls, sign):

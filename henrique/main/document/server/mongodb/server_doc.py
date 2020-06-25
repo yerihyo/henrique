@@ -1,15 +1,18 @@
+import logging
 from operator import itemgetter as ig
 
 from cachetools import LRUCache
 from datetime import timedelta
 from functools import lru_cache, partial
 from future.utils import lmap
+from nose.tools import assert_equal
 
 from foxylib.tools.cache.cache_decorator import CacheDecorator
 from foxylib.tools.cache.cache_manager import CacheManager
 from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key, DictTool, l_singleton2obj
 from foxylib.tools.database.mongodb.mongodb_tool import MongoDBTool
 from foxylib.tools.function.function_tool import FunctionTool
+from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.singleton.mongodb.henrique_mongodb import HenriqueMongodb
 
 
@@ -32,20 +35,20 @@ class ServerDoc:
 
     class Field:
         CODENAME = "codename"
-        NANBAN_TIME = "nanban_time"
+        DATETIME_NANBAN = "datetime_nanban"
         # UPDATED_AT = "updated_at"
 
         @classmethod
         def set(cls):
-            return {cls.CODENAME, cls.NANBAN_TIME,}
+            return {cls.CODENAME, cls.DATETIME_NANBAN,}
 
     @classmethod
     def doc2codename(cls, doc):
         return doc[cls.Field.CODENAME]
 
     @classmethod
-    def doc2nanban_time(cls, doc):
-        return doc[cls.Field.NANBAN_TIME]
+    def doc2datetime_nanban(cls, doc):
+        return doc[cls.Field.DATETIME_NANBAN]
 
     @classmethod
     def dict_codename2doc(cls, codenames):
@@ -75,16 +78,23 @@ class ServerDoc:
 
     @classmethod
     def docs2upsert(cls, docs):
+        logger = HenriqueLogger.func_level2logger(cls.docs2upsert, logging.DEBUG)
+
         def doc2pair(doc):
             doc_filter = DictTool.keys2filtered(doc, [cls.Field.CODENAME])
             return doc_filter, doc
 
         pair_list = lmap(doc2pair, docs)
-        value_args_kwargs_list = [(doc,[codename],{}) for codename, doc in pair_list]
+        value_args_kwargs_list = [(doc, [[cls.doc2codename(doc)]], {}) for doc in docs]
         with CacheManager.update_cache(cls.codenames2docs, value_args_kwargs_list):
             collection = ServerCollection.collection()
             mongo_result = MongoDBTool.j_pair_list2upsert(collection, pair_list)
 
+        # raise Exception({"cls.codenames2docs(lmap(cls.doc2codename, docs))": cls.codenames2docs(lmap(cls.doc2codename, docs)),
+        #                  "lmap(ig(1), pair_list)": lmap(ig(1), pair_list),
+        #                  })
+
         return mongo_result
+
 
 

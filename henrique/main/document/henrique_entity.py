@@ -12,8 +12,6 @@ from foxylib.tools.span.span_tool import SpanTool
 from khala.document.chatroom.chatroom import Chatroom
 from khala.document.packet.packet import KhalaPacket
 
-
-
 class HenriqueEntity:
     class Cache:
         DEFAULT_SIZE = 100
@@ -45,21 +43,24 @@ class HenriqueEntity:
             return config
 
     @classmethod
-    def text_extractors2entity_list(cls, text_in, entity_classes, config):
-        entity_ll = [c.text2entity_list(text_in, config=config)
-                     for c in entity_classes]
+    def text_extractors2entity_list(cls, text_in, extractors,):
+        entity_ll = [extractor(text_in) for extractor in extractors]
         entity_list = sorted(chain(*entity_ll), key=FoxylibEntity.entity2span)
         return entity_list
 
     @classmethod
-    def texts2rstr_word_with_cardinal_suffix(cls, texts):
-        regex_raw = RegexTool.rstr_iter2or(map(re.escape, texts))
-        rstr_prefixed = RegexTool.rstr2rstr_words_prefixed(regex_raw)
+    def texts2pattern_port_tradegood(cls, texts):
+        left_bounds = RegexTool.left_wordbounds()
+        right_bounds = lchain(RegexTool.right_wordbounds(), ["\d+"],)
+        rstr_bounded = RegexTool.rstr2bounded(RegexTool.rstr_iter2or(map(re.escape, texts)), left_bounds, right_bounds,)
+        return re.compile(rstr_bounded)
+        # regex_raw = RegexTool.rstr_iter2or(map(re.escape, texts))
+        # rstr_prefixed = RegexTool.rstr2rstr_words_prefixed(regex_raw)
+        #
+        # rstr_suf = r"(?=(?:\s|\b|[0-9]|$))"
+        # rstr_word = r'{0}{1}'.format(RegexTool.rstr2wrapped(rstr_prefixed), rstr_suf)
 
-        rstr_suf = r"(?=(?:\s|\b|[0-9]|$))"
-        rstr_word = r'{0}{1}'.format(RegexTool.rstr2wrapped(rstr_prefixed), rstr_suf)
-
-        return re.compile(rstr_word, )  # re.I can be dealt with normalizer
+        # return re.compile(rstr_bounded, )  # re.I can be dealt with normalizer
 
     # @classmethod
     # def classes(cls):
