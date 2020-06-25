@@ -5,27 +5,25 @@ from itertools import chain
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, lchain
 from functools import lru_cache
 
+from foxylib.tools.entity.entity_tool import FoxylibEntity
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.regex.regex_tool import RegexTool
+from foxylib.tools.span.span_tool import SpanTool
 from khala.document.chatroom.chatroom import Chatroom
 from khala.document.packet.packet import KhalaPacket
 
-
-class Entity:
-    class Field:
-        TYPE = "type"
-        TEXT = "text"
-        SPAN = "span"
-        VALUE = "value"
-
-    class Step:
-        PRECISION = "precision"
-        RECALL = "recall"
+class HenriqueEntity:
+    class Cache:
+        DEFAULT_SIZE = 100
 
     class Config:
+        # class Step:
+        #     PRECISION = "precision"
+        #     RECALL = "recall"
+
         class Field:
             LOCALE = "locale"
-            STEP = "step"
+            # STEP = "step"
 
         @classmethod
         def config2locale(cls, j):
@@ -40,47 +38,29 @@ class Entity:
             locale = Chatroom.chatroom2locale(chatroom)
 
             config = {cls.Field.LOCALE: locale,
-                      cls.Field.STEP: Entity.Step.PRECISION,
+                      # cls.Field.STEP: cls.Step.PRECISION,
                       }
             return config
 
     @classmethod
-    def entity2type(cls, entity):
-        return entity[cls.Field.TYPE]
-
-    @classmethod
-    def entity2text(cls, entity):
-        return entity[cls.Field.TEXT]
-
-    @classmethod
-    def entity2span(cls, entity):
-        return entity[cls.Field.SPAN]
-
-    @classmethod
-    def entity2value(cls, entity):
-        return entity[cls.Field.VALUE]
-
-    @classmethod
-    def text_extractors2entity_list(cls, text_in, entity_classes, config):
-        entity_ll = [c.text2entity_list(text_in, config=config)
-                     for c in entity_classes]
-        entity_list = sorted(chain(*entity_ll), key=Entity.entity2span)
+    def text_extractors2entity_list(cls, text_in, extractors,):
+        entity_ll = [extractor(text_in) for extractor in extractors]
+        entity_list = sorted(chain(*entity_ll), key=FoxylibEntity.entity2span)
         return entity_list
 
-
-class HenriqueEntity:
-    class Cache:
-        DEFAULT_SIZE = 100
-
     @classmethod
-    def texts2rstr_word_with_cardinal_suffix(cls, texts):
-        regex_raw = RegexTool.rstr_iter2or(map(re.escape, texts))
-        rstr_prefixed = RegexTool.rstr2rstr_words_prefixed(regex_raw)
+    def texts2pattern_port_tradegood(cls, texts):
+        left_bounds = RegexTool.left_wordbounds()
+        right_bounds = lchain(RegexTool.right_wordbounds(), ["\d+"],)
+        rstr_bounded = RegexTool.rstr2bounded(RegexTool.rstr_iter2or(map(re.escape, texts)), left_bounds, right_bounds,)
+        return re.compile(rstr_bounded)
+        # regex_raw = RegexTool.rstr_iter2or(map(re.escape, texts))
+        # rstr_prefixed = RegexTool.rstr2rstr_words_prefixed(regex_raw)
+        #
+        # rstr_suf = r"(?=(?:\s|\b|[0-9]|$))"
+        # rstr_word = r'{0}{1}'.format(RegexTool.rstr2wrapped(rstr_prefixed), rstr_suf)
 
-        rstr_suf = r"(?=(?:\s|\b|[0-9]|$))"
-        rstr_word = r'{0}{1}'.format(RegexTool.rstr2wrapped(rstr_prefixed), rstr_suf)
-
-        return re.compile(rstr_word, )  # re.I can be dealt with normalizer
+        # return re.compile(rstr_bounded, )  # re.I can be dealt with normalizer
 
     # @classmethod
     # def classes(cls):

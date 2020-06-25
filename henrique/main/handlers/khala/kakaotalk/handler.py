@@ -3,7 +3,7 @@ import os
 
 from flask import request
 
-from henrique.main.document.henrique_entity import Entity
+from foxylib.tools.entity.entity_tool import FoxylibEntity
 from henrique.main.document.port.port_entity import PortEntity
 from henrique.main.document.skill.skill_entity import HenriqueSkill
 from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
@@ -42,7 +42,7 @@ class KakaotalkUWOHandler:
             return True
 
         text_in = KhalaPacket.packet2text(packet)
-        config = Entity.Config.packet2config(packet)
+        config = HenriqueEntity.Config.packet2config(packet)
 
         if skill_code == HenriqueSkill.Codename.PORT:
             entity_list_port = PortEntity.text2entity_list(text_in, config=config)
@@ -55,7 +55,7 @@ class KakaotalkUWOHandler:
         return False
 
     @classmethod
-    @ErrorhandlerKakaotalk.decorator_unknown_error_handler
+    @ErrorhandlerKakaotalk.Decorator.error_handler
     def get(cls):
         logger = HenriqueLogger.func_level2logger(cls.get, logging.DEBUG)
 

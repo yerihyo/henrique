@@ -16,7 +16,8 @@ from foxylib.tools.nlp.gazetteer.gazetteer_matcher import GazetteerMatcher
 from foxylib.tools.regex.regex_tool import RegexTool
 from foxylib.tools.span.span_tool import SpanTool
 from foxylib.tools.string.string_tool import str2lower, StringTool
-from henrique.main.document.henrique_entity import Entity, HenriqueEntity
+from foxylib.tools.entity.entity_tool import FoxylibEntity
+from henrique.main.document.henrique_entity import HenriqueEntity
 from henrique.main.document.tradegood.tradegood import Tradegood
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.singleton.locale.henrique_locale import HenriqueLocale
@@ -33,11 +34,11 @@ class TradegoodEntitySpecialcase:
     @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def pattern_ko(cls):
-        return re.compile(RegexTool.rstr2rstr_words(r"육메(?:크|클)?"))
+        return re.compile(RegexTool.rstr2wordbounded(r"육메(?:크|클)?"))
 
     @classmethod
     def text2entity_list(cls, text_in, config=None):
-        locale = Entity.Config.config2locale(config) or HenriqueLocale.DEFAULT
+        locale = HenriqueEntity.Config.config2locale(config) or HenriqueLocale.DEFAULT
         lang = LocaleTool.locale2lang(locale)
         langs_recognizable = HenriqueLocale.lang2langs_recognizable(lang)
 
@@ -53,27 +54,27 @@ class TradegoodEntitySpecialcase:
 
             s,e = span
             span_nutmeg = (s, s + 1)
-            entity_nutmeg = {Entity.Field.SPAN: span_nutmeg,
-                             Entity.Field.TEXT: StringTool.str_span2substr(text_in, span_nutmeg),
-                             Entity.Field.VALUE: "Nutmeg",
-                             Entity.Field.TYPE: TradegoodEntity.entity_type(),
+            entity_nutmeg = {FoxylibEntity.Field.SPAN: span_nutmeg,
+                             FoxylibEntity.Field.TEXT: StringTool.str_span2substr(text_in, span_nutmeg),
+                             FoxylibEntity.Field.VALUE: "Nutmeg",
+                             FoxylibEntity.Field.TYPE: TradegoodEntity.entity_type(),
                              }
             entity_list.append(entity_nutmeg)
 
             span_mace = (s + 1, s + 2)
-            entity_mace = {Entity.Field.SPAN: span_mace,
-                           Entity.Field.TEXT: StringTool.str_span2substr(text_in, span_mace),
-                           Entity.Field.VALUE: "Mace",
-                           Entity.Field.TYPE: TradegoodEntity.entity_type(),
+            entity_mace = {FoxylibEntity.Field.SPAN: span_mace,
+                           FoxylibEntity.Field.TEXT: StringTool.str_span2substr(text_in, span_mace),
+                           FoxylibEntity.Field.VALUE: "Mace",
+                           FoxylibEntity.Field.TYPE: TradegoodEntity.entity_type(),
                            }
             entity_list.append(entity_mace)
 
             if SpanTool.span2len(span) == 3:
                 span_clove = (s + 2, s + 3)
-                entity_cloves = {Entity.Field.SPAN: span_clove,
-                               Entity.Field.TEXT: StringTool.str_span2substr(text_in, span_clove),
-                               Entity.Field.VALUE: "Cloves",
-                               Entity.Field.TYPE: TradegoodEntity.entity_type(),
+                entity_cloves = {FoxylibEntity.Field.SPAN: span_clove,
+                               FoxylibEntity.Field.TEXT: StringTool.str_span2substr(text_in, span_clove),
+                               FoxylibEntity.Field.VALUE: "Cloves",
+                               FoxylibEntity.Field.TYPE: TradegoodEntity.entity_type(),
                                }
                 entity_list.append(entity_cloves)
 
@@ -111,8 +112,9 @@ class TradegoodEntity:
         h_value2aliases = merge_dicts([{Tradegood.tradegood2codename(tg): list(tg2aliases(tg))} for tg in tg_list],
                                       vwrite=vwrite_no_duplicate_key)
 
+
         config = {GazetteerMatcher.Config.Key.NORMALIZER: cls.text2norm,
-                  GazetteerMatcher.Config.Key.TEXTS2PATTERN: HenriqueEntity.texts2rstr_word_with_cardinal_suffix,
+                  GazetteerMatcher.Config.Key.TEXTS2PATTERN: HenriqueEntity.texts2pattern_port_tradegood,
                   }
         matcher = GazetteerMatcher(h_value2aliases, config)
         return matcher
@@ -129,16 +131,16 @@ class TradegoodEntity:
 
     @classmethod
     def text2entity_list_matcher(cls, text_in, config=None):
-        locale = Entity.Config.config2locale(config) or HenriqueLocale.DEFAULT
+        locale = HenriqueEntity.Config.config2locale(config) or HenriqueLocale.DEFAULT
         lang = LocaleTool.locale2lang(locale) or LocaleTool.locale2lang(HenriqueLocale.DEFAULT)
 
         matcher = cls.lang2matcher(lang)
         span_value_list = list(matcher.text2span_value_iter(text_in))
 
-        entity_list = [{Entity.Field.SPAN: span,
-                        Entity.Field.TEXT: StringTool.str_span2substr(text_in, span),
-                        Entity.Field.VALUE: value,
-                        Entity.Field.TYPE: cls.entity_type(),
+        entity_list = [{FoxylibEntity.Field.SPAN: span,
+                        FoxylibEntity.Field.TEXT: StringTool.str_span2substr(text_in, span),
+                        FoxylibEntity.Field.VALUE: value,
+                        FoxylibEntity.Field.TYPE: cls.entity_type(),
                         }
                        for span, value in span_value_list]
 

@@ -1,2 +1,3 @@
 [남만시각] {{server}}
-{{nanban_time}}전
+현재 시각: {{dt_now}}
+다음 남만 시각: {% if not has_dt_nanban %}정보가 없어요{% else %}{{dt_nanban}} / 약 {{timedelta_nanban}} 후{% endif %}

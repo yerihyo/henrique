@@ -5,20 +5,25 @@ from datetime import datetime, timedelta
 import pytz
 import yaml
 
-from foxylib.tools.arithmetic.arithmetic_tool import ArithmeticTool
-from foxylib.tools.collections.collections_tool import zip_strict
+from foxylib.tools.datetime.timezone.timezone_tool import TimezoneTool
+from foxylib.tools.native.native_tool import is_not_none
+from future.utils import lmap, lfilter
 
-from foxylib.tools.date.date_tools import TimedeltaTool
+from foxylib.tools.arithmetic.arithmetic_tool import ArithmeticTool
+from foxylib.tools.collections.collections_tool import zip_strict, DictTool
+
+from foxylib.tools.datetime.datetime_tool import TimedeltaTool, DatetimeTool
 from functools import lru_cache
 
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.json.json_tool import JsonTool
 from foxylib.tools.json.yaml_tool import YAMLTool
-from henrique.main.document.server.mongodb.server_doc import ServerDoc
+from foxylib.tools.version.version_tool import VersionTool
+from henrique.main.document.server.mongodb.server_doc import ServerDoc, ServerNanban
 from henrique.main.document.server.server import Server
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
-from henrique.main.tool.entity.time.timedelta.timedelta_entity import TimedeltaUnit
+from henrique.main.tool.entity.datetime.timedelta.timedelta_entity import TimedeltaEntityUnit
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
@@ -41,9 +46,10 @@ class NanbanTimedeltaSuffix:
         return j_yaml
 
     @classmethod
-    def str_lang2suffixed(cls, str_in, lang):
+    @VersionTool.inactive
+    def str_timedelta2relativetimedelta(cls, str_timedelta, lang):
         suffix_format = JsonTool.down(cls.yaml(), [cls.Key.SUFFIX, lang])
-        return suffix_format.format(str_in)
+        return suffix_format.format(str_timedelta)
 
     @classmethod
     def lang2str_idk(cls, lang):
@@ -52,50 +58,73 @@ class NanbanTimedeltaSuffix:
 
 class NanbanTimedelta:
 
-
     @classmethod
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def period(cls):
         seconds = 2 * 60 * 60 + 1 * 60
         return timedelta(seconds=seconds)
 
+    @classmethod
+    def datetime2text(cls, dt, tzdb):
+        tz_abbr = TimezoneTool.tzdb2abbreviation(tzdb)
+
+        dt_tz = DatetimeTool.astimezone(dt, pytz.timezone(tzdb))
+        str_datetime = dt_tz.strftime("%I:%M:%S %p").lstrip("0")
+        str_out = "{} ({})".format(str_datetime, tz_abbr)
+        return str_out
 
     @classmethod
     def timedelta_lang2text(cls, td, lang):
-        unit_list = [TimedeltaTool.unit_day(),
+        if td is None:
+            return NanbanTimedeltaSuffix.lang2str_idk(lang)
+
+        unit_td_list = [TimedeltaTool.unit_day(),
                      TimedeltaTool.unit_hour(),
                      TimedeltaTool.unit_minute(),
                      ]
-        quotient_list = TimedeltaTool.timedelta_units2quotients(td, unit_list)
+        quotient_list = TimedeltaTool.timedelta_units2quotients(td, unit_td_list)
 
-        str_timedelta = " ".join([TimedeltaUnit.v_unit_lang2str(v, unit, lang)
-                                  for v, unit in zip_strict(quotient_list, unit_list) if v])
+        def index2str(index):
+            unit_td, quotient = unit_td_list[index], quotient_list[index]
+            if not quotient:
+                return None
 
-        return NanbanTimedeltaSuffix.str_lang2suffixed(str_timedelta, lang)
+            unit = TimedeltaEntityUnit.timedelta2unit(unit_td)
+            str_unit = TimedeltaEntityUnit.v_unit_lang2str(quotient, unit, lang)
+            return str_unit
 
+        n = len(unit_td_list)
+        word_list = lfilter(is_not_none, map(index2str, range(n)))
+
+        str_out = " ".join(word_list)
+        return str_out
 
     @classmethod
-    def server_lang2str(cls, server, lang):
-        server_doc = ServerDoc.codename2doc(Server.server2codename(server))
+    def server2datetime_nanban(cls, server_codename, dt_pivot,):
+        server_doc = ServerDoc.codename2doc(server_codename)
         if not server_doc:
-            return NanbanTimedeltaSuffix.lang2str_idk(lang)
+            return None
 
-        nanban_time_raw = ServerDoc.doc2nanban_time(server_doc) if server_doc else None
-        utc_now = datetime.now(tz=pytz.utc)
+        nanban_prev = ServerDoc.doc2nanban(server_doc)
+        nanban_datetime_prev = ServerNanban.nanban2datetime(nanban_prev)
+        # dt_nanban_raw
+        # utc_now = datetime.now(tz=pytz.utc)
 
-        q = ArithmeticTool.divide_and_ceil(utc_now - nanban_time_raw, cls.period())
+        nanban_datetime_this = DatetimeTool.from_pivot_period2next(nanban_datetime_prev, dt_pivot, NanbanTimedelta.period())
 
-        nanban_time = nanban_time_raw + q * cls.period()
-
-        if q:
-            doc = {ServerDoc.Field.CODENAME: Server.server2codename(server),
-                   ServerDoc.Field.NANBAN_TIME: nanban_time,
+        if nanban_datetime_this != nanban_datetime_prev:
+            nanban = DictTool.filter(lambda k, v: v is not None,
+                                     {ServerNanban.Field.DATETIME: nanban_datetime_this,
+                                      ServerNanban.Field.COMMAND_IN: ServerNanban.nanban2command_in(nanban_prev),
+                                      })
+            doc = {ServerDoc.Field.CODENAME: server_codename,
+                   ServerDoc.Field.NANBAN: nanban,
                    }
-            ServerDoc.update([doc])
+            ServerDoc.docs2upsert([doc])
 
-        td = nanban_time - utc_now
+        return nanban_datetime_this
 
-        return cls.timedelta_lang2text(td, lang)
+
 
 
 

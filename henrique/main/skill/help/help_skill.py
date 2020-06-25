@@ -9,7 +9,8 @@ from foxylib.tools.collections.collections_tool import luniq
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.locale.locale_tool import LocaleTool
 from foxylib.tools.string.string_tool import str2strip
-from henrique.main.document.henrique_entity import Entity
+from foxylib.tools.entity.entity_tool import FoxylibEntity
+from henrique.main.document.henrique_entity import HenriqueEntity
 from henrique.main.document.skill.skill_entity import SkillEntity, HenriqueSkill
 from henrique.main.singleton.google.googledoc.henrique_googleapi import HenriqueGoogleapi
 from henrique.main.singleton.khala.henrique_khala import Rowsblock
@@ -67,13 +68,13 @@ class HelpSkill:
         lang = LocaleTool.locale2lang(locale)
 
         text_in = KhalaPacket.packet2text(packet)
-        config = {Entity.Config.Field.LOCALE: locale}
+        config = {HenriqueEntity.Config.Field.LOCALE: locale}
 
         def entity2is_valid(entity):
-            if Entity.entity2value(entity) != HenriqueSkill.Codename.HELP:
+            if FoxylibEntity.entity2value(entity) != HenriqueSkill.Codename.HELP:
                 return True
 
-            span = Entity.entity2span(entity)
+            span = FoxylibEntity.entity2span(entity)
             if len(str2strip(text_in[:span[0]]))>1:
                 return True
 

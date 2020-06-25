@@ -8,7 +8,8 @@ from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.googleapi.sheets.googlesheets_tool import GooglesheetsTool
 from foxylib.tools.locale.locale_tool import LocaleTool
 from henrique.main.document.culture.culture_entity import CultureEntity
-from henrique.main.document.henrique_entity import Entity
+from foxylib.tools.entity.entity_tool import FoxylibEntity
+from henrique.main.document.henrique_entity import HenriqueEntity
 from henrique.main.document.port.port_entity import PortEntity
 from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
 from henrique.main.singleton.google.googledoc.henrique_googleapi import HenriqueGoogleapi
@@ -32,8 +33,8 @@ class PortSkill:
 
     @classmethod
     def entity_lang2response_block(cls, entity, lang):
-        entity_type = Entity.entity2type(entity)
-        codename = Entity.entity2value(entity)
+        entity_type = FoxylibEntity.entity2type(entity)
+        codename = FoxylibEntity.entity2value(entity)
 
         from henrique.main.skill.port.port_port.port_port_response import PortPortResponse
         from henrique.main.skill.port.port_tradegood.port_tradegood_response import PortTradegoodResponse
@@ -60,10 +61,10 @@ class PortSkill:
 
         entity_classes = cls.target_entity_classes()
         text_in = KhalaPacket.packet2text(packet)
-        config = {Entity.Config.Field.LOCALE: locale}
+        config = {HenriqueEntity.Config.Field.LOCALE: locale}
         entity_list_raw = lchain(*[c.text2entity_list(text_in, config=config) for c in entity_classes])
 
-        entity_list = sorted(entity_list_raw, key=Entity.entity2span)
+        entity_list = sorted(entity_list_raw, key=FoxylibEntity.entity2span)
 
         blocks = [cls.entity_lang2response_block(entity, lang) for entity in entity_list]
 

@@ -6,7 +6,7 @@ from foxylib.tools.locale.locale_tool import LocaleTool
 from foxylib.tools.string.string_tool import str2strip
 from henrique.main.document.chatroomuser.chatroomuser import Chatroomuser
 from henrique.main.document.chatroomuser.entity.chatroomuser_entity import ChatroomuserEntity
-from henrique.main.document.henrique_entity import Entity
+from foxylib.tools.entity.entity_tool import FoxylibEntity
 from henrique.main.singleton.jinja2.henrique_jinja2 import HenriqueJinja2
 from henrique.main.singleton.khala.henrique_khala import Rowsblock
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
@@ -39,7 +39,7 @@ class WhoSkill:
         locale = Chatroom.chatroom2locale(chatroom)
         lang = LocaleTool.locale2lang(locale)
 
-        v = Entity.entity2value(entity)
+        v = FoxylibEntity.entity2value(entity)
         codename = ChatroomuserEntity.value_packet2codename(v, packet)
         logger.debug({"codename": codename,
                       "entity": entity,
@@ -71,12 +71,12 @@ class WhoSkill:
             return
 
         text_in = KhalaPacket.packet2text(packet)
-        # config = {Entity.Config.Field.LOCALE: locale}
+        # config = {HenriqueEntity.Config.Field.LOCALE: locale}
 
-        # config = {Entity.Config.Field.LOCALE: locale}
+        # config = {HenriqueEntity.Config.Field.LOCALE: locale}
         # entity_list_raw = lchain(*[c.text2entity_list(text_in, config=config) for c in entity_classes])
         #
-        entity_list_chatroomuser = sorted(ChatroomuserEntity.text2entity_list(text_in), key=Entity.entity2span)
+        entity_list_chatroomuser = sorted(ChatroomuserEntity.text2entity_list(text_in), key=FoxylibEntity.entity2span)
         blocks = [cls.entity2response_block(entity, packet,) for entity in entity_list_chatroomuser]
 
         return Rowsblock.blocks2text(blocks)

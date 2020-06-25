@@ -2,7 +2,7 @@ import logging
 from pprint import pprint
 from unittest import TestCase
 
-from henrique.main.document.henrique_entity import Entity
+from henrique.main.document.henrique_entity import HenriqueEntity
 from henrique.main.document.skill.skill_entity import SkillEntity
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 
@@ -13,7 +13,7 @@ class TestSkillEntity(TestCase):
         HenriqueLogger.attach_stderr2loggers(logging.DEBUG)
 
     def test_01(self):
-        config = {Entity.Config.Field.LOCALE: "ko-KR"}
+        config = {HenriqueEntity.Config.Field.LOCALE: "ko-KR"}
         hyp = SkillEntity.text2entity_list("? 항구 리스본", config=config)
         ref = [{'span': (2, 4),
                 'text': '항구',
@@ -24,7 +24,7 @@ class TestSkillEntity(TestCase):
         self.assertEqual(hyp, ref)
 
     def test_02(self):
-        config = {Entity.Config.Field.LOCALE: "ko-KR"}
+        config = {HenriqueEntity.Config.Field.LOCALE: "ko-KR"}
         hyp = SkillEntity.text2entity_list("? ㅆ 리스본", config=config)
         ref = [{'span': (2, 3),
                 'text': 'ㅆ',
@@ -35,7 +35,7 @@ class TestSkillEntity(TestCase):
         self.assertEqual(hyp, ref)
 
     def test_03(self):
-        config = {Entity.Config.Field.LOCALE: "ko-KR"}
+        config = {HenriqueEntity.Config.Field.LOCALE: "ko-KR"}
         hyp = SkillEntity.text2entity_list("? 도움말 항구", config=config)
         ref = [{'span': (2, 5),
                 'text': '도움말',

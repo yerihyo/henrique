@@ -7,7 +7,8 @@ from foxylib.tools.collections.collections_tool import lchain, smap
 from foxylib.tools.locale.locale_tool import LocaleTool
 from henrique.main.document.chatroomuser.entity.chatroomuser_entity import ChatroomuserEntity
 from henrique.main.document.culture.culture_entity import CultureEntity
-from henrique.main.document.henrique_entity import Entity
+from foxylib.tools.entity.entity_tool import FoxylibEntity
+from henrique.main.document.henrique_entity import HenriqueEntity
 from henrique.main.document.port.port_entity import PortEntity
 from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
 from henrique.main.singleton.khala.henrique_khala import Rowsblock
@@ -40,7 +41,7 @@ class WhatSkill:
         locale = Chatroom.chatroom2locale(chatroom)
         lang = LocaleTool.locale2lang(locale)
 
-        entity_type = Entity.entity2type(entity)
+        entity_type = FoxylibEntity.entity2type(entity)
 
         h_type2func = {PortEntity.entity_type(): partial(PortSkill.entity_lang2response_block, lang=lang),
                        TradegoodEntity.entity_type(): partial(TradegoodSkill.entity_lang2response_block, lang=lang),
@@ -63,10 +64,10 @@ class WhatSkill:
 
         entity_classes = cls.target_entity_classes()
         text_in = KhalaPacket.packet2text(packet)
-        config = {Entity.Config.Field.LOCALE: locale}
+        config = {HenriqueEntity.Config.Field.LOCALE: locale}
         entity_list_raw = lchain(*[c.text2entity_list(text_in, config=config) for c in entity_classes])
 
-        entity_list = sorted(entity_list_raw, key=Entity.entity2span)
+        entity_list = sorted(entity_list_raw, key=FoxylibEntity.entity2span)
 
         blocks = [cls.entity2response_block(packet, entity) for entity in entity_list]
 

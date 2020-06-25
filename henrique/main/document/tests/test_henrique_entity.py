@@ -2,7 +2,8 @@ import logging
 from pprint import pprint
 from unittest import TestCase
 
-from henrique.main.document.henrique_entity import Entity
+from foxylib.tools.entity.entity_tool import FoxylibEntity
+from henrique.main.document.henrique_entity import HenriqueEntity
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.skill.price.price_skill_clique import PriceSkillClique
 
@@ -14,8 +15,8 @@ class TestHenriqueEntity(TestCase):
 
     def test_01(self):
         text = "?시세 초롱 : 말세80ㅎ; 사사리75ㅎ; 시라130ㅅ;"
-        config = {Entity.Config.Field.LOCALE: "ko-KR"}
-        hyp = Entity.text_extractors2entity_list(text, PriceSkillClique.entity_classes(), config=config)
+        config = {HenriqueEntity.Config.Field.LOCALE: "ko-KR"}
+        hyp = HenriqueEntity.text_extractors2entity_list(text, PriceSkillClique.config2extractors(config))
         ref = [{'span': (4, 6),
                 'text': '초롱',
                 'type': 'henrique.main.document.tradegood.tradegood_entity.TradegoodEntity',
@@ -57,5 +58,5 @@ class TestHenriqueEntity(TestCase):
                 'type': 'henrique.main.document.price.trend.trend_entity.TrendEntity',
                 'value': 'rise'}]
 
-        pprint(hyp)
+        # pprint(hyp)
         self.assertEqual(hyp, ref)

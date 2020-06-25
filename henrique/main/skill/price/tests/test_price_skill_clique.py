@@ -3,7 +3,8 @@ from pprint import pprint
 from unittest import TestCase
 
 from henrique.main.document.culture.culture_entity import CultureEntity
-from henrique.main.document.henrique_entity import Entity
+from foxylib.tools.entity.entity_tool import FoxylibEntity
+from henrique.main.document.henrique_entity import HenriqueEntity
 from henrique.main.document.port.port_entity import PortEntity
 from henrique.main.document.price.rate.rate_entity import RateEntity
 from henrique.main.document.price.trend.trend_entity import TrendEntity
@@ -216,8 +217,8 @@ class TestPriceSkillClique(TestCase):
 
     def test_15(self):
         text = "?시세 사탕무 : 말세80ㅎ; 사사리75ㅎ; 시라130ㅅ;"
-        config = {Entity.Config.Field.LOCALE: "ko-KR"}
-        entity_list = Entity.text_extractors2entity_list(text, PriceSkillClique.entity_classes(), config=config)
+        config = {HenriqueEntity.Config.Field.LOCALE: "ko-KR"}
+        entity_list = HenriqueEntity.text_extractors2entity_list(text, PriceSkillClique.config2extractors(config),)
         hyp = PriceSkillClique.text_entity_list2clique_list(text, entity_list)
         ref = [{'ports': ['Marseilles'],
                 'rate': 80,
