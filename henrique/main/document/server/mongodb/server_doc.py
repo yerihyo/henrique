@@ -113,6 +113,6 @@ class ServerDoc:
     @classmethod
     def codenames2delete(cls, codenames):
         for codename in codenames:
-            CacheManager.delete_key(cls.codenames2docs, codename)
+            CacheManager.delete_key(cls.codenames2docs, [codename,])
 
         ServerCollection.collection().delete_many({ServerDoc.Field.CODENAME: {"$in": codenames}})
