@@ -207,7 +207,7 @@ class TestNanbanSkill(TestCase):
         with self.assertRaises(HenriqueCommandError) as context:
             NanbanSkill.packet2response(packet)
 
-            self.assertIn("""[남만시각] 이전에 설정된 남만 시각이 없어서 +/-로 남만 시각을 조정할 수 없어요.""", context.exception)
+        self.assertEquals("""[남만시각] 이전에 설정된 남만 시각이 없어서 +/-로 남만 시각을 조정할 수 없어요.""", str(context.exception))
 
         # os.environ[HenriqueEnv.Key.DIE_ON_ERROR] = "n"
         hyp = HenriquePacket.packet2response(packet)
