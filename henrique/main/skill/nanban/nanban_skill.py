@@ -159,6 +159,10 @@ class NanbanSkill:
 
         nanban_datetime_prev = ServerNanban.nanban2datetime(nanban_prev)
         nanban_datetime_new = nanban_datetime_prev + reldelta
+
+        # raise Exception({"nanban_datetime_prev":nanban_datetime_prev,
+        #                  "nanban_datetime_new":nanban_datetime_new,
+        #                  })
         return nanban_datetime_new
 
     @classmethod
@@ -237,6 +241,8 @@ class NanbanSkill:
             reldelta = RelativeTimedeltaEntity.entity2relativedelta(entity)
             dt_in = cls.relativedelta2nanban_datetime(server_codename, reldelta, )
 
+            # raise Exception({"dt_in":dt_in, "reldelta":reldelta})
+
             if dt_in is None:
                 msg_error = NanbanSkillError.codename_lang2text(NanbanSkillError.Codename.NO_PREV_NANBAN_ERROR, lang)
                 raise HenriqueCommandError(msg_error)
@@ -246,7 +252,7 @@ class NanbanSkill:
         elif FoxylibEntity.entity2type(entity) == TimeEntity.entity_type():
             time_in = TimeEntity.value2datetime_time(FoxylibEntity.entity2value(entity))
             dt_in = PytzTool.localize(datetime.combine(dt_now.date(), time_in), tz)
-            logger.debug({"time_in": time_in, })
+            logger.debug({"time_in": time_in, "dt_in":dt_in, })
         else:
             raise RuntimeError({"Invalid entity type: {}".format(FoxylibEntity.entity2type(entity))})
 

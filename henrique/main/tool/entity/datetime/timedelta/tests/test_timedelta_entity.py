@@ -90,3 +90,23 @@ class TestRelativeTimedeltaEntity(TestCase):
         config = {HenriqueEntity.Config.Field.LOCALE: "en"}
         entity_list = RelativeTimedeltaEntity.text2entity_list("-10분", config=config)
         self.assertFalse(entity_list,)
+
+    def test_07(self):
+        config = {HenriqueEntity.Config.Field.LOCALE: "ko"}
+        entity_list = RelativeTimedeltaEntity.text2entity_list("+2분 1초", config=config)
+        # pprint(entity_list)
+
+        ref = [{'span': (0, 6),
+                'text': '+2분 1초',
+                'type': 'henrique.main.tool.entity.datetime.timedelta.timedelta_entity.RelativeTimedeltaEntity',
+                'value': {'sign': '+',
+                          'timedelta': {'span': (1, 6),
+                                        'text': '2분 1초',
+                                        'type': 'henrique.main.tool.entity.datetime.timedelta.timedelta_entity.TimedeltaEntity',
+                                        'value': [{'quantity': 2,
+                                                   'span': (1, 3),
+                                                   'unit': 'minute'},
+                                                  {'quantity': 1,
+                                                   'span': (4, 6),
+                                                   'unit': 'second'}]}}}]
+        self.assertEqual(entity_list, ref)
