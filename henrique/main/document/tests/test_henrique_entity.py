@@ -1,7 +1,10 @@
 import logging
+from functools import partial
 from pprint import pprint
 from unittest import TestCase
 
+from henrique.main.document.culture.culture_entity import CultureEntity
+from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
 from foxylib.tools.entity.entity_tool import FoxylibEntity
 from henrique.main.document.henrique_entity import HenriqueEntity
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
@@ -57,6 +60,23 @@ class TestHenriqueEntity(TestCase):
                 'text': 'ㅅ',
                 'type': 'henrique.main.document.price.trend.trend_entity.TrendEntity',
                 'value': 'rise'}]
+
+        # pprint(hyp)
+        self.assertEqual(hyp, ref)
+
+
+    def test_02(self):
+        text = "조선 서적"
+        config = {HenriqueEntity.Config.Field.LOCALE: "ko-KR"}
+        extractors = [partial(CultureEntity.text2entity_list, config=config),
+                      partial(TradegoodEntity.text2entity_list, config=config),
+                      ]
+        hyp = HenriqueEntity.text_extractors2entity_list(text, extractors)
+        ref = [
+            {'span': (0, 5),
+             'text': '조선 서적',
+             'type': 'henrique.main.document.tradegood.tradegood_entity.TradegoodEntity',
+             'value': 'Korean Books'}]
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)

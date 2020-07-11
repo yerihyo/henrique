@@ -110,8 +110,6 @@ class RateEntity:
         return re.compile(rstr_rightbound, re.I)
 
 
-
-
     @classmethod
     @CacheTool.cache2hashable(cache=lru_cache(maxsize=HenriqueEntity.Cache.DEFAULT_SIZE),
                               f_pair=CacheTool.JSON.func_pair(), )

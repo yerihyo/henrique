@@ -176,10 +176,11 @@ class PriceSkill:
         server_codename = HenriquePacket.packet2server(packet)
 
         chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))
-        config = {HenriqueEntity.Config.Field.LOCALE: Chatroom.chatroom2locale(chatroom)}
 
+        config = {HenriqueEntity.Config.Field.LOCALE: Chatroom.chatroom2locale(chatroom)}
         extractors = Clique.config2extractors(config)
         entity_list = HenriqueEntity.text_extractors2entity_list(text, extractors)
+
         clique_list = Clique.text_entity_list2clique_list(text, entity_list)
         clique_list_update = lfilter(lambda x: Clique.clique2type(x) == Clique.Type.UPDATE, clique_list)
 
