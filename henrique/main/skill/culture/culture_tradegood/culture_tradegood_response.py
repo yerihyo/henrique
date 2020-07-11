@@ -19,14 +19,17 @@ class CultureTradegoodResponse:
 
         prefer_list = Prefer.tradegood2prefers(tradegood_codename)
 
-        def prefer2data(prefer):
+        def prefer2culture_name(prefer):
             culture = Culture.codename2culture(Prefer.prefer2culture(prefer))
             culture_name = Culture.culture_lang2name(culture, lang)
-            return {"culture_name":culture_name}
+            return culture_name
+
+        preferred_culture_list = lmap(prefer2culture_name, prefer_list)
+        preferred_cultures = ", ".join(preferred_culture_list)
 
         filepath = os.path.join(FILE_DIR, "tmplt.{}.part.txt".format(lang))
         data = {"tradegood_name": Tradegood.tradegood_lang2name(tradegood, lang),
-                "prefer_data_list": lmap(prefer2data, prefer_list),
+                "preferred_cultures": preferred_cultures,
                 }
         text_out = str2strip(HenriqueJinja2.textfile2text(filepath, data))
 

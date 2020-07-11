@@ -123,7 +123,8 @@ class TrendEntity:
                           RegexTool.rstr2wrapped(RateEntity.rstr()),
                           RegexTool.name_rstr2named("trend", cls.lang2rstr(lang),)
                           )
-        return re.compile(RegexTool.rstr2rstr_words_suffixed(rstr), re.I)
+        rstr_right_bounded = RegexTool.rstr2right_bounded(rstr, RegexTool.right_wordbounds())
+        return re.compile(rstr_right_bounded, re.I)
 
     @classmethod
     @CacheTool.cache2hashable(cache=lru_cache(maxsize=HenriqueEntity.Cache.DEFAULT_SIZE),

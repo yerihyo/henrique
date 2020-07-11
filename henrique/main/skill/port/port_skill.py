@@ -61,9 +61,8 @@ class PortSkill:
         entity_classes = cls.target_entity_classes()
         text_in = KhalaPacket.packet2text(packet)
         config = {Entity.Config.Field.LOCALE: locale}
-        entity_list_raw = lchain(*[c.text2entity_list(text_in, config=config) for c in entity_classes])
 
-        entity_list = sorted(entity_list_raw, key=Entity.entity2span)
+        entity_list = Entity.text_classes2entity_list(text_in, entity_classes, config=config)
 
         blocks = [cls._entity_lang2response_block(entity, lang) for entity in entity_list]
 

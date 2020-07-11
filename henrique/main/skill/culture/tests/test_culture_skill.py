@@ -43,7 +43,7 @@ class TestCultureSkill(TestCase):
 
         hyp = CultureSkill.packet2response(packet)
         ref = """[복분자] 우대 문화권
-- 북유럽"""
+- 동아프리카, 페르시아"""
 
         # pprint({"hyp":hyp})
         self.assertEqual(hyp, ref)

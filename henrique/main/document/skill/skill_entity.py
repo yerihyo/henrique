@@ -108,7 +108,7 @@ class SkillEntity:
     def text2entity_list(cls, text_in, config=None):
         lang = LocaleTool.locale2lang(Entity.Config.config2locale(config))
 
-        span_value_list = cls.lang2matcher(lang).text2span_value_list(text_in)
+        span_value_list = list(cls.lang2matcher(lang).text2span_value_iter(text_in))
 
         entity_list = [{Entity.Field.SPAN: span,
                         Entity.Field.TEXT: StringTool.str_span2substr(text_in, span),

@@ -77,11 +77,13 @@ class RateEntity:
         ### may be concatenated with port/tradegood name
         # rstr_prefixed = RegexTool.rstr2rstr_words_prefixed(cls.rstr())
         # raise Exception({"rstr_suffix":rstr_suffix})
-        rstr_suffixed = RegexTool.rstr2rstr_words_suffixed(cls.rstr(), rstr_suffix=rstr_suffix)
+        rstr_right_bounds = RegexTool.bounds2prefixed(RegexTool.right_wordbounds(), rstr_suffix)
+        rstr_right_bounded = RegexTool.rstr2right_bounded(cls.rstr(), rstr_right_bounds)
+        # rstr_suffixed = RegexTool.rstr2rstr_words_suffixed(cls.rstr(), rstr_suffix=rstr_suffix)
 
         # raise Exception({"rstr_trend": rstr_trend, "rstr_suffixed": rstr_suffixed})
         # return re.compile(RegexTool.rstr2rstr_words(cls.rstr()))
-        return re.compile(rstr_suffixed, re.I)
+        return re.compile(rstr_right_bounded, re.I)
 
 
 

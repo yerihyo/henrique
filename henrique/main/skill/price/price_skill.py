@@ -176,7 +176,7 @@ class PriceSkill:
 
         chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))
         config = {Entity.Config.Field.LOCALE: Chatroom.chatroom2locale(chatroom)}
-        entity_list = Entity.text_extractors2entity_list(text, Clique.entity_classes(), config=config)
+        entity_list = Entity.text_classes2entity_list(text, Clique.entity_classes(), config=config)
         clique_list = Clique.text_entity_list2clique_list(text, entity_list)
         clique_list_update = lfilter(lambda x: Clique.clique2type(x) == Clique.Type.UPDATE, clique_list)
 
@@ -266,7 +266,11 @@ class PriceSkill:
         # rstr = r"{}\s*$".format(rstr_rate_trend)
 
         # raise Exception(rstr)
-        pattern = re.compile(RegexTool.rstr2rstr_words(rstr_rate_trend), re.I)
+        rstr_bounded = RegexTool.rstr2bounded(rstr_rate_trend,
+                                              RegexTool.left_wordbounds(),
+                                              RegexTool.right_wordbounds(),
+                                              )
+        pattern = re.compile(rstr_bounded, re.I)
         return pattern
 
 

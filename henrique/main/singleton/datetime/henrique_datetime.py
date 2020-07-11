@@ -1,10 +1,7 @@
-import pytz
-from datetime import datetime, timedelta
+from datetime import timedelta
 from future.utils import lmap
-from nose.tools import assert_equal
 
 from foxylib.tools.collections.iter_tool import IterTool
-from foxylib.tools.date.date_tools import DatetimeTool, TimedeltaTool
 
 
 class HenriqueDatetime:

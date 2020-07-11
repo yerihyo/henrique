@@ -33,7 +33,11 @@ class TradegoodEntitySpecialcase:
     @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
     @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def pattern_ko(cls):
-        return re.compile(RegexTool.rstr2rstr_words(r"육메(?:크|클)?"))
+        rstr_bounded = RegexTool.rstr2bounded(r"육메(?:크|클)?",
+                                              RegexTool.left_wordbounds(),
+                                              RegexTool.right_wordbounds(),
+                                              )
+        return re.compile(rstr_bounded)
 
     @classmethod
     def text2entity_list(cls, text_in, config=None):
@@ -133,7 +137,7 @@ class TradegoodEntity:
         lang = LocaleTool.locale2lang(locale) or LocaleTool.locale2lang(HenriqueLocale.DEFAULT)
 
         matcher = cls.lang2matcher(lang)
-        span_value_list = matcher.text2span_value_list(text_in)
+        span_value_list = list(matcher.text2span_value_iter(text_in))
 
         entity_list = [{Entity.Field.SPAN: span,
                         Entity.Field.TEXT: StringTool.str_span2substr(text_in, span),

@@ -241,7 +241,7 @@ class PriceSkillClique:
             if Entity.entity2type(entity_portlike) != PortEntity.entity_type():  # not culture
                 return False
 
-            entity_latter = max([entity_portlike, entity_tradegood], key=Entity.entity2span)
+            entity_latter = max([entity_portlike, entity_tradegood], key=Entity.entity2key)
 
             span_latter, span_rate, span_trend = lmap(Entity.entity2span, [entity_latter, entity_rate, entity_trend])
 
