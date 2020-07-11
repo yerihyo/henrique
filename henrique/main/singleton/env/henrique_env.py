@@ -136,8 +136,12 @@ class HenriqueEnv:
 
     @classmethod
     def key2nullboolean(cls, key):
+        logger = HenriqueLogger.func_level2logger(cls.key2nullboolean, logging.DEBUG)
+
         v = cls.key2value(key)
         nb = BooleanTool.parse2nullboolean(v)
+        # logger.debug({"key":key, "v":v, "nb":nb})
+
         return nb
 
 

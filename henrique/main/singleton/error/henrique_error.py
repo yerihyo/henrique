@@ -30,6 +30,9 @@ class ErrorhandlerKakaotalk:
             def wrapper(f):
                 die_on_error = HenriqueEnv.key2nullboolean(HenriqueEnv.Key.DIE_ON_ERROR)
                 # raise Exception(die_on_error)
+
+
+
                 if die_on_error is True:
                     return f
 

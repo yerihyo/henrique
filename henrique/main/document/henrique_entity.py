@@ -99,6 +99,7 @@ class HenriqueEntity:
     #
     #     return re.compile(rstr_word, )  # re.I can be dealt with normalizer
 
+    @classmethod
     def texts2pattern_port_tradegood(cls, texts):
         left_bounds = RegexTool.left_wordbounds()
         right_bounds = lchain(RegexTool.right_wordbounds(), ["\d+"],)
