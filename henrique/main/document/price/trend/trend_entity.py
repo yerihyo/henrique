@@ -1,25 +1,21 @@
+import logging
+
 import re
-
-from foxylib.tools.native.clazz.class_tool import ClassTool
-from foxylib.tools.native.module.module_tool import ModuleTool
-from foxylib.tools.nlp.contextfree.contextfree_tool import ContextfreeTool
-
-from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_overwrite, DictTool, vwrite_no_duplicate_key
-from future.utils import lfilter, lmap
-
-from foxylib.tools.cache.cache_tool import CacheTool
-
-from foxylib.tools.locale.locale_tool import LocaleTool
-
-from functools import lru_cache, partial
+from functools import lru_cache
+from future.utils import lmap
 from nose.tools import assert_is_not_none
 
+from foxylib.tools.cache.cache_tool import CacheTool
+from foxylib.tools.collections.collections_tool import merge_dicts, vwrite_no_duplicate_key
+from foxylib.tools.entity.entity_tool import FoxylibEntity
 from foxylib.tools.function.function_tool import FunctionTool
-from foxylib.tools.nlp.gazetteer.gazetteer_matcher import GazetteerMatcher
+from foxylib.tools.locale.locale_tool import LocaleTool
+from foxylib.tools.native.clazz.class_tool import ClassTool
 from foxylib.tools.regex.regex_tool import RegexTool
-from foxylib.tools.string.string_tool import str2lower, StringTool, format_str
-from henrique.main.document.henrique_entity import Entity, HenriqueEntity
+from foxylib.tools.string.string_tool import str2lower, StringTool
+from henrique.main.document.henrique_entity import HenriqueEntity
 from henrique.main.singleton.locale.henrique_locale import HenriqueLocale
+from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 
 
 class Trend:
@@ -119,18 +115,21 @@ class TrendEntity:
     @classmethod
     def lang2pattern(cls, lang):
         from henrique.main.document.price.rate.rate_entity import RateEntity
-        rstr = format_str(r"{}\s*{}",
-                          RegexTool.rstr2wrapped(RateEntity.rstr()),
-                          RegexTool.name_rstr2named("trend", cls.lang2rstr(lang),)
-                          )
-        rstr_right_bounded = RegexTool.rstr2right_bounded(rstr, RegexTool.right_wordbounds())
-        return re.compile(rstr_right_bounded, re.I)
+        logger = HenriqueLogger.func_level2logger(cls.lang2pattern, logging.DEBUG)
+
+        left_bounds = [RateEntity.rstr_last_char(), r"\s", ]
+        right_bounds = RegexTool.right_wordbounds()
+        rstr = RegexTool.rstr2bounded(cls.lang2rstr(lang), left_bounds, right_bounds)
+
+        logger.debug({"left_bounds":left_bounds,
+                      "rstr":rstr})
+        return re.compile(rstr, re.I)
 
     @classmethod
     @CacheTool.cache2hashable(cache=lru_cache(maxsize=HenriqueEntity.Cache.DEFAULT_SIZE),
                               f_pair=CacheTool.JSON.func_pair(), )
     def text2entity_list(cls, text_in, config=None):
-        locale = Entity.Config.config2locale(config) or HenriqueLocale.DEFAULT
+        locale = HenriqueEntity.Config.config2locale(config) or HenriqueLocale.DEFAULT
         lang = LocaleTool.locale2lang(locale)
 
         pattern = cls.lang2pattern(lang)
@@ -138,14 +137,14 @@ class TrendEntity:
         m_list = list(pattern.finditer(text_in))
 
         def match2entity(match):
-            span = match.span("trend")
+            span = match.span()
             text = StringTool.str_span2substr(text_in, span)
             codename = cls.lang_alias2codename(lang, text)
 
-            entity = {Entity.Field.VALUE: codename,
-                      Entity.Field.TEXT: text,
-                      Entity.Field.SPAN: span,
-                      Entity.Field.TYPE: cls.entity_type(),
+            entity = {FoxylibEntity.Field.VALUE: codename,
+                      FoxylibEntity.Field.TEXT: text,
+                      FoxylibEntity.Field.SPAN: span,
+                      FoxylibEntity.Field.TYPE: cls.entity_type(),
                       }
             return entity
 

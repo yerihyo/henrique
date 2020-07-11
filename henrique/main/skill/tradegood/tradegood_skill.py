@@ -9,7 +9,8 @@ from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.googleapi.sheets.googlesheets_tool import GooglesheetsTool
 from foxylib.tools.locale.locale_tool import LocaleTool
 from henrique.main.document.culture.culture_entity import CultureEntity
-from henrique.main.document.henrique_entity import Entity
+from foxylib.tools.entity.entity_tool import FoxylibEntity
+from henrique.main.document.henrique_entity import HenriqueEntity
 from henrique.main.document.port.port_entity import PortEntity
 from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
 from henrique.main.singleton.google.googledoc.henrique_googleapi import HenriqueGoogleapi
@@ -35,9 +36,9 @@ class TradegoodSkill:
         return {PortEntity, TradegoodEntity, CultureEntity}
 
     @classmethod
-    def _entity_lang2response(cls, entity, lang):
-        entity_type = Entity.entity2type(entity)
-        codename = Entity.entity2value(entity)
+    def entity_lang2response_block(cls, entity, lang):
+        entity_type = FoxylibEntity.entity2type(entity)
+        codename = FoxylibEntity.entity2value(entity)
 
         from henrique.main.skill.tradegood.tradegood_port.tradegood_port_response import TradegoodPortResponse
         from henrique.main.skill.tradegood.tradegood_tradegood.tradegood_tradegood_response import TradegoodTradegoodResponse
@@ -66,11 +67,11 @@ class TradegoodSkill:
 
         entity_classes = cls.target_entity_classes()
         text_in = KhalaPacket.packet2text(packet)
-        config = {Entity.Config.Field.LOCALE: locale}
 
-        entity_list = Entity.text_classes2entity_list(text_in, entity_classes, config=config)
+        config = {HenriqueEntity.Config.Field.LOCALE: locale}
+        entity_list = HenriqueEntity.text_classes2entity_list(text_in, entity_classes, config=config)
 
-        response = Rowsblock.blocks2text([cls._entity_lang2response(entity, lang) for entity in entity_list])
+        response = Rowsblock.blocks2text([cls.entity_lang2response_block(entity, lang) for entity in entity_list])
         return response
 
 

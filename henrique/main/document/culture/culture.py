@@ -1,5 +1,8 @@
+import logging
 import os
 import sys
+
+from future.utils import lfilter
 from itertools import chain
 from nose.tools import assert_is_not_none
 
@@ -12,6 +15,7 @@ from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.json.json_tool import JsonTool
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
+from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 
 FILE_PATH = os.path.realpath(__file__)
 FILE_DIR = os.path.dirname(FILE_PATH)
@@ -49,12 +53,16 @@ class Culture:
 
     @classmethod
     def culture_lang2aliases(cls, culture, lang):
-        return JsonTool.down(culture, [cls.Field.ALIASES, lang])
+        logger = HenriqueLogger.func_level2logger(cls.culture_lang2aliases, logging.DEBUG)
+        aliases = JsonTool.down(culture, [cls.Field.ALIASES, lang])
 
+        # logger.debug({"culture": culture, "lang": lang, "aliases": aliases})
+        return aliases
 
     @classmethod
     def culture_langs2aliases(cls, port, langs):
-        return luniq(chain(*[cls.culture_lang2aliases(port, lang) for lang in langs]))
+        aliases_list = lfilter(bool, [cls.culture_lang2aliases(port, lang) for lang in langs])
+        return luniq(chain(*aliases_list))
 
     @classmethod
     def culture_lang2name(cls, culture, lang):
@@ -88,6 +96,11 @@ class Prefer:
         return GroupbyTool.dict_groupby_tree(cls.list_all(), [cls.prefer2tradegood])
 
     @classmethod
+    def culture2prefers(cls, codename):
+        culture = Culture.codename2culture(codename)
+        return Culture.culture2prefers(culture) or []
+
+    @classmethod
     def tradegood2prefers(cls, tradegood_codename):
         return cls._dict_tradegood2prefers().get(tradegood_codename) or []
 
@@ -104,4 +117,4 @@ class Prefer:
 #     class Field:
 #         CODENAME = "codename"
 
-WARMER.warmup()
+# WARMER.warmup()

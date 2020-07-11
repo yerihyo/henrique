@@ -2,7 +2,7 @@ import logging
 from pprint import pprint
 from unittest import TestCase
 
-from henrique.main.singleton.khala.henrique_khala import HenriqueKhala
+from henrique.main.singleton.khala.henrique_khala import HenriquePacket
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.singleton.khala.henrique_khala import Rowsblock
 from henrique.main.skill.tradegood.tradegood_port.tradegood_port_response import TradegoodPortResponse
@@ -15,7 +15,7 @@ class TestTradegoodPortResponse(TestCase):
 
     def test_01(self):
         hyp = Rowsblock.text2norm(TradegoodPortResponse.codename_lang2text("Lisbon", "ko"))
-        ref = """[리스본] 상품
+        ref = """[교역품] 리스본 교역소
 - 아몬드
 - 아몬드유
 - 브랜디

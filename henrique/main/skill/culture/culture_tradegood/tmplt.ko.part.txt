@@ -1,2 +1,2 @@
-[{{tradegood_name}}] 우대 문화권
-- {% if preferred_cultures %}{{preferred_cultures}}{% else %}없음{% endif %}
+[문화권] {{tradegood_name}} 우대 문화권{% if not preferred_cultures %}: 없음{% else %}
+- {{preferred_cultures}}{% endif %}

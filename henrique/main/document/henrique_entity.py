@@ -6,28 +6,25 @@ from nose.tools import assert_greater_equal
 from foxylib.tools.collections.collections_tool import vwrite_no_duplicate_key, merge_dicts, lchain
 from functools import lru_cache, partial
 
+from foxylib.tools.entity.entity_tool import FoxylibEntity
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.regex.regex_tool import RegexTool
 from foxylib.tools.span.span_tool import SpanTool
 from khala.document.chatroom.chatroom import Chatroom
 from khala.document.packet.packet import KhalaPacket
 
-
-class Entity:
-    class Field:
-        TYPE = "type"
-        TEXT = "text"
-        SPAN = "span"
-        VALUE = "value"
-
-    class Step:
-        PRECISION = "precision"
-        RECALL = "recall"
+class HenriqueEntity:
+    class Cache:
+        DEFAULT_SIZE = 100
 
     class Config:
+        # class Step:
+        #     PRECISION = "precision"
+        #     RECALL = "recall"
+
         class Field:
             LOCALE = "locale"
-            STEP = "step"
+            # STEP = "step"
 
         @classmethod
         def config2locale(cls, j):
@@ -42,35 +39,19 @@ class Entity:
             locale = Chatroom.chatroom2locale(chatroom)
 
             config = {cls.Field.LOCALE: locale,
-                      cls.Field.STEP: Entity.Step.PRECISION,
+                      # cls.Field.STEP: cls.Step.PRECISION,
                       }
             return config
 
     @classmethod
-    def entity2type(cls, entity):
-        return entity[cls.Field.TYPE]
-
-    @classmethod
-    def entity2text(cls, entity):
-        return entity[cls.Field.TEXT]
-
-    @classmethod
-    def entity2span(cls, entity):
-        return entity[cls.Field.SPAN]
-
-    @classmethod
-    def entity2value(cls, entity):
-        return entity[cls.Field.VALUE]
-
-    @classmethod
     def entity2key(cls, entity):
-        s, e = cls.entity2span(entity)
+        s, e = FoxylibEntity.entity2span(entity)
 
         k = (s,
              -e,
-             cls.entity2type(entity),
-             cls.entity2value(entity),
-             cls.entity2text(entity),
+             FoxylibEntity.entity2type(entity),
+             FoxylibEntity.entity2value(entity),
+             FoxylibEntity.entity2text(entity),
              )
         return k
 
@@ -82,13 +63,13 @@ class Entity:
 
     @classmethod
     def entity_list2inferior_excluded(cls, entity_list_in):
-        entity_list = sorted(entity_list_in, key=Entity.entity2key)
+        entity_list = sorted(entity_list_in, key=cls.entity2key)
 
         def entities2valid(entities):
             span_furthest = None
 
             for entity in entities:
-                span = cls.entity2span(entity)
+                span = FoxylibEntity.entity2span(entity)
 
                 if span_furthest and SpanTool.covers_strictly(span_furthest, span):
                     continue
@@ -105,23 +86,31 @@ class Entity:
         entity_ll = [f(text_in) for f in extractors]
         entity_list_raw = lchain(*entity_ll)
         entity_list_filtered = cls.entity_list2inferior_excluded(entity_list_raw)
-        entity_list = sorted(entity_list_filtered, key=Entity.entity2key)
+        entity_list = sorted(entity_list_filtered, key=cls.entity2key)
         return entity_list
 
+    # @classmethod
+    # def texts2rstr_word_with_cardinal_suffix(cls, texts):
+    #     regex_raw = RegexTool.rstr_iter2or(map(re.escape, texts))
+    #     rstr_prefixed = RegexTool.rstr2left_bounded(regex_raw, RegexTool.left_wordbounds())
+    #
+    #     rstr_suf = r"(?=(?:\s|\b|[0-9]|$))"
+    #     rstr_word = r'{0}{1}'.format(RegexTool.rstr2wrapped(rstr_prefixed), rstr_suf)
+    #
+    #     return re.compile(rstr_word, )  # re.I can be dealt with normalizer
 
-class HenriqueEntity:
-    class Cache:
-        DEFAULT_SIZE = 100
+    def texts2pattern_port_tradegood(cls, texts):
+        left_bounds = RegexTool.left_wordbounds()
+        right_bounds = lchain(RegexTool.right_wordbounds(), ["\d+"],)
+        rstr_bounded = RegexTool.rstr2bounded(RegexTool.rstr_iter2or(map(re.escape, texts)), left_bounds, right_bounds,)
+        return re.compile(rstr_bounded)
+        # regex_raw = RegexTool.rstr_iter2or(map(re.escape, texts))
+        # rstr_prefixed = RegexTool.rstr2rstr_words_prefixed(regex_raw)
+        #
+        # rstr_suf = r"(?=(?:\s|\b|[0-9]|$))"
+        # rstr_word = r'{0}{1}'.format(RegexTool.rstr2wrapped(rstr_prefixed), rstr_suf)
 
-    @classmethod
-    def texts2rstr_word_with_cardinal_suffix(cls, texts):
-        regex_raw = RegexTool.rstr_iter2or(map(re.escape, texts))
-        rstr_prefixed = RegexTool.rstr2left_bounded(regex_raw, RegexTool.left_wordbounds())
-
-        rstr_suf = r"(?=(?:\s|\b|[0-9]|$))"
-        rstr_word = r'{0}{1}'.format(RegexTool.rstr2wrapped(rstr_prefixed), rstr_suf)
-
-        return re.compile(rstr_word, )  # re.I can be dealt with normalizer
+        # return re.compile(rstr_bounded, )  # re.I can be dealt with normalizer
 
     # @classmethod
     # def classes(cls):

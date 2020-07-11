@@ -7,28 +7,44 @@ from future.utils import lfilter, lmap
 from nose.tools import assert_in
 
 from foxylib.tools.collections.collections_tool import l_singleton2obj
+from foxylib.tools.entity.entity_tool import FoxylibEntity
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.nlp.contextfree.contextfree_tool import ContextfreeTool
 from foxylib.tools.string.string_tool import str2strip, StringTool
-from henrique.main.document.henrique_entity import Entity, HenriqueEntity
+from henrique.main.document.henrique_entity import HenriqueEntity
 from henrique.main.document.skill.skill_entity import SkillEntity
+from henrique.main.singleton.config.henrique_config import HenriqueConfig
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
+from henrique.main.singleton.error.henrique_error import ErrorhandlerKakaotalk
 from khala.document.packet.packet import KhalaPacket
 
 MODULE = sys.modules[__name__]
 WARMER = Warmer(MODULE)
 
 
-class HenriqueKhala:
+class HenriquePacket:
     @classmethod
+    @ErrorhandlerKakaotalk.Decorator.error_handler
     def packet2response(cls, packet):
         from henrique.main.document.skill.skill_entity import HenriqueSkill
 
         skill_code = HenriqueCommand.packet2skill_code(packet)
+        if not skill_code:
+            return None
+
         skill_class = HenriqueSkill.codename2class(skill_code)
         response_raw = skill_class.packet2response(packet)
         return Rowsblock.text2norm(response_raw)
+
+    @classmethod
+    def packet2server(cls, packet):
+        chatroom_codename = KhalaPacket.packet2chatroom(packet)
+        server_codename = HenriqueConfig.chatroom2server(chatroom_codename)
+        if not server_codename:
+            raise RuntimeError("Chatroom without config: {}".format(chatroom_codename))
+
+        return server_codename
 
 
 class HenriqueCommand:
@@ -41,7 +57,7 @@ class HenriqueCommand:
     @classmethod
     def packet2skill_code(cls, packet):
         text_in = KhalaPacket.packet2text(packet)
-        config = Entity.Config.packet2config(packet)
+        config = HenriqueEntity.Config.packet2config(packet)
         return cls._text_config2skill_code(text_in, config)
 
     @classmethod
@@ -58,7 +74,7 @@ class HenriqueCommand:
             return None
 
         spans_list = [lmap(lambda m: m.span(), match_list_prefix),
-                      lmap(Entity.entity2span, entity_list)
+                      lmap(FoxylibEntity.entity2span, entity_list)
                       ]
         gap2is_valid = partial(StringTool.str_span2match_blank_or_nullstr, text_in)
         indextuple_list = ContextfreeTool.spans_list2reducible_indextuple_list(spans_list, gap2is_valid)
@@ -95,4 +111,4 @@ class Rowsblock:
         text_out = StringTool.str2strip_eachline(StringTool.str2strip(text_in))
         return text_out
 
-WARMER.warmup()
+# WARMER.warmup()

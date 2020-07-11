@@ -16,8 +16,9 @@ class TestPortSkill(TestCase):
                   }
 
         hyp = PortSkill.packet2response(packet)
-        ref = """[리스본]
-- 문화권: 이베리아"""
+        ref = """[항구] 리스본
+- 문화권: 이베리아
+- 내성: 식료품, 가축, 조미료, 주류, 기호품, 광석, 무기류, 공예품, 총포류"""
 
         # pprint({"hyp":hyp})
         self.assertEqual(hyp, ref)
@@ -32,8 +33,8 @@ class TestPortSkill(TestCase):
         hyp = PortSkill.packet2response(packet)
         # ref = ("[이베리아] 항구 - 세비야, 세우타, 카사블랑카, 라스팔마스, 마데이라, 파루, 리스본, 포르투, 비아나두카스텔루, 히혼, "
         #        "빌바오, 말라가, 발렌시아, 팔마, 바르셀로나, 몽펠리에, 사그레스")
-        ref = ("[이베리아] 항구 - 라스팔마스, 파루, 카사블랑카, 히혼, 팔마, 마데이라, 비아나두카스텔루, 리스본, 사그레스, 빌바오, "
-               "세비야, 바르셀로나, 포르투, 말라가, 세우타, 몽펠리에, 발렌시아")
+        ref = """[항구] 이베리아 문화권
+- 라스팔마스, 파루, 카사블랑카, 히혼, 팔마, 마데이라, 비아나두카스텔루, 리스본, 사그레스, 빌바오, 세비야, 바르셀로나, 포르투, 말라가, 세우타, 몽펠리에, 발렌시아"""
 
         # pprint({"hyp":hyp})
         self.assertEqual(hyp, ref)

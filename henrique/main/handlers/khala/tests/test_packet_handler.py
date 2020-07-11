@@ -30,8 +30,9 @@ class TestHandler(TestCase):
         # pprint(packet)
 
         hyp = PacketHandler.post(packet)
-        ref = ("""[리스본]
-- 문화권: 이베리아""", 200)
+        ref = ("""[항구] 리스본
+- 문화권: 이베리아
+- 내성: 식료품, 가축, 조미료, 주류, 기호품, 광석, 무기류, 공예품, 총포류""", 200)
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)
@@ -44,8 +45,11 @@ class TestHandler(TestCase):
                   }
 
         hyp = PacketHandler.post(packet)
-        ref = ("""[리스본]
-- 문화권: 이베리아""", 200)
+        ref = ("""[항구] 리스본
+- 문화권: 이베리아
+- 내성: 식료품, 가축, 조미료, 주류, 기호품, 광석, 무기류, 공예품, 총포류""", 200)
+
+        # pprint(hyp)
         self.assertEqual(hyp, ref)
 
     def test_03(self):
@@ -56,7 +60,7 @@ class TestHandler(TestCase):
         }
 
         hyp = PacketHandler.post(packet)
-        ref = ("""[리스본] 상품
+        ref = ("""[교역품] 리스본 교역소
 - 아몬드
 - 아몬드유
 - 브랜디

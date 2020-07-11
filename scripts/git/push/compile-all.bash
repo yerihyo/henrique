@@ -13,7 +13,7 @@ func_count2reduce(){
     for ((i=0;i<$n;i++)); do v=$($cmd $v) ; done; echo "$v"
 }
 
-REPO_DIR=$(func_count2reduce $FILE_DIR dirname 2)
+REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
 FOXYLIB_DIR=${FOXYLIB_DIR?''}
 if [[ "$FOXYLIB_DIR" ]]; then
     export PYTHONPATH=$FOXYLIB_DIR
@@ -25,7 +25,7 @@ compile_travis(){
         travis encrypt-file \
             henrique/env/docker/env.$env.list \
             travis/henrique/env/docker/env.$env.list.enc \
-            --force --com --add
+            --force --com # --add
     done
 }
 
