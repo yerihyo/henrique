@@ -1,7 +1,7 @@
 import sys
 from operator import itemgetter as ig
 
-from cachetools import LRUCache
+from cachetools import LRUCache, cached, TTLCache
 from future.utils import lmap, lfilter
 from itertools import chain
 
@@ -122,7 +122,8 @@ class PortGooglesheets:
 
     @classmethod
     @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @cached(cache=TTLCache(maxsize=2, ttl=60 * 10))
+    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def dict_codename2port(cls):
         port_list_all = cls.port_list_all()
         h = merge_dicts([{Port.port2codename(port): port} for port in port_list_all],
@@ -133,7 +134,8 @@ class PortGooglesheets:
 
     @classmethod
     @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @cached(cache=TTLCache(maxsize=2, ttl=60 * 10))
+    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def port_list_all(cls):
         h_codename2aliases_en = NamesenSheet.dict_codename2aliases()
         h_codename2aliases_ko = NameskoSheet.dict_codename2aliases()

@@ -1,6 +1,7 @@
 import logging
 import sys
 
+from cachetools import cached, TTLCache
 from functools import lru_cache
 
 from future.utils import lmap
@@ -25,7 +26,8 @@ class NameskoSheet:
     NAME = "names.ko"
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @cached(cache=TTLCache(maxsize=2, ttl=60 * 10))
+    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def dict_codename2aliases(cls):
         data_ll = CultureGooglesheets.sheetname2data_ll(cls.NAME)
 
@@ -38,7 +40,8 @@ class NamesenSheet:
     NAME = "names.en"
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @cached(cache=TTLCache(maxsize=2, ttl=60 * 10))
+    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def dict_codename2aliases(cls):
         data_ll = CultureGooglesheets.sheetname2data_ll(cls.NAME)
 
@@ -50,7 +53,8 @@ class PrefersSheet:
     NAME = "prefers"
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @cached(cache=TTLCache(maxsize=2, ttl=60 * 10))
+    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def dict_codename2prefers(cls):
         data_ll = CultureGooglesheets.sheetname2data_ll(cls.NAME)
 
@@ -74,7 +78,8 @@ class CultureGooglesheets:
         return "1s_EBQGNu0DlPedOXQNcfmE_LDk4wRq5QgJ9TsdBCCDE"
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @cached(cache=TTLCache(maxsize=2, ttl=60 * 10))
+    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def dict_sheetname2data_ll(cls, ):
         sheetname_list = [NameskoSheet.NAME, NamesenSheet.NAME, PrefersSheet.NAME]
         return GooglesheetsTool.sheet_ranges2dict_range2data_ll(HenriqueGoogleapi.credentials(),
@@ -119,7 +124,8 @@ class CultureGooglesheets:
 
     @classmethod
     @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @cached(cache=TTLCache(maxsize=2, ttl=60 * 10))
+    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def dict_codename2culture(cls):
         culture_list = cls.culture_list_all()
         assert_is_not_none(culture_list)

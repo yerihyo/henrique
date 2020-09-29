@@ -13,7 +13,7 @@ from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.json.yaml_tool import YAMLTool
 from foxylib.tools.locale.locale_tool import LocaleTool
 from foxylib.tools.native.clazz.class_tool import ClassTool
-from foxylib.tools.nlp.gazetteer.gazetteer_matcher import GazetteerMatcher
+from foxylib.tools.nlp.matcher.gazetteer_matcher import GazetteerMatcher
 from foxylib.tools.regex.regex_tool import RegexTool
 from foxylib.tools.string.string_tool import str2lower, StringTool
 from henrique.main.document.chatroomuser.chatroomuser import Chatroomuser

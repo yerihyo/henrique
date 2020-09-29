@@ -2,6 +2,7 @@ import os
 import sys
 
 import re
+from cachetools import TTLCache, cached
 from functools import lru_cache
 from nose.tools import assert_in
 
@@ -12,7 +13,7 @@ from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.locale.locale_tool import LocaleTool
 from foxylib.tools.native.clazz.class_tool import ClassTool
 from foxylib.tools.native.module.module_tool import ModuleTool
-from foxylib.tools.nlp.gazetteer.gazetteer_matcher import GazetteerMatcher
+from foxylib.tools.nlp.matcher.gazetteer_matcher import GazetteerMatcher
 from foxylib.tools.regex.regex_tool import RegexTool
 from foxylib.tools.span.span_tool import SpanTool
 from foxylib.tools.string.string_tool import str2lower, StringTool
@@ -43,7 +44,8 @@ class TradegoodtypeEntity:
         return {lang: cls.lang2matcher(lang) for lang in HenriqueLocale.langs()}
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=HenriqueLocale.lang_count()))
+    @cached(cache=TTLCache(maxsize=HenriqueLocale.lang_count(), ttl=HenriqueEntity.Cache.DEFAULT_TTL))
+    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=HenriqueLocale.lang_count()))
     def lang2matcher(cls, lang):
         tgt_list = Tradegoodtype.list_all()
         langs_recognizable = HenriqueLocale.lang2langs_recognizable(lang)
@@ -64,7 +66,9 @@ class TradegoodtypeEntity:
 
 
     @classmethod
-    @CacheTool.cache2hashable(cache=lru_cache(maxsize=HenriqueEntity.Cache.DEFAULT_SIZE),
+    @CacheTool.cache2hashable(cache=cached(TTLCache(maxsize=HenriqueEntity.Cache.DEFAULT_SIZE,
+                                             ttl=HenriqueEntity.Cache.DEFAULT_TTL),
+                                           ),
                               f_pair=CacheTool.JSON.func_pair(), )
     def text2entity_list(cls, text_in, config=None):
         locale = HenriqueEntity.Config.config2locale(config) or HenriqueLocale.DEFAULT

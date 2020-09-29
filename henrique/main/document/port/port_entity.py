@@ -2,6 +2,7 @@ import os
 import re
 import sys
 
+from cachetools import cached, TTLCache
 from functools import lru_cache
 
 from foxylib.tools.cache.cache_tool import CacheTool
@@ -11,7 +12,7 @@ from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.locale.locale_tool import LocaleTool
 from foxylib.tools.native.clazz.class_tool import ClassTool
 from foxylib.tools.native.module.module_tool import ModuleTool
-from foxylib.tools.nlp.gazetteer.gazetteer_matcher import GazetteerMatcher
+from foxylib.tools.nlp.matcher.gazetteer_matcher import GazetteerMatcher
 from foxylib.tools.regex.regex_tool import RegexTool
 from foxylib.tools.string.string_tool import str2lower, StringTool
 from foxylib.tools.entity.entity_tool import FoxylibEntity
@@ -33,7 +34,8 @@ class PortEntity:
     def text2norm(cls, text): return str2lower(text)
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=HenriqueLocale.lang_count()))
+    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=HenriqueLocale.lang_count()))
+    @cached(cache=TTLCache(maxsize=HenriqueLocale.lang_count(), ttl=HenriqueEntity.Cache.DEFAULT_TTL))
     def lang2matcher(cls, lang):
         langs_recognizable = HenriqueLocale.lang2langs_recognizable(lang)
 
@@ -48,8 +50,12 @@ class PortEntity:
         return matcher
 
     @classmethod
-    @CacheTool.cache2hashable(cache=lru_cache(maxsize=HenriqueEntity.Cache.DEFAULT_SIZE),
-                              f_pair=CacheTool.JSON.func_pair(), )
+    # @CacheTool.cache2hashable(cache=lru_cache(maxsize=HenriqueEntity.Cache.DEFAULT_SIZE),
+    #                           f_pair=CacheTool.JSON.func_pair(), )
+    @CacheTool.cache2hashable(cache=cached(cache=TTLCache(maxsize=HenriqueEntity.Cache.DEFAULT_SIZE,
+                                             ttl=HenriqueEntity.Cache.DEFAULT_TTL),
+                                           ),
+                              f_pair=CacheTool.JSON.func_pair(),)
     def text2entity_list(cls, text_in, config=None):
         locale = HenriqueEntity.Config.config2locale(config) or HenriqueLocale.DEFAULT
         lang = LocaleTool.locale2lang(locale) or LocaleTool.locale2lang(HenriqueLocale.DEFAULT)

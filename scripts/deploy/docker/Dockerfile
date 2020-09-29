@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 MAINTAINER Foxytrixy "foxytrixy.bot@gmail.com"
 
 #ARG ENV
@@ -14,7 +14,7 @@ MAINTAINER Foxytrixy "foxytrixy.bot@gmail.com"
 RUN apt-get -y update
 RUN apt-get -y dist-upgrade
 RUN apt-get -y install build-essential libssl-dev libffi-dev nginx supervisor git
-RUN apt-get -y install python3.6 python3-pip
+RUN apt-get -y install python3.8 python3-pip
 #RUN apt-get -y install libpoppler-cpp-dev pkg-config
 
 ###################
