@@ -7,7 +7,7 @@ MAINTAINER Foxytrixy "foxytrixy.bot@gmail.com"
 #ENV LANG C.UTF-8
 #ENV FLASK_APP henrique.main.run:app
 #ENV FLASK_ENV development
-ENV TZ=Europe/Kiev
+ENV TZ=America/Los_Angeles
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 ###################
