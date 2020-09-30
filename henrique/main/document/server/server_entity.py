@@ -9,9 +9,10 @@ from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.locale.locale_tool import LocaleTool
 from foxylib.tools.native.clazz.class_tool import ClassTool
 from foxylib.tools.native.module.module_tool import ModuleTool
-from foxylib.tools.nlp.gazetteer.gazetteer_matcher import GazetteerMatcher
+from foxylib.tools.nlp.matcher.gazetteer_matcher import GazetteerMatcher
 from foxylib.tools.string.string_tool import str2lower, StringTool
-from henrique.main.document.henrique_entity import Entity, HenriqueEntity
+from foxylib.tools.entity.entity_tool import FoxylibEntity
+from henrique.main.document.henrique_entity import HenriqueEntity
 from henrique.main.document.server.server import Server
 from henrique.main.singleton.locale.henrique_locale import HenriqueLocale
 
@@ -48,16 +49,16 @@ class ServerEntity:
     @CacheTool.cache2hashable(cache=lru_cache(maxsize=HenriqueEntity.Cache.DEFAULT_SIZE),
                               f_pair=CacheTool.JSON.func_pair(),)
     def text2entity_list(cls, text_in, config=None):
-        locale = Entity.Config.config2locale(config) or HenriqueLocale.DEFAULT
+        locale = HenriqueEntity.Config.config2locale(config) or HenriqueLocale.DEFAULT
         lang = LocaleTool.locale2lang(locale) or LocaleTool.locale2lang(HenriqueLocale.DEFAULT)
 
         matcher = cls.lang2matcher(lang)
-        span_value_list = matcher.text2span_value_list(text_in)
+        span_value_list = list(matcher.text2span_value_iter(text_in))
 
-        entity_list = [{Entity.Field.SPAN: span,
-                        Entity.Field.TEXT: StringTool.str_span2substr(text_in, span),
-                        Entity.Field.VALUE: value,
-                        Entity.Field.TYPE: cls.entity_type(),
+        entity_list = [{FoxylibEntity.Field.SPAN: span,
+                        FoxylibEntity.Field.TEXT: StringTool.str_span2substr(text_in, span),
+                        FoxylibEntity.Field.VALUE: value,
+                        FoxylibEntity.Field.TYPE: cls.entity_type(),
                         }
                        for span, value in span_value_list]
 

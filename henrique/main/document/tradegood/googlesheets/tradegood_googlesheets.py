@@ -1,6 +1,7 @@
 import sys
 from operator import itemgetter as ig
 
+from cachetools import cached, TTLCache
 from future.utils import lmap
 from itertools import chain
 
@@ -62,7 +63,7 @@ class TradegoodGooglesheets:
         return "1XgTitp7h-oeAIzaxlLkQx1KX4c2uk4-izwn6W5ke290"
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @cached(cache=TTLCache(maxsize=2, ttl=60 * 10))
     def dict_sheetname2data_ll(cls, ):
         sheetname_list = [NameskoSheet.NAME, NamesenSheet.NAME, TradegoodtypeSheet.NAME]
         return GooglesheetsTool.sheet_ranges2dict_range2data_ll(HenriqueGoogleapi.credentials(),
@@ -76,7 +77,7 @@ class TradegoodGooglesheets:
 
     @classmethod
     @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @cached(cache=TTLCache(maxsize=2, ttl=60 * 10))
     def dict_codename2tradegood(cls):
         tradegood_list_all = cls.tradegood_list_all()
         h = merge_dicts([{Tradegood.tradegood2codename(tradegood): tradegood} for tradegood in tradegood_list_all],
@@ -87,7 +88,7 @@ class TradegoodGooglesheets:
 
     @classmethod
     @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @cached(cache=TTLCache(maxsize=2, ttl=60 * 10))
     def tradegood_list_all(cls):
         h_codename2aliases_en = NamesenSheet.dict_codename2aliases()
         h_codename2aliases_ko = NameskoSheet.dict_codename2aliases()
@@ -117,4 +118,4 @@ class TradegoodGooglesheets:
         return lmap(codename2port, codename_list)
 
 
-WARMER.warmup()
+# WARMER.warmup()

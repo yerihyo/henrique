@@ -38,8 +38,8 @@ pull_henrique(){
 
     pip3 install -U -r henrique/requirements.txt
 
-    ./scripts/lpass/pull.bash
-    . ./scripts/direnv/load.bash
+    ./scripts/lpass/pull.bash || exit 1
+    . ./scripts/direnv/load.bash || exit 1
 
     # echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME
 

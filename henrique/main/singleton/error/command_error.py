@@ -1,0 +1,2 @@
+class HenriqueCommandError(Exception):
+    pass

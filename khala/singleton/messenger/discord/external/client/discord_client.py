@@ -43,7 +43,7 @@ class DiscordClient:
 
     @classmethod
     async def on_message(cls, message):
-        from henrique.main.singleton.khala.henrique_khala import HenriqueKhala
+        from henrique.main.singleton.khala.henrique_khala import HenriquePacket
         from khala.singleton.messenger.discord.internal.packet_discord import PacketDiscord
         from khala.singleton.messenger.discord.internal.chatroom_discord import ChatroomDiscord
         from henrique.main.singleton.khala.henrique_khala import HenriqueCommand
@@ -66,7 +66,7 @@ class DiscordClient:
         packet = PacketDiscord.message2packet(message)
         logger.debug({"packet": packet, })
 
-        text_out = HenriqueKhala.packet2response(packet)
+        text_out = HenriquePacket.packet2response(packet)
 
         await message.channel.send(text_out)
 

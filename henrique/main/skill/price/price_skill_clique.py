@@ -1,4 +1,5 @@
 import logging
+from functools import partial
 
 import pytz
 from datetime import datetime
@@ -14,13 +15,14 @@ from foxylib.tools.regex.regex_tool import RegexTool
 from foxylib.tools.span.span_tool import SpanTool
 from foxylib.tools.string.string_tool import StringTool
 from henrique.main.document.culture.culture_entity import CultureEntity
-from henrique.main.document.henrique_entity import Entity
+from foxylib.tools.entity.entity_tool import FoxylibEntity
 from henrique.main.document.port.port_entity import PortEntity
 from henrique.main.document.price.mongodb.marketprice_doc import MarketpriceDoc, MarketpriceCollection
 from henrique.main.document.price.rate.rate_entity import RateEntity
 from henrique.main.document.price.trend.trend_entity import TrendEntity
 from henrique.main.document.server.server import Server
 from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
+from henrique.main.singleton.khala.henrique_khala import HenriquePacket
 from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from henrique.main.skill.price.price_skill import PriceSkillParameter, Portlike
 from khala.document.packet.packet import KhalaPacket
@@ -38,8 +40,13 @@ class PriceSkillClique:
         LOOKUP = "lookup"
 
     @classmethod
-    def entity_classes(cls):
-        return {PortEntity, TradegoodEntity, CultureEntity, RateEntity, TrendEntity, }
+    def config2extractors(cls, config):
+        return {partial(PortEntity.text2entity_list, config=config),
+                partial(TradegoodEntity.text2entity_list, config=config),
+                partial(CultureEntity.text2entity_list, config=config),
+                partial(RateEntity.text2entity_list, config=config),
+                partial(TrendEntity.text2entity_list, config=config),
+                }
 
     @classmethod
     def clique2type(cls, clique):
@@ -115,17 +122,17 @@ class PriceSkillClique:
             return {field: port_codenames}
 
         if param_type == Param.Type.TRADEGOOD:
-            tradegood_codenames = lmap(Entity.entity2value, entities)
+            tradegood_codenames = lmap(FoxylibEntity.entity2value, entities)
             return {field: tradegood_codenames}
 
         if param_type == Param.Type.RATE:
             entity = l_singleton2obj(entities)
-            rate = Entity.entity2value(entity)
+            rate = FoxylibEntity.entity2value(entity)
             return {field: rate}
 
         if param_type == Param.Type.TREND:
             entity = l_singleton2obj(entities)
-            trend = Entity.entity2value(entity)
+            trend = FoxylibEntity.entity2value(entity)
             return {field: trend}
 
         raise Exception({"param_type":param_type,
@@ -141,7 +148,8 @@ class PriceSkillClique:
 
         port_codename = l_singleton2obj(ports)
         tradegood_codename = l_singleton2obj(tradegoods)
-        server = Server.packet2codename(packet)
+
+        server_codename = HenriquePacket.packet2server(packet)
 
         channel_user = KhalaPacket.packet2channel_user(packet)
 
@@ -151,7 +159,7 @@ class PriceSkillClique:
                MarketpriceDoc.Field.RATE: rate,
                MarketpriceDoc.Field.TREND: trend,
 
-               MarketpriceDoc.Field.SERVER: server,
+               MarketpriceDoc.Field.SERVER: server_codename,
                MarketpriceDoc.Field.CHANNEL_USER: channel_user,
                }
 
@@ -169,8 +177,8 @@ class PriceSkillClique:
 
     @classmethod
     def entity_group2span(cls, entity_group):
-        s1, e1 = Entity.entity2span(entity_group[0])
-        s2, e2 = Entity.entity2span(entity_group[-1])
+        s1, e1 = FoxylibEntity.entity2span(entity_group[0])
+        s2, e2 = FoxylibEntity.entity2span(entity_group[-1])
         return s1, e2
 
     @classmethod
@@ -238,12 +246,12 @@ class PriceSkillClique:
 
             entity_portlike, entity_tradegood, entity_rate, entity_trend = map(l_singleton2obj, entities_tuple)
 
-            if Entity.entity2type(entity_portlike) != PortEntity.entity_type():  # not culture
+            if FoxylibEntity.entity2type(entity_portlike) != PortEntity.entity_type():  # not culture
                 return False
 
-            entity_latter = max([entity_portlike, entity_tradegood], key=Entity.entity2span)
+            entity_latter = max([entity_portlike, entity_tradegood], key=FoxylibEntity.entity2span)
 
-            span_latter, span_rate, span_trend = lmap(Entity.entity2span, [entity_latter, entity_rate, entity_trend])
+            span_latter, span_rate, span_trend = lmap(FoxylibEntity.entity2span, [entity_latter, entity_rate, entity_trend])
 
             span_latter_rate = SpanTool.span_pair2between(span_latter, span_rate)
             str_between_latter_rate = StringTool.str_span2substr(text, span_latter_rate)
@@ -290,7 +298,7 @@ class PriceSkillClique:
     def entity_pair2is_appendable(cls, text, entity_pair, ):
         Param = PriceSkillParameter
 
-        entity_type_pair = lmap(Entity.entity2type, entity_pair)
+        entity_type_pair = lmap(FoxylibEntity.entity2type, entity_pair)
         param_type_pair = lmap(Param.Type.entity_type2parameter_type, entity_type_pair)
 
         for param_type in param_type_pair:
@@ -301,7 +309,7 @@ class PriceSkillClique:
         if param_type_1 != param_type_2:
             return False
 
-        span_pair = lmap(Entity.entity2span, entity_pair)
+        span_pair = lmap(FoxylibEntity.entity2span, entity_pair)
         text_between = StringTool.str_span2substr(text, SpanTool.span_pair2between(*span_pair))
         is_fullmatch = RegexTool.pattern_str2match_full(Param.pattern_delim(), text_between)
         if not is_fullmatch:

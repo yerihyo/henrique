@@ -1,4 +1,4 @@
-[{{port_name}}] 상품 {% if not product_data_list %}: 없음{% else %}
+[교역품] {{port_name}} 교역소 {% if not product_data_list %}: 없음{% else %}
 {% for product_data in product_data_list %} - {{product_data.name}}
 {% endfor %}
 {% endif %}

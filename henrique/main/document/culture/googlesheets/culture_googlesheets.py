@@ -1,5 +1,7 @@
+import logging
 import sys
 
+from cachetools import cached, TTLCache
 from functools import lru_cache
 
 from future.utils import lmap
@@ -14,6 +16,7 @@ from foxylib.tools.googleapi.sheets.googlesheets_tool import GooglesheetsTool
 from henrique.main.document.culture.culture import Culture, Prefer
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.singleton.google.googledoc.henrique_googleapi import HenriqueGoogleapi
+from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 
 MODULE = sys.modules[__name__]
 WARMER = Warmer(MODULE)
@@ -23,7 +26,8 @@ class NameskoSheet:
     NAME = "names.ko"
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @cached(cache=TTLCache(maxsize=2, ttl=60 * 10))
+    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def dict_codename2aliases(cls):
         data_ll = CultureGooglesheets.sheetname2data_ll(cls.NAME)
 
@@ -36,7 +40,8 @@ class NamesenSheet:
     NAME = "names.en"
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @cached(cache=TTLCache(maxsize=2, ttl=60 * 10))
+    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def dict_codename2aliases(cls):
         data_ll = CultureGooglesheets.sheetname2data_ll(cls.NAME)
 
@@ -48,7 +53,8 @@ class PrefersSheet:
     NAME = "prefers"
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @cached(cache=TTLCache(maxsize=2, ttl=60 * 10))
+    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def dict_codename2prefers(cls):
         data_ll = CultureGooglesheets.sheetname2data_ll(cls.NAME)
 
@@ -72,7 +78,8 @@ class CultureGooglesheets:
         return "1s_EBQGNu0DlPedOXQNcfmE_LDk4wRq5QgJ9TsdBCCDE"
 
     @classmethod
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @cached(cache=TTLCache(maxsize=2, ttl=60 * 10))
+    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def dict_sheetname2data_ll(cls, ):
         sheetname_list = [NameskoSheet.NAME, NamesenSheet.NAME, PrefersSheet.NAME]
         return GooglesheetsTool.sheet_ranges2dict_range2data_ll(HenriqueGoogleapi.credentials(),
@@ -86,6 +93,8 @@ class CultureGooglesheets:
 
     @classmethod
     def culture_list_all(cls):
+        logger = HenriqueLogger.func_level2logger(cls.culture_list_all, logging.DEBUG)
+
         h_codename2aliases_en = NamesenSheet.dict_codename2aliases()
         h_codename2aliases_ko = NameskoSheet.dict_codename2aliases()
         h_codename2prefers = PrefersSheet.dict_codename2prefers()
@@ -108,11 +117,15 @@ class CultureGooglesheets:
                        }
             return DictTool.filter(lambda k, v: v, culture)
 
-        return lmap(codename2culture, codename_list)
+        list_all = lmap(codename2culture, codename_list)
+        # logger.debug({"list_all":list_all})
+
+        return list_all
 
     @classmethod
     @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @cached(cache=TTLCache(maxsize=2, ttl=60 * 10))
+    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
     def dict_codename2culture(cls):
         culture_list = cls.culture_list_all()
         assert_is_not_none(culture_list)
@@ -121,4 +134,4 @@ class CultureGooglesheets:
                                           for culture in culture_list])
         return h_codename2culture
 
-WARMER.warmup()
+# WARMER.warmup()

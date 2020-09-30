@@ -27,6 +27,7 @@ REPO_DIR = reduce(lambda x,f:f(x), [os.path.dirname]*4, FILE_DIR)
 class HenriqueEnv:
     class Key:
         SKIP_WARMUP = "SKIP_WARMUP"
+        DIE_ON_ERROR = "DIE_ON_ERROR"
     K = Key
 
     class Value:
@@ -135,8 +136,12 @@ class HenriqueEnv:
 
     @classmethod
     def key2nullboolean(cls, key):
+        logger = HenriqueLogger.func_level2logger(cls.key2nullboolean, logging.DEBUG)
+
         v = cls.key2value(key)
         nb = BooleanTool.parse2nullboolean(v)
+        # logger.debug({"key":key, "v":v, "nb":nb})
+
         return nb
 
 

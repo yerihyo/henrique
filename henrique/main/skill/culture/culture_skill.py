@@ -11,7 +11,8 @@ from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.googleapi.sheets.googlesheets_tool import GooglesheetsTool
 from foxylib.tools.locale.locale_tool import LocaleTool
 from henrique.main.document.culture.culture_entity import CultureEntity
-from henrique.main.document.henrique_entity import Entity
+from foxylib.tools.entity.entity_tool import FoxylibEntity
+from henrique.main.document.henrique_entity import HenriqueEntity
 from henrique.main.document.port.port_entity import PortEntity
 from henrique.main.document.tradegood.tradegood_entity import TradegoodEntity
 from henrique.main.singleton.google.googledoc.henrique_googleapi import HenriqueGoogleapi
@@ -34,9 +35,9 @@ class CultureSkill:
         return {PortEntity, TradegoodEntity, CultureEntity}
 
     @classmethod
-    def _entity_lang2response_block(cls, entity, lang):
-        entity_type = Entity.entity2type(entity)
-        codename = Entity.entity2value(entity)
+    def entity_lang2response_block(cls, entity, lang):
+        entity_type = FoxylibEntity.entity2type(entity)
+        codename = FoxylibEntity.entity2value(entity)
 
         from henrique.main.skill.culture.culture_culture.culture_culture_response import CultureCultureResponse
         from henrique.main.skill.culture.culture_tradegood.culture_tradegood_response import CultureTradegoodResponse
@@ -55,7 +56,6 @@ class CultureSkill:
 
         return codename2response(codename)
 
-
     @classmethod
     def packet2response(cls, packet):
         chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))
@@ -64,12 +64,11 @@ class CultureSkill:
 
         entity_classes = cls.target_entity_classes()
         text_in = KhalaPacket.packet2text(packet)
-        config = {Entity.Config.Field.LOCALE: locale}
-        entity_list_raw = lchain(*[c.text2entity_list(text_in, config=config) for c in entity_classes])
 
-        entity_list = sorted(entity_list_raw, key=Entity.entity2span)
+        config = {HenriqueEntity.Config.Field.LOCALE: locale}
+        entity_list = HenriqueEntity.text_classes2entity_list(text_in, entity_classes, config=config)
 
-        blocks = [cls._entity_lang2response_block(entity, lang) for entity in entity_list]
+        blocks = [cls.entity_lang2response_block(entity, lang) for entity in entity_list]
 
         return Rowsblock.blocks2text(blocks)
 

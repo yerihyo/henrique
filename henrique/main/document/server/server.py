@@ -52,7 +52,6 @@ class Server:
         # logger.debug({"h": h})
         return h.get(alias)
 
-
     @classmethod
     def packet2codename(cls, packet):
         chatroom_codename = KhalaPacket.packet2chatroom(packet)
