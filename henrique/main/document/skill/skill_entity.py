@@ -1,6 +1,7 @@
 import os
 import sys
 
+from cachetools import TTLCache, cached
 from functools import lru_cache
 
 from foxylib.tools.cache.cache_tool import CacheTool
@@ -11,7 +12,7 @@ from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.json.json_tool import JsonTool
 from foxylib.tools.locale.locale_tool import LocaleTool
 from foxylib.tools.native.clazz.class_tool import ClassTool
-from foxylib.tools.nlp.gazetteer.gazetteer_matcher import GazetteerMatcher
+from foxylib.tools.nlp.matcher.gazetteer_matcher import GazetteerMatcher
 from foxylib.tools.string.string_tool import StringTool, str2lower
 from henrique.main.document.henrique_entity import HenriqueEntity
 from henrique.main.singleton.locale.henrique_locale import HenriqueLocale

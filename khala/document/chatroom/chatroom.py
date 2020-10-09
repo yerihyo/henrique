@@ -52,7 +52,10 @@ class Chatroom:
         logger = KhalaLogger.func_level2logger(cls.codename2chatroom, logging.DEBUG)
         # logger.debug({"codename": codename})
 
-        return l_singleton2obj(cls.codenames2chatrooms([codename]))
+        chatrooms = cls.codenames2chatrooms([codename])
+        logger.debug({"chatrooms": chatrooms})
+
+        return l_singleton2obj(chatrooms)
 
     @classmethod
     @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=ChatroomCache.Constant.MAXSIZE),
@@ -67,13 +70,18 @@ class Chatroom:
         else:
             cursor = collection.find()
 
+        # raise Exception({"collection":collection, "codenames":codenames,
+        #                  '{cls.Field.CODENAME: {"$in": codenames}}':{cls.Field.CODENAME: {"$in": codenames}}
+        #                  })
+
         h_codename2doc = merge_dicts([{Chatroom.chatroom2codename(doc): doc}
                                       for doc in map(MongoDBTool.bson2json, cursor)],
                                      vwrite=vwrite_no_duplicate_key)
 
         doc_list = lmap(h_codename2doc.get, codenames)
 
-        logger.debug({"codenames":codenames,
+        logger.debug({#"h_codename2doc":h_codename2doc,
+                      #"codenames":codenames,
                       "doc_list":doc_list,
                       })
         assert_equal(len(codenames), len(doc_list))

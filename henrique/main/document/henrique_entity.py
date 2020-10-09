@@ -1,3 +1,5 @@
+import logging
+
 import re
 
 from itertools import chain
@@ -10,12 +12,14 @@ from foxylib.tools.entity.entity_tool import FoxylibEntity
 from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.regex.regex_tool import RegexTool
 from foxylib.tools.span.span_tool import SpanTool
+from henrique.main.singleton.logger.henrique_logger import HenriqueLogger
 from khala.document.chatroom.chatroom import Chatroom
 from khala.document.packet.packet import KhalaPacket
 
 class HenriqueEntity:
     class Cache:
         DEFAULT_SIZE = 100
+        DEFAULT_TTL = 60*10
 
     class Config:
         # class Step:
@@ -35,7 +39,12 @@ class HenriqueEntity:
 
         @classmethod
         def packet2config(cls, packet):
+            logger = HenriqueLogger.func_level2logger(cls.packet2config, logging.DEBUG)
             chatroom = Chatroom.codename2chatroom(KhalaPacket.packet2chatroom(packet))
+            logger.debug({"packet": packet,
+                          "KhalaPacket.packet2chatroom(packet)": KhalaPacket.packet2chatroom(packet),
+                          "chatroom":chatroom,
+                          })
             locale = Chatroom.chatroom2locale(chatroom)
 
             config = {cls.Field.LOCALE: locale,

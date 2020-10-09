@@ -23,7 +23,7 @@ from foxylib.tools.log.foxylib_logger import FoxylibLogger
 from foxylib.tools.native.clazz.class_tool import ClassTool
 from foxylib.tools.native.native_tool import IntegerTool
 from foxylib.tools.nlp.contextfree.contextfree_tool import ContextfreeTool
-from foxylib.tools.nlp.gazetteer.gazetteer_matcher import GazetteerMatcher
+from foxylib.tools.nlp.matcher.gazetteer_matcher import GazetteerMatcher
 from foxylib.tools.regex.regex_tool import RegexTool
 from foxylib.tools.string.string_tool import format_str, str2lower, StringTool
 from foxylib.tools.entity.entity_tool import FoxylibEntity

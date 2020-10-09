@@ -16,16 +16,16 @@ class TestTradegoodPortResponse(TestCase):
     def test_01(self):
         hyp = Rowsblock.text2norm(TradegoodPortResponse.codename_lang2text("Lisbon", "ko"))
         ref = """[교역품] 리스본 교역소
-- 아몬드
-- 아몬드유
-- 브랜디
-- 포탄
-- 도자기
-- 닭
-- 동광석
 - 햄
+- 아몬드유
+- 닭
+- 서양 서적
+- 브랜디
+- 동광석
+- 아몬드
+- 도자기
 - 단검
-- 서양 서적"""
+- 포탄"""
 
         # pprint(hyp)
         self.assertEqual(hyp, ref)
