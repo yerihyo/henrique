@@ -16,6 +16,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apt-get -y update
 RUN apt-get -y dist-upgrade
 RUN apt-get -y install build-essential libssl-dev libffi-dev nginx supervisor git
+RUN apt-get -y install default-libmysqlclient-dev
 RUN apt-get -y install python3.8 python3-pip
 #RUN apt-get -y install libpoppler-cpp-dev pkg-config
 

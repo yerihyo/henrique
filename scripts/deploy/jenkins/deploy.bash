@@ -14,6 +14,8 @@ PROJECTS_DIR=$HOME/projects
 export FOXYLIB_DIR=$PROJECTS_DIR/foxylib
 HENRIQUE_DIR=$PROJECTS_DIR/henrique
 
+PYTHON=python3.8
+
 # DOCKER_PASSWORD=${DOCKER_PASSWORD?'missing $DOCKER_PASSWORD'}
 
 pull_foxylib(){
@@ -25,7 +27,7 @@ pull_foxylib(){
     set -eu
 
     rm -Rf build
-    python setup.py install
+    $PYTHON setup.py install
     deactivate
     popd
 }
@@ -44,8 +46,8 @@ pull_henrique(){
     # echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME
 
     # TAG=$ENV ./scripts/deploy/docker/build.bash
-    ENV=$ENV ./scripts/deploy/remote/deploy.bash stop
-    ENV=$ENV ./scripts/deploy/remote/deploy.bash start
+    python=$PYTHON ENV=$ENV ./scripts/deploy/remote/deploy.bash stop
+    python=$PYTHON ENV=$ENV ./scripts/deploy/remote/deploy.bash start
     deactivate
     popd
 
