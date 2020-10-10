@@ -27,6 +27,7 @@ pull_foxylib(){
     set -eu
 
     rm -Rf build
+    sudo apt-get -y install default-libmysqlclient-dev
     $PYTHON setup.py install
     deactivate
     popd
