@@ -69,7 +69,7 @@ class TestNanbanSkill(TestCase):
         # pprint(hyp)
         self.assertEqual(hyp, ref)
 
-    @pytest.mark.skipif(is_nanban_unstable(), reasons="some problem with nanban")
+    @pytest.mark.skipif(is_nanban_unstable(), reason="some problem with nanban")
     def test_02(self):
         logger = HenriqueLogger.func_level2logger(self.test_02, logging.DEBUG)
 
@@ -117,7 +117,7 @@ class TestNanbanSkill(TestCase):
         # pprint(response)
         # self.assertEqual(hyp, ref)
 
-    @pytest.mark.skipif(is_nanban_unstable(), reasons="some problem with nanban")
+    @pytest.mark.skipif(is_nanban_unstable(), reason="some problem with nanban")
     def test_03(self):
         logger = HenriqueLogger.func_level2logger(self.test_02, logging.DEBUG)
 
@@ -166,7 +166,7 @@ class TestNanbanSkill(TestCase):
         # pprint(response)
         # self.assertEqual(hyp, ref)
 
-    @pytest.mark.skipif(is_nanban_unstable(), reasons="some problem with nanban")
+    @pytest.mark.skipif(is_nanban_unstable(), reason="some problem with nanban")
     def test_04(self):
         cls = self.__class__
 
@@ -225,7 +225,7 @@ class TestNanbanSkill(TestCase):
         # pprint(hyp)
         self.assertEqual(hyp, ref)
 
-    @pytest.mark.skipif(is_nanban_unstable(), reasons="some problem with nanban")
+    @pytest.mark.skipif(is_nanban_unstable(), reason="some problem with nanban")
     def test_06(self):
         logger = HenriqueLogger.func_level2logger(self.test_06, logging.DEBUG)
 
