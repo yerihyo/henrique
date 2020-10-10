@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, time
 from unittest import TestCase
 
 from foxylib.tools.collections.collections_tool import ListTool
-from foxylib.tools.datetime.datetime_tool import DatetimeTool
+from foxylib.tools.datetime.datetime_tool import DatetimeTool, DatetimeUnit
 from foxylib.tools.datetime.pytz_tool import PytzTool
 from foxylib.tools.span.span_tool import SpanTool
 from henrique.main.document.server.mongodb.server_doc import ServerCollection, ServerDoc, ServerNanban
@@ -228,7 +228,7 @@ class TestNanbanSkill(TestCase):
         ChannelUser.channel_users2upsert([ChannelUserKakaotalk.sender_name2channel_user(sender_name)])
 
         tz = pytz.timezone("Asia/Seoul")
-        now_tz = DatetimeTool.datetime2truncate_seconds(datetime.now(tz))
+        now_tz = DatetimeTool.truncate(datetime.now(tz), DatetimeUnit.SECOND)
         # hour = (now_tz + timedelta(seconds=3600)).hour
 
         packet1 = {KhalaPacket.Field.TEXT: "?남만 {}".format(now_tz.strftime("%I:%M %p")),
