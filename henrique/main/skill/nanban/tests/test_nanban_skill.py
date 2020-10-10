@@ -225,6 +225,7 @@ class TestNanbanSkill(TestCase):
         # pprint(hyp)
         self.assertEqual(hyp, ref)
 
+    @pytest.mark.skipif(is_nanban_unstable(), reasons="some problem with nanban")
     def test_06(self):
         logger = HenriqueLogger.func_level2logger(self.test_06, logging.DEBUG)
 
