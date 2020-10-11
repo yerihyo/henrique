@@ -65,6 +65,14 @@ aptitude_install(){
     ## (script below only. do NOT adde ACCEPT lines)
     sudo iptables -A PREROUTING -t nat -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 8080
     sudo iptables -A PREROUTING -t nat -i eth0 -p tcp --dport 443 -j REDIRECT --to-port 8443
+
+    # sudo service jenkins restart
+
+    ######
+    # update /etc/init.d/jenkins
+    #
+    # # on top row
+    # JAVA_ARGS="-Xmx256m"
 }
 
 create_key(){

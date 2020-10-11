@@ -5,3 +5,5 @@ henrique:
 #    ip: 54.203.163.31
     ip: 35.160.210.98
     username: ubuntu
+jenkins:
+  ip: 35.155.86.95

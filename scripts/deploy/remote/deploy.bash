@@ -19,15 +19,15 @@ if [[ ! "$option" ]]; then usage; exit 1; fi
 
 
 lightsail(){
-REPO_DIR="/var/lib/jenkins/projects/henrique"
-ENV="prod"
+    REPO_DIR="/var/lib/jenkins/projects/henrique"
+    ENV="prod"
 }
 
 REPO_DIR=$(func_count2reduce $FILE_DIR dirname 3)
 ENV=${ENV?'missing ENV'}
 USERNAME="ubuntu"
 
-IP=$(ENV=$ENV python -m scripts.deploy.remote.henrique_server)
+IP=$(ENV=$ENV python -m scripts.deploy.remote.server "henrique.$ENV.ip")
 if [[ ! "$IP" ]]; then errcho "no 'IP'"; exit 1; fi
 
 AUTHORITY="$USERNAME@$IP"

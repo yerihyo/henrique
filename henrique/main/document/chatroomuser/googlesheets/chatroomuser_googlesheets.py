@@ -1,6 +1,6 @@
 import sys
 
-from cachetools import LRUCache
+from cachetools import LRUCache, cached, TTLCache
 from functools import lru_cache
 from future.utils import lmap
 
@@ -10,6 +10,7 @@ from foxylib.tools.function.function_tool import FunctionTool
 from foxylib.tools.function.warmer import Warmer
 from foxylib.tools.googleapi.sheets.googlesheets_tool import GooglesheetsTool
 from henrique.main.document.chatroomuser.chatroomuser import Chatroomuser
+from henrique.main.document.henrique_entity import HenriqueEntity
 from henrique.main.singleton.env.henrique_env import HenriqueEnv
 from henrique.main.singleton.google.googledoc.henrique_googleapi import HenriqueGoogleapi
 
@@ -59,7 +60,8 @@ class ChatroomuserGooglesheets:
                                                                 )
 
     @classmethod
-    @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=2),)
+    @cached(cache=TTLCache(maxsize=2, ttl=HenriqueEntity.Cache.DEFAULT_TTL))
+    # @CacheManager.attach_cachedmethod(self2cache=lambda x: LRUCache(maxsize=2),)
     def dict_sheetname2data_ll(cls,):
         return cls._dict_sheetname2data_ll()
 
@@ -68,36 +70,35 @@ class ChatroomuserGooglesheets:
         return cls.dict_sheetname2data_ll()[sheetname]
 
     @classmethod
-    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    # @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
+    # @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
+    @cached(cache=TTLCache(maxsize=2, ttl=HenriqueEntity.Cache.DEFAULT_TTL))
     def dict_codename2chatroomuser(cls):
-        chatroomuser_list_all = cls.chatroomuser_list_all()
-        h = merge_dicts([{Chatroomuser.chatroomuser2codename(chatroomuser): chatroomuser} for chatroomuser in chatroomuser_list_all],
+        def chatroomuser_list_all():
+            h_codename2aliases = AliasesSheet.dict_codename2aliases()
+            h_codename2comments = CommentsSheet.dict_codename2comments()
+            # raise Exception({"h_codename2product_list":h_codename2product_list})
+
+            codename_list = list(h_codename2aliases.keys())
+
+            def codename2chatroomuser(codename):
+                aliases = h_codename2aliases.get(codename) or []
+                comments = h_codename2comments.get(codename)
+
+                cru = {Chatroomuser.Field.CODENAME: codename,
+                       Chatroomuser.Field.COMMENTS: comments,
+                       Chatroomuser.Field.ALIASES: aliases,
+                       }
+                return DictTool.filter(lambda k, v: v, cru)
+
+            return lmap(codename2chatroomuser, codename_list)
+
+        chatroomuser_list_all = chatroomuser_list_all()
+        h = merge_dicts([{Chatroomuser.chatroomuser2codename(chatroomuser): chatroomuser}
+                         for chatroomuser in chatroomuser_list_all],
                         vwrite=DictTool.VWrite.f_vwrite2f_hvwrite(vwrite_no_duplicate_key),
                         )
         return h
-
-    @classmethod
-    @WARMER.add(cond=not HenriqueEnv.is_skip_warmup())
-    @FunctionTool.wrapper2wraps_applied(lru_cache(maxsize=2))
-    def chatroomuser_list_all(cls):
-        h_codename2aliases = AliasesSheet.dict_codename2aliases()
-        h_codename2comments = CommentsSheet.dict_codename2comments()
-        # raise Exception({"h_codename2product_list":h_codename2product_list})
-
-        codename_list = list(h_codename2aliases.keys())
-
-        def codename2chatroomuser(codename):
-            aliases = h_codename2aliases.get(codename) or []
-            comments = h_codename2comments.get(codename)
-
-            chatroomuser = {Chatroomuser.Field.CODENAME: codename,
-                            Chatroomuser.Field.COMMENTS: comments,
-                            Chatroomuser.Field.ALIASES: aliases,
-                            }
-            return DictTool.filter(lambda k, v: v, chatroomuser)
-
-        return lmap(codename2chatroomuser, codename_list)
 
 
 
