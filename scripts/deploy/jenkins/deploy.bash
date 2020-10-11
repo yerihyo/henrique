@@ -28,7 +28,7 @@ pull_foxylib(){
 
     rm -Rf build
 #    sudo apt-get -y install default-libmysqlclient-dev
-    pip3 install -U pip3 || exit 1
+    pip3 install -U pip || exit 1
     pip3 install -U setuptools || exit 1
     $PYTHON setup.py install || exit 1
     deactivate

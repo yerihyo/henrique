@@ -20,7 +20,7 @@ aptitude_install(){
 
     # virtualenv
     sudo apt update
-    sudo apt -y install virtualenv python3-pip
+    sudo apt -y install virtualenv python3-pip libpython3.8-dev
     sudo apt install lastpass-cli direnv
 
     # travis
@@ -93,7 +93,7 @@ git_clone(){
     FOXYLIB_DIR=$PROJECTS_DIR/foxylib
     git clone https://github.com/yerihyo/foxylib.git $FOXYLIB_DIR
     pushd $FOXYLIB_DIR || exit 1
-    virtualenv -p "$(which python3.6)" venv
+    virtualenv -p "$(which python3.8)" venv
     . $FOXYLIB_DIR/venv/bin/activate
     python setup.py install
     deactivate
@@ -105,7 +105,7 @@ git_clone(){
     git clone https://github.com/yerihyo/henrique.git $HENRIQUE_DIR
 
     pushd $HENRIQUE_DIR || exit 1
-    virtualenv -p "$(which python3.6)" venv
+    virtualenv -p "$(which python3.8)" venv
     . $HENRIQUE_DIR/venv/bin/activate
     $PIP install -U setuptools==41.0.1
     $PIP install -U -r henrique/requirements.txt
